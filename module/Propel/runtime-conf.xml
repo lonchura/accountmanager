@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <!--
+    <log>
+        <ident>account_manager</ident>
+        <level>7</level>
+    </log>
+    -->
+    <propel>
+        <datasources default="account_manager">
+            <datasource id="account_manager">
+                <adapter>mysql</adapter>
+                <connection>
+                    <dsn>mysql:host=localhost;dbname=account_manager</dsn>
+                    <user>demo</user>
+                    <password>123456</password>
+                    <setting id="charset">utf8</setting>
+                </connection>
+                <slaves>
+                    <connection>
+                        <dsn>mysql:host=localhost;dbname=account_manager</dsn>
+                        <user>demo</user>
+                        <password>123456</password>
+                        <setting id="charset">utf8</setting>
+                    </connection>
+                    <connection>
+                        <dsn>mysql:host=localhost;dbname=account_manager</dsn>
+                        <user>demo</user>
+                        <password>123456</password>
+                        <setting id="charset">utf8</setting>
+                    </connection>
+                </slaves>
+            </datasource>
+        </datasources>
+    </propel>
+</config>
