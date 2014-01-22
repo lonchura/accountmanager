@@ -1,7 +1,7 @@
 {
-    "name": "zendframework/skeleton-application",
-    "description": "Skeleton Application for ZF2",
-    "license": "BSD-3-Clause",
+    "name": "psyduckmans/accountmanager",
+    "description": "AccountManager, made by zf2 with 3-tier architecture",
+    "license": "The MIT License",
     "keywords": [
         "framework",
         "zf2"
