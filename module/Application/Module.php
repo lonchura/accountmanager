@@ -9,21 +9,41 @@
 
 namespace Application;
 
+use Zend\ModuleManager\Feature\ServiceProviderInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
+use Zend\Session\Container;
 
-class Module
+class Module implements ServiceProviderInterface
 {
-    public function onBootstrap(MvcEvent $e)
+   public function onBootstrap(MvcEvent $e)
     {
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
+
+        $this->bootstrapSession($e);
+    }
+
+    public function bootstrapSession(MvcEvent $e)
+    {
+        $session = $e->getApplication()->getServiceManager()->get('Zend\Session\SessionManager');
+
+        $container = new Container('initialized');
+        if (!isset($container->init) || true) {
+            $session->regenerateId(true);
+            $container->init = 1;
+        }
     }
 
     public function getConfig()
     {
         return include __DIR__ . '/config/module.config.php';
+    }
+
+    public function getServiceConfig()
+    {
+        return require __DIR__ . '/config/services.config.php';
     }
 
     public function getAutoloaderConfig()

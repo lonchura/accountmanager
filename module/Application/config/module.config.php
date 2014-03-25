@@ -11,7 +11,7 @@ return array(
     'router' => array(
         'routes' => array(
             'home' => array(
-                'type' => 'Zend\Mvc\Router\Http\Literal',
+                'type' => 'Literal',
                 'options' => array(
                     'route'    => '/',
                     'defaults' => array(
@@ -50,6 +50,58 @@ return array(
                     ),
                 ),
             ),
+            'login' => array(
+                'type'    => 'Segment',
+                'options' => array(
+                    'route'    => '/login[/:action]',
+                    'constraints' => array(
+                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*'
+                    ),
+                    'defaults' => array(
+                        'controller'    => 'Application\Controller\Login',
+                        'action'		=> 'index'
+                    )
+                )
+            ),
+            'direct' => array(
+                'type'    => 'Segment',
+                'options' => array(
+                    'route'    => '/direct[/:action]',
+                    'constraints' => array(
+                        'action' => 'router|api'
+                    ),
+                    'defaults' => array(
+                        'controller'    => 'Application\Controller\Direct',
+                        'action'		=> 'router'
+                    )
+                )
+            )
+        ),
+    ),
+    'captcha' => array(
+        'gcFreq'        => '100',
+        'Expiration'    => 60,
+        'timeout'       => 60,
+        'wordlen'       => '4',
+        'Height'        => '20',
+        'Width'         => '60',
+        'DotNoiseLevel' => 0,
+        'LineNoiseLevel' => 0,
+        'Font'          => APPLICATION_ROOT.'/public/fonts/cour.ttf',
+        'FontSize'      => '12',
+        'ImgDir'        => APPLICATION_WEB.\Application\Service\CaptchaService::$IMG_PATH
+    ),
+    'session' => array(
+        'config' => array(
+            'class' => 'Zend\Session\Config\SessionConfig',
+            'options' => array(
+                'name' => 'AccountManager',
+            ),
+        ),
+        'storage' => 'Zend\Session\Storage\SessionArrayStorage',
+        'validators' => array(
+            'Zend\Session\Validator\RemoteAddr',
+            'Zend\Session\Validator\HttpUserAgent',
         ),
     ),
     'service_manager' => array(
@@ -79,7 +131,9 @@ return array(
     ),
     'controllers' => array(
         'invokables' => array(
-            'Application\Controller\Index' => 'Application\Controller\IndexController'
+            'Application\Controller\Index' => 'Application\Controller\IndexController',
+            'Application\Controller\Login' => 'Application\Controller\LoginController',
+            'Application\Controller\Direct' => 'Application\Controller\DirectController',
         ),
     ),
     'view_manager' => array(
@@ -97,6 +151,9 @@ return array(
         'template_path_stack' => array(
             __DIR__ . '/../view',
         ),
+        'strategies' => array(
+            'ViewJsonStrategy'
+        )
     ),
     // Placeholder for console routes
     'console' => array(

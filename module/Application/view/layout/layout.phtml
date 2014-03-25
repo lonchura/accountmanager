@@ -1,0 +1,23 @@
+<?php echo $this->doctype(); ?>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <?php echo $this->headTitle('Account Manager System') ?>
+
+        <?php echo $this->headMeta()->appendName('viewport', 'width=device-width, initial-scale=1.0') ?>
+
+        <!-- Le styles -->
+        <?php echo $this->headLink()->appendStylesheet($this->basepath().'/ext/resources/css/ext-all.css') ?>
+
+        <!-- Scripts -->
+        <?php echo $this->inlineScript()
+            ->appendFile($this->basepath().'/ext/bootstrap.js')
+            ->appendFile($this->basepath().'/ext/locale/Ext-lang-zh_CN.js')
+        ?>
+        <?php echo $this->headScript(); ?>
+    </head>
+    <body>
+        <?php echo $this->content; ?>
+    </body>
+</html>

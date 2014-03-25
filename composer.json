@@ -9,7 +9,7 @@
     "homepage": "http://framework.zend.com/",
     "require": {
         "php": ">=5.3.3",
-        "zendframework/zendframework": "2.2.*",
+        "zendframework/zendframework": "2.2.6",
         "mnapoli/php-di-zf2": "0.2.0",
         "mnapoli/php-di": "3.5.1",
         "propel/propel1": "1.7.0"

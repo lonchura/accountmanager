@@ -1,0 +1,41 @@
+<script src="<?=$this->basepath() . '/app/api.js'?>"></script>
+<script>
+Ext.Loader.setConfig({
+    enabled: true,
+    paths: {
+        'AccountManager': '/app'
+    }
+});
+
+Ext.direct.Manager.addProvider(AccountManager.Direct.REMOTING_API);
+Ext.require('AccountManager.LoginWin');
+
+Ext.apply(Ext.MessageBox, {
+    // 省略重写的progress方法
+    alertInfo: function(cfg, msg, icon, fn, scope) {
+        if(Ext.isString(cfg)) {
+            var ncfg = {
+                icon: icon,
+                title: cfg,
+                msg: msg,
+                fn: fn,
+                scope: scope
+            }
+        }
+        return this.show(ncfg);
+    }
+});
+
+Ext.onReady(function() {
+    Ext.state.Manager.setProvider(new Ext.state.CookieProvider({
+        path: '/',
+        expires: new Date(new Date().getTime()+(1000*60*60)),
+        domain: 'accountmanager.t.com'
+    }));
+    if(Ext.util.Cookies.get("hasLogin")=="true"){
+        Ext.create("AccountManager.Application");
+    }else{
+        AccountManager.LoginWin.show();
+    }
+});
+</script>

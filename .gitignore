@@ -1,2 +1,4 @@
 /.svn
 /vendor
+/library/PHPX
+/public/ext
