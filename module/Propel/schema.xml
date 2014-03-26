@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+* Account Manager System (https://github.com/PsyduckMans/accountmanager)
+*
+* @link      https://github.com/PsyduckMans/accountmanager for the canonical source repository
+* @copyright Copyright (c) 2014 PsyduckMans (https://ninth.not-bad.org)
+* @license   https://github.com/PsyduckMans/accountmanager/blob/master/LICENSE MIT
+* @author    Psyduck.Mans
+*/
+-->
 <database name="account_manager" namespace="Propel" defaultIdMethod="native">
     <!-- account -->
     <table name="account" description="账户表">
@@ -114,5 +124,39 @@
         <index>
             <index-column name="update_time" />
         </index>
+    </table>
+
+    <!-- user -->
+    <table name="user" description="用户表">
+        <column name="id" type="INTEGER" size="4" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="name" type="VARCHAR" size="25" required="true" />
+        <column name="nickname" type="VARCHAR" size="25" required="true" />
+        <column name="role" type="VARCHAR" size="25" required="true" />
+        <column name="password" type="VARCHAR" size="32" required="true" />
+        <column name="create_time" type="TIMESTAMP" required="true" />
+        <column name="update_time" type="TIMESTAMP" required="true" />
+        <behavior name="timestampable">
+            <parameter name="create_column" value="create_time" />
+            <parameter name="update_column" value="update_time" />
+        </behavior>
+        <unique>
+            <unique-column name="name" />
+        </unique>
+    </table>
+
+    <!-- session -->
+    <table name="session" description="session">
+        <vendor type="mysql">
+            <parameter name="Engine" value="MEMORY"/>
+        </vendor>
+        <column name="id" type="VARCHAR" size="32" required="true" primaryKey="true" />
+        <column name="name" type="VARCHAR" size="32" required="true" primaryKey="true" />
+        <column name="create_time" type="TIMESTAMP" required="true" />
+        <column name="update_time" type="TIMESTAMP" required="true" />
+        <column name="data" type="VARCHAR" size="21000" />
+        <behavior name="timestampable">
+            <parameter name="create_column" value="create_time" />
+            <parameter name="update_column" value="update_time" />
+        </behavior>
     </table>
 </database>

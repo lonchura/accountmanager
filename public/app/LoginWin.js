@@ -70,8 +70,10 @@
                 cursor: 'pointer',
                 borderColor: '#B5B8C8',
                 borderStyle: 'solid',
-                'margin-top': '-1px'
+                'margin-top': '-2px'
             },
+            width: 60,
+            height: 22,
             listeners: {
                 el: {
                     click: function() {
@@ -151,7 +153,7 @@
 			f.submit({
 				success: function(form, action){
 					me.hide();
-					Ext.state.Manager.set("userInfo",action.result.userInfo);
+					Ext.state.Manager.set("identity", action.result.identity);
 					Ext.create('AccountManager.Application');
 				},
                 failure: function(form, action){

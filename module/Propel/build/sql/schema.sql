@@ -114,5 +114,40 @@ CREATE TABLE `category_resource`
         REFERENCES `resource` (`id`)
 ) ENGINE=InnoDB COMMENT='类别资源关联表';
 
+-- ---------------------------------------------------------------------
+-- user
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `user`;
+
+CREATE TABLE `user`
+(
+    `id` INTEGER(4) NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(25) NOT NULL,
+    `nickname` VARCHAR(25) NOT NULL,
+    `role` VARCHAR(25) NOT NULL,
+    `password` VARCHAR(32) NOT NULL,
+    `create_time` DATETIME NOT NULL,
+    `update_time` DATETIME NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `user_U_1` (`name`)
+) ENGINE=InnoDB COMMENT='用户表';
+
+-- ---------------------------------------------------------------------
+-- session
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `session`;
+
+CREATE TABLE `session`
+(
+    `id` VARCHAR(32) NOT NULL,
+    `name` VARCHAR(32) NOT NULL,
+    `create_time` DATETIME NOT NULL,
+    `update_time` DATETIME NOT NULL,
+    `data` VARCHAR(21000),
+    PRIMARY KEY (`id`,`name`)
+) ENGINE=MEMORY COMMENT='session';
+
 # This restores the fkey checks, after having unset them earlier
 SET FOREIGN_KEY_CHECKS = 1;

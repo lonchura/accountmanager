@@ -7,12 +7,12 @@ Ext.define('AccountManager.view.MainMenu', {
     initComponent: function() {
         var me = this;
 
-        userInfo = Ext.state.Manager.get('userInfo');
-        buttons = [];
+        identity = Ext.state.Manager.get('identity');
 
+        buttons = [];
         buttons.push({text:'账号管理', action:'account'});
         buttons.push({text:'密码管理', action:'password'});
-        if(userInfo.role=='管理员') {
+        if(identity.role=='管理员') {
             buttons.push({text:'用户管理', action:'user'});
         }
 

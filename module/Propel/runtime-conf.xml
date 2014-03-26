@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+* Account Manager System (https://github.com/PsyduckMans/accountmanager)
+*
+* @link      https://github.com/PsyduckMans/accountmanager for the canonical source repository
+* @copyright Copyright (c) 2014 PsyduckMans (https://ninth.not-bad.org)
+* @license   https://github.com/PsyduckMans/accountmanager/blob/master/LICENSE MIT
+* @author    Psyduck.Mans
+*/
+-->
 <config>
     <!--
     <log>
         <ident>account_manager</ident>
+        <type>file</type>
+        <name>propel.log</name>
         <level>7</level>
     </log>
     -->
@@ -14,20 +26,26 @@
                     <dsn>mysql:host=localhost;dbname=account_manager</dsn>
                     <user>demo</user>
                     <password>123456</password>
-                    <setting id="charset">utf8</setting>
+                    <settings>
+                        <setting id="charset">utf8</setting>
+                    </settings>
                 </connection>
                 <slaves>
                     <connection>
                         <dsn>mysql:host=localhost;dbname=account_manager</dsn>
                         <user>demo</user>
                         <password>123456</password>
-                        <setting id="charset">utf8</setting>
+                        <settings>
+                            <setting id="charset">utf8</setting>
+                        </settings>
                     </connection>
                     <connection>
                         <dsn>mysql:host=localhost;dbname=account_manager</dsn>
                         <user>demo</user>
                         <password>123456</password>
-                        <setting id="charset">utf8</setting>
+                        <settings>
+                            <setting id="charset">utf8</setting>
+                        </settings>
                     </connection>
                 </slaves>
             </datasource>

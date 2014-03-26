@@ -30,7 +30,7 @@ class Module implements ServiceProviderInterface
         $session = $e->getApplication()->getServiceManager()->get('Zend\Session\SessionManager');
 
         $container = new Container('initialized');
-        if (!isset($container->init) || true) {
+        if (!isset($container->init)) {
             $session->regenerateId(true);
             $container->init = 1;
         }

@@ -5,7 +5,10 @@
 
 namespace Application\Direct\Action;
 
+use Application\Auth\Adapter;
+use PHPX\Ext\Direct\Result\Failure;
 use PHPX\Ext\Direct\Result\Success;
+use Zend\Authentication\AuthenticationService;
 
 /**
  * Class LoginAction
@@ -20,19 +23,24 @@ class LoginAction extends BaseAction {
     public function checkMethod(array $data) {
         $vcodeId = $data['vcodeId'];
         $vcode = $data['vcode'];
+        $username = $data['username'];
+        $password = $data['password'];
 
+        // check captcha
         $captcha = $this->getServiceManager()->get('Accountmanager\Service\Captcha');
         if(!$captcha->isVaild($vcodeId, $vcode)) {
             throw new \Exception(current($captcha->getMessages()));
         }
 
-        setcookie('hasLogin', 'true', time()+3600, '/', 'accountmanager.t.com');
-        return new Success(
-            array('userInfo' => array(
-                'role' => '用户'
-            )),
-            '登陆成功'
-        );
+        // check auth
+        $adapter = new Adapter($username, $password);
+        $authenticationService = new AuthenticationService();
+        $result = $authenticationService->authenticate($adapter);
+        if($result->isValid()) {
+            return new Success(array('identity' => $result->getIdentity()), '登陆成功');
+        } else {
+            return new Failure('登陆失败, '.current($result->getMessages()));
+        }
     }
 
     /**
@@ -40,7 +48,8 @@ class LoginAction extends BaseAction {
      * @return Success
      */
     public function quitMethod(array $data) {
-        setcookie('hasLogin', 'true', time()-3600, '/', 'accountmanager.t.com');
+        $session = $this->getServiceManager()->get('Zend\Session\SessionManager');
+        $session->destroy();
         return new Success(array(), '退出成功');
     }
 }
