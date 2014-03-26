@@ -1,11 +1,17 @@
 <?php
 /**
- * Author: Psyduck.Mans
+ * Account Manager System (https://github.com/PsyduckMans/accountmanager)
+ *
+ * @link      https://github.com/PsyduckMans/accountmanager for the canonical source repository
+ * @copyright Copyright (c) 2014 PsyduckMans (https://ninth.not-bad.org)
+ * @license   https://github.com/PsyduckMans/accountmanager/blob/master/LICENSE MIT
+ * @author    Psyduck.Mans
  */
 
 namespace Application\Direct\Action;
 
 use Application\Auth\Adapter;
+use Application\Service\CaptchaService;
 use PHPX\Ext\Direct\Result\Failure;
 use PHPX\Ext\Direct\Result\Success;
 use Zend\Authentication\AuthenticationService;
@@ -41,6 +47,20 @@ class LoginAction extends BaseAction {
         } else {
             return new Failure('登陆失败, '.current($result->getMessages()));
         }
+    }
+
+    /**
+     * generate vcode
+     *
+     * @return Success
+     */
+    public function vcodeMethod() {
+        $captcha = $this->getServiceManager()->get('Accountmanager\Service\Captcha');
+        $captcha->generate();
+        return new Success(array(
+            'id' => $captcha->getId(),
+            'imgSrc' => CaptchaService::$IMG_PATH.'/'.$captcha->getId().'.png'
+        ));
     }
 
     /**

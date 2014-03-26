@@ -1,12 +1,21 @@
 <?php
 /**
- * Author: Psyduck.Mans
+ * Account Manager System (https://github.com/PsyduckMans/accountmanager)
+ *
+ * @link      https://github.com/PsyduckMans/accountmanager for the canonical source repository
+ * @copyright Copyright (c) 2014 PsyduckMans (https://ninth.not-bad.org)
+ * @license   https://github.com/PsyduckMans/accountmanager/blob/master/LICENSE MIT
+ * @author    Psyduck.Mans
  */
 
 namespace Application\Direct\Action;
 
 use Zend\ServiceManager\ServiceManager;
 
+/**
+ * Class BaseAction
+ * @package Application\Direct\Action
+ */
 class BaseAction {
     /**
      * @var ServiceManager

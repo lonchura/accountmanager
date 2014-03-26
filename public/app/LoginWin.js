@@ -1,4 +1,13 @@
-﻿Ext.define("AccountManager.LoginWin",{
+﻿/**
+ * Account Manager System (https://github.com/PsyduckMans/accountmanager)
+ *
+ * @link      https://github.com/PsyduckMans/accountmanager for the canonical source repository
+ * @copyright Copyright (c) 2014 PsyduckMans (https://ninth.not-bad.org)
+ * @license   https://github.com/PsyduckMans/accountmanager/blob/master/LICENSE MIT
+ * @author    Psyduck.Mans
+ */
+
+Ext.define("AccountManager.LoginWin",{
 	extend:"Ext.window.Window",
     hideMode: 'offsets',
     closeAction: 'hide',
@@ -181,20 +190,14 @@
 	onRefrehImage:function(){
         var me = this;
         this.fields[2].reset();
-        Ext.Ajax.request({
-            url: '/login/vcode',
-            timeout: 3000,
-            scope: me,
-            params: {
-                id: (new Date()).getTime()
-            },
-            success: function(response) {
-                var vcode = eval('(' + response.responseText + ')');
-                this.image.setSrc(vcode.imgSrc);
-                this.imageId.setValue(vcode.id)
-            },
-            failure: function(response, opts) {
-                Ext.Msg.alert('错误', '获取验证码失败，状态:' + response.status + '，' + response.statusText);
+
+        AccountManager.Direct.Login.vcode((new Date()).getTime(), function(response) {
+            if(response.success === true) {
+                var vcode = response;
+                me.image.setSrc(vcode.imgSrc);
+                me.imageId.setValue(vcode.id);
+            } else {
+                Ext.Msg.alert('错误', '获取验证码失败：' + response.msg);
             }
         });
 	},

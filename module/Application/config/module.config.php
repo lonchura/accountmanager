@@ -1,10 +1,11 @@
 <?php
 /**
- * Zend Framework (http://framework.zend.com/)
+ * Account Manager System (https://github.com/PsyduckMans/accountmanager)
  *
- * @link      http://github.com/zendframework/ZendSkeletonApplication for the canonical source repository
- * @copyright Copyright (c) 2005-2013 Zend Technologies USA Inc. (http://www.zend.com)
- * @license   http://framework.zend.com/license/new-bsd New BSD License
+ * @link      https://github.com/PsyduckMans/accountmanager for the canonical source repository
+ * @copyright Copyright (c) 2014 PsyduckMans (https://ninth.not-bad.org)
+ * @license   https://github.com/PsyduckMans/accountmanager/blob/master/LICENSE MIT
+ * @author    Psyduck.Mans
  */
 
 return array(
@@ -49,19 +50,6 @@ return array(
                         ),
                     ),
                 ),
-            ),
-            'login' => array(
-                'type'    => 'Segment',
-                'options' => array(
-                    'route'    => '/login[/:action]',
-                    'constraints' => array(
-                        'action' => '[a-zA-Z][a-zA-Z0-9_-]*'
-                    ),
-                    'defaults' => array(
-                        'controller'    => 'Application\Controller\Login',
-                        'action'		=> 'index'
-                    )
-                )
             ),
             'direct' => array(
                 'type'    => 'Segment',
@@ -132,8 +120,7 @@ return array(
     'controllers' => array(
         'invokables' => array(
             'Application\Controller\Index' => 'Application\Controller\IndexController',
-            'Application\Controller\Login' => 'Application\Controller\LoginController',
-            'Application\Controller\Direct' => 'Application\Controller\DirectController',
+            'Application\Controller\Direct' => 'Application\Controller\DirectController'
         ),
     ),
     'view_manager' => array(

@@ -5,6 +5,7 @@ AccountManager.Direct.REMOTING_API = {
     actions: {
         "AccountManager.Direct.Login": [
             {name: 'check', formHandler:true, len:1},
+            {name: 'vcode', len:1},
             {name: 'quit', len:1}
         ]
     }
