@@ -53,8 +53,8 @@ abstract class BaseUserPeer
     /** the column name for the nickname field */
     const NICKNAME = 'user.nickname';
 
-    /** the column name for the role field */
-    const ROLE = 'user.role';
+    /** the column name for the role_id field */
+    const ROLE_ID = 'user.role_id';
 
     /** the column name for the password field */
     const PASSWORD = 'user.password';
@@ -84,11 +84,11 @@ abstract class BaseUserPeer
      * e.g. UserPeer::$fieldNames[UserPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Id', 'Name', 'Nickname', 'Role', 'Password', 'CreateTime', 'UpdateTime', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'name', 'nickname', 'role', 'password', 'createTime', 'updateTime', ),
-        BasePeer::TYPE_COLNAME => array (UserPeer::ID, UserPeer::NAME, UserPeer::NICKNAME, UserPeer::ROLE, UserPeer::PASSWORD, UserPeer::CREATE_TIME, UserPeer::UPDATE_TIME, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'NAME', 'NICKNAME', 'ROLE', 'PASSWORD', 'CREATE_TIME', 'UPDATE_TIME', ),
-        BasePeer::TYPE_FIELDNAME => array ('id', 'name', 'nickname', 'role', 'password', 'create_time', 'update_time', ),
+        BasePeer::TYPE_PHPNAME => array ('Id', 'Name', 'Nickname', 'RoleId', 'Password', 'CreateTime', 'UpdateTime', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'name', 'nickname', 'roleId', 'password', 'createTime', 'updateTime', ),
+        BasePeer::TYPE_COLNAME => array (UserPeer::ID, UserPeer::NAME, UserPeer::NICKNAME, UserPeer::ROLE_ID, UserPeer::PASSWORD, UserPeer::CREATE_TIME, UserPeer::UPDATE_TIME, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'NAME', 'NICKNAME', 'ROLE_ID', 'PASSWORD', 'CREATE_TIME', 'UPDATE_TIME', ),
+        BasePeer::TYPE_FIELDNAME => array ('id', 'name', 'nickname', 'role_id', 'password', 'create_time', 'update_time', ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, )
     );
 
@@ -99,11 +99,11 @@ abstract class BaseUserPeer
      * e.g. UserPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Name' => 1, 'Nickname' => 2, 'Role' => 3, 'Password' => 4, 'CreateTime' => 5, 'UpdateTime' => 6, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'name' => 1, 'nickname' => 2, 'role' => 3, 'password' => 4, 'createTime' => 5, 'updateTime' => 6, ),
-        BasePeer::TYPE_COLNAME => array (UserPeer::ID => 0, UserPeer::NAME => 1, UserPeer::NICKNAME => 2, UserPeer::ROLE => 3, UserPeer::PASSWORD => 4, UserPeer::CREATE_TIME => 5, UserPeer::UPDATE_TIME => 6, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'NAME' => 1, 'NICKNAME' => 2, 'ROLE' => 3, 'PASSWORD' => 4, 'CREATE_TIME' => 5, 'UPDATE_TIME' => 6, ),
-        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'name' => 1, 'nickname' => 2, 'role' => 3, 'password' => 4, 'create_time' => 5, 'update_time' => 6, ),
+        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Name' => 1, 'Nickname' => 2, 'RoleId' => 3, 'Password' => 4, 'CreateTime' => 5, 'UpdateTime' => 6, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'name' => 1, 'nickname' => 2, 'roleId' => 3, 'password' => 4, 'createTime' => 5, 'updateTime' => 6, ),
+        BasePeer::TYPE_COLNAME => array (UserPeer::ID => 0, UserPeer::NAME => 1, UserPeer::NICKNAME => 2, UserPeer::ROLE_ID => 3, UserPeer::PASSWORD => 4, UserPeer::CREATE_TIME => 5, UserPeer::UPDATE_TIME => 6, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'NAME' => 1, 'NICKNAME' => 2, 'ROLE_ID' => 3, 'PASSWORD' => 4, 'CREATE_TIME' => 5, 'UPDATE_TIME' => 6, ),
+        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'name' => 1, 'nickname' => 2, 'role_id' => 3, 'password' => 4, 'create_time' => 5, 'update_time' => 6, ),
         BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, )
     );
 
@@ -181,7 +181,7 @@ abstract class BaseUserPeer
             $criteria->addSelectColumn(UserPeer::ID);
             $criteria->addSelectColumn(UserPeer::NAME);
             $criteria->addSelectColumn(UserPeer::NICKNAME);
-            $criteria->addSelectColumn(UserPeer::ROLE);
+            $criteria->addSelectColumn(UserPeer::ROLE_ID);
             $criteria->addSelectColumn(UserPeer::PASSWORD);
             $criteria->addSelectColumn(UserPeer::CREATE_TIME);
             $criteria->addSelectColumn(UserPeer::UPDATE_TIME);
@@ -189,7 +189,7 @@ abstract class BaseUserPeer
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.name');
             $criteria->addSelectColumn($alias . '.nickname');
-            $criteria->addSelectColumn($alias . '.role');
+            $criteria->addSelectColumn($alias . '.role_id');
             $criteria->addSelectColumn($alias . '.password');
             $criteria->addSelectColumn($alias . '.create_time');
             $criteria->addSelectColumn($alias . '.update_time');

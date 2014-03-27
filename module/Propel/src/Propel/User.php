@@ -26,7 +26,7 @@ class User extends BaseUser
     public function getIdentity() {
         return array(
             'id' => $this->getId(),
-            'role' => $this->getRole(),
+            'role_id' => $this->getRoleId(),
             'nickname' => $this->getNickname()
         );
     }

@@ -22,7 +22,7 @@ use Propel\UserQuery;
  * @method UserQuery orderById($order = Criteria::ASC) Order by the id column
  * @method UserQuery orderByName($order = Criteria::ASC) Order by the name column
  * @method UserQuery orderByNickname($order = Criteria::ASC) Order by the nickname column
- * @method UserQuery orderByRole($order = Criteria::ASC) Order by the role column
+ * @method UserQuery orderByRoleId($order = Criteria::ASC) Order by the role_id column
  * @method UserQuery orderByPassword($order = Criteria::ASC) Order by the password column
  * @method UserQuery orderByCreateTime($order = Criteria::ASC) Order by the create_time column
  * @method UserQuery orderByUpdateTime($order = Criteria::ASC) Order by the update_time column
@@ -30,7 +30,7 @@ use Propel\UserQuery;
  * @method UserQuery groupById() Group by the id column
  * @method UserQuery groupByName() Group by the name column
  * @method UserQuery groupByNickname() Group by the nickname column
- * @method UserQuery groupByRole() Group by the role column
+ * @method UserQuery groupByRoleId() Group by the role_id column
  * @method UserQuery groupByPassword() Group by the password column
  * @method UserQuery groupByCreateTime() Group by the create_time column
  * @method UserQuery groupByUpdateTime() Group by the update_time column
@@ -44,7 +44,7 @@ use Propel\UserQuery;
  *
  * @method User findOneByName(string $name) Return the first User filtered by the name column
  * @method User findOneByNickname(string $nickname) Return the first User filtered by the nickname column
- * @method User findOneByRole(string $role) Return the first User filtered by the role column
+ * @method User findOneByRoleId(int $role_id) Return the first User filtered by the role_id column
  * @method User findOneByPassword(string $password) Return the first User filtered by the password column
  * @method User findOneByCreateTime(string $create_time) Return the first User filtered by the create_time column
  * @method User findOneByUpdateTime(string $update_time) Return the first User filtered by the update_time column
@@ -52,7 +52,7 @@ use Propel\UserQuery;
  * @method array findById(int $id) Return User objects filtered by the id column
  * @method array findByName(string $name) Return User objects filtered by the name column
  * @method array findByNickname(string $nickname) Return User objects filtered by the nickname column
- * @method array findByRole(string $role) Return User objects filtered by the role column
+ * @method array findByRoleId(int $role_id) Return User objects filtered by the role_id column
  * @method array findByPassword(string $password) Return User objects filtered by the password column
  * @method array findByCreateTime(string $create_time) Return User objects filtered by the create_time column
  * @method array findByUpdateTime(string $update_time) Return User objects filtered by the update_time column
@@ -163,7 +163,7 @@ abstract class BaseUserQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `id`, `name`, `nickname`, `role`, `password`, `create_time`, `update_time` FROM `user` WHERE `id` = :p0';
+        $sql = 'SELECT `id`, `name`, `nickname`, `role_id`, `password`, `create_time`, `update_time` FROM `user` WHERE `id` = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -353,32 +353,45 @@ abstract class BaseUserQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the role column
+     * Filter the query on the role_id column
      *
      * Example usage:
      * <code>
-     * $query->filterByRole('fooValue');   // WHERE role = 'fooValue'
-     * $query->filterByRole('%fooValue%'); // WHERE role LIKE '%fooValue%'
+     * $query->filterByRoleId(1234); // WHERE role_id = 1234
+     * $query->filterByRoleId(array(12, 34)); // WHERE role_id IN (12, 34)
+     * $query->filterByRoleId(array('min' => 12)); // WHERE role_id >= 12
+     * $query->filterByRoleId(array('max' => 12)); // WHERE role_id <= 12
      * </code>
      *
-     * @param     string $role The value to use as filter.
-     *              Accepts wildcards (* and % trigger a LIKE)
+     * @param     mixed $roleId The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return UserQuery The current query, for fluid interface
      */
-    public function filterByRole($role = null, $comparison = null)
+    public function filterByRoleId($roleId = null, $comparison = null)
     {
-        if (null === $comparison) {
-            if (is_array($role)) {
+        if (is_array($roleId)) {
+            $useMinMax = false;
+            if (isset($roleId['min'])) {
+                $this->addUsingAlias(UserPeer::ROLE_ID, $roleId['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($roleId['max'])) {
+                $this->addUsingAlias(UserPeer::ROLE_ID, $roleId['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
                 $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $role)) {
-                $role = str_replace('*', '%', $role);
-                $comparison = Criteria::LIKE;
             }
         }
 
-        return $this->addUsingAlias(UserPeer::ROLE, $role, $comparison);
+        return $this->addUsingAlias(UserPeer::ROLE_ID, $roleId, $comparison);
     }
 
     /**

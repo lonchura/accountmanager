@@ -131,7 +131,7 @@
         <column name="id" type="INTEGER" size="4" required="true" primaryKey="true" autoIncrement="true" />
         <column name="name" type="VARCHAR" size="25" required="true" />
         <column name="nickname" type="VARCHAR" size="25" required="true" />
-        <column name="role" type="VARCHAR" size="25" required="true" />
+        <column name="role_id" type="INTEGER" size="3" required="true" />
         <column name="password" type="VARCHAR" size="32" required="true" />
         <column name="create_time" type="TIMESTAMP" required="true" />
         <column name="update_time" type="TIMESTAMP" required="true" />

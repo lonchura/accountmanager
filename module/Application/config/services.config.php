@@ -19,6 +19,12 @@ return array(
         'Accountmanager\Direct\Service\login' => function($sm) {
             return new \Application\Direct\Action\LoginAction($sm);
         },
+        'Accountmanager\Direct\Service\User' => function($sm) {
+            return new \Application\Direct\Action\UserAction($sm);
+        },
+        'Accountmanager\Direct\Service\Role' => function($sm) {
+            return new \Application\Direct\Action\RoleAction($sm);
+        },
         /**
          * Captcha
          */

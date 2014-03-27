@@ -23,12 +23,24 @@ class BaseAction {
     private $sm;
 
     /**
+     * @var \DI\Container
+     */
+    protected $container;
+
+    /**
      * __construct
      *
      * @param ServiceManager $sm
      */
     public function __construct(ServiceManager $sm) {
+        // service manager
         $this->sm = $sm;
+
+        // Inject dependencies
+        if ($this->container == null) {
+            $this->container = new \DI\Container();
+        }
+        $this->container->injectOn($this);
     }
 
     /**
@@ -37,4 +49,4 @@ class BaseAction {
     public function getServiceManager() {
         return $this->sm;
     }
-} 
+}

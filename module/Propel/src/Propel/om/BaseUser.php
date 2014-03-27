@@ -64,10 +64,10 @@ abstract class BaseUser extends BaseObject implements Persistent
     protected $nickname;
 
     /**
-     * The value for the role field.
-     * @var        string
+     * The value for the role_id field.
+     * @var        int
      */
-    protected $role;
+    protected $role_id;
 
     /**
      * The value for the password field.
@@ -141,14 +141,14 @@ abstract class BaseUser extends BaseObject implements Persistent
     }
 
     /**
-     * Get the [role] column value.
+     * Get the [role_id] column value.
      *
-     * @return string
+     * @return int
      */
-    public function getRole()
+    public function getRoleId()
     {
 
-        return $this->role;
+        return $this->role_id;
     }
 
     /**
@@ -306,25 +306,25 @@ abstract class BaseUser extends BaseObject implements Persistent
     } // setNickname()
 
     /**
-     * Set the value of [role] column.
+     * Set the value of [role_id] column.
      *
-     * @param  string $v new value
+     * @param  int $v new value
      * @return User The current object (for fluent API support)
      */
-    public function setRole($v)
+    public function setRoleId($v)
     {
         if ($v !== null && is_numeric($v)) {
-            $v = (string) $v;
+            $v = (int) $v;
         }
 
-        if ($this->role !== $v) {
-            $this->role = $v;
-            $this->modifiedColumns[] = UserPeer::ROLE;
+        if ($this->role_id !== $v) {
+            $this->role_id = $v;
+            $this->modifiedColumns[] = UserPeer::ROLE_ID;
         }
 
 
         return $this;
-    } // setRole()
+    } // setRoleId()
 
     /**
      * Set the value of [password] column.
@@ -428,7 +428,7 @@ abstract class BaseUser extends BaseObject implements Persistent
             $this->id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
             $this->name = ($row[$startcol + 1] !== null) ? (string) $row[$startcol + 1] : null;
             $this->nickname = ($row[$startcol + 2] !== null) ? (string) $row[$startcol + 2] : null;
-            $this->role = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
+            $this->role_id = ($row[$startcol + 3] !== null) ? (int) $row[$startcol + 3] : null;
             $this->password = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
             $this->create_time = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
             $this->update_time = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
@@ -673,8 +673,8 @@ abstract class BaseUser extends BaseObject implements Persistent
         if ($this->isColumnModified(UserPeer::NICKNAME)) {
             $modifiedColumns[':p' . $index++]  = '`nickname`';
         }
-        if ($this->isColumnModified(UserPeer::ROLE)) {
-            $modifiedColumns[':p' . $index++]  = '`role`';
+        if ($this->isColumnModified(UserPeer::ROLE_ID)) {
+            $modifiedColumns[':p' . $index++]  = '`role_id`';
         }
         if ($this->isColumnModified(UserPeer::PASSWORD)) {
             $modifiedColumns[':p' . $index++]  = '`password`';
@@ -705,8 +705,8 @@ abstract class BaseUser extends BaseObject implements Persistent
                     case '`nickname`':
                         $stmt->bindValue($identifier, $this->nickname, PDO::PARAM_STR);
                         break;
-                    case '`role`':
-                        $stmt->bindValue($identifier, $this->role, PDO::PARAM_STR);
+                    case '`role_id`':
+                        $stmt->bindValue($identifier, $this->role_id, PDO::PARAM_INT);
                         break;
                     case '`password`':
                         $stmt->bindValue($identifier, $this->password, PDO::PARAM_STR);
@@ -861,7 +861,7 @@ abstract class BaseUser extends BaseObject implements Persistent
                 return $this->getNickname();
                 break;
             case 3:
-                return $this->getRole();
+                return $this->getRoleId();
                 break;
             case 4:
                 return $this->getPassword();
@@ -903,7 +903,7 @@ abstract class BaseUser extends BaseObject implements Persistent
             $keys[0] => $this->getId(),
             $keys[1] => $this->getName(),
             $keys[2] => $this->getNickname(),
-            $keys[3] => $this->getRole(),
+            $keys[3] => $this->getRoleId(),
             $keys[4] => $this->getPassword(),
             $keys[5] => $this->getCreateTime(),
             $keys[6] => $this->getUpdateTime(),
@@ -956,7 +956,7 @@ abstract class BaseUser extends BaseObject implements Persistent
                 $this->setNickname($value);
                 break;
             case 3:
-                $this->setRole($value);
+                $this->setRoleId($value);
                 break;
             case 4:
                 $this->setPassword($value);
@@ -994,7 +994,7 @@ abstract class BaseUser extends BaseObject implements Persistent
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setName($arr[$keys[1]]);
         if (array_key_exists($keys[2], $arr)) $this->setNickname($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setRole($arr[$keys[3]]);
+        if (array_key_exists($keys[3], $arr)) $this->setRoleId($arr[$keys[3]]);
         if (array_key_exists($keys[4], $arr)) $this->setPassword($arr[$keys[4]]);
         if (array_key_exists($keys[5], $arr)) $this->setCreateTime($arr[$keys[5]]);
         if (array_key_exists($keys[6], $arr)) $this->setUpdateTime($arr[$keys[6]]);
@@ -1012,7 +1012,7 @@ abstract class BaseUser extends BaseObject implements Persistent
         if ($this->isColumnModified(UserPeer::ID)) $criteria->add(UserPeer::ID, $this->id);
         if ($this->isColumnModified(UserPeer::NAME)) $criteria->add(UserPeer::NAME, $this->name);
         if ($this->isColumnModified(UserPeer::NICKNAME)) $criteria->add(UserPeer::NICKNAME, $this->nickname);
-        if ($this->isColumnModified(UserPeer::ROLE)) $criteria->add(UserPeer::ROLE, $this->role);
+        if ($this->isColumnModified(UserPeer::ROLE_ID)) $criteria->add(UserPeer::ROLE_ID, $this->role_id);
         if ($this->isColumnModified(UserPeer::PASSWORD)) $criteria->add(UserPeer::PASSWORD, $this->password);
         if ($this->isColumnModified(UserPeer::CREATE_TIME)) $criteria->add(UserPeer::CREATE_TIME, $this->create_time);
         if ($this->isColumnModified(UserPeer::UPDATE_TIME)) $criteria->add(UserPeer::UPDATE_TIME, $this->update_time);
@@ -1081,7 +1081,7 @@ abstract class BaseUser extends BaseObject implements Persistent
     {
         $copyObj->setName($this->getName());
         $copyObj->setNickname($this->getNickname());
-        $copyObj->setRole($this->getRole());
+        $copyObj->setRoleId($this->getRoleId());
         $copyObj->setPassword($this->getPassword());
         $copyObj->setCreateTime($this->getCreateTime());
         $copyObj->setUpdateTime($this->getUpdateTime());
@@ -1139,7 +1139,7 @@ abstract class BaseUser extends BaseObject implements Persistent
         $this->id = null;
         $this->name = null;
         $this->nickname = null;
-        $this->role = null;
+        $this->role_id = null;
         $this->password = null;
         $this->create_time = null;
         $this->update_time = null;

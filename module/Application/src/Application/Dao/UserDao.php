@@ -16,4 +16,25 @@ interface UserDao {
      * @return \Propel\User
      */
     public function findOneByWhere(array $where);
+
+    /**
+     * @param array $page
+     * @return array(
+     *      'total' => int
+     *      'list' => \PropelObjectCollection
+     * )
+     */
+    public function find(array $page);
+
+    /**
+     * @param $id
+     * @return \Propel\User
+     */
+    public function getUserById($id);
+
+    /**
+     * @param array $ids
+     * @return int
+     */
+    public function deleteRangeByIds(array $ids);
 } 

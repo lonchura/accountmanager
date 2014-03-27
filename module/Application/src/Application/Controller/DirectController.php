@@ -21,7 +21,9 @@ class DirectController extends BaseController {
         $processHandler = \PHPX\Ext\Direct\ProcesseHandler::getInstance()
             ->setActionManager(new \PHPX\Ext\Direct\ActionManager(array(
                 'actions' => array(
-                    'AccountManager.Direct.Login' => $this->getServiceLocator()->get('Accountmanager\Direct\Service\login')
+                    'AccountManager.Direct.Login' => $this->getServiceLocator()->get('Accountmanager\Direct\Service\login'),
+                    'AccountManager.Direct.User' => $this->getServiceLocator()->get('Accountmanager\Direct\Service\User'),
+                    'AccountManager.Direct.Role' => $this->getServiceLocator()->get('Accountmanager\Direct\Service\Role')
                 )
             )));
         $processHandler->execute($protocal);
