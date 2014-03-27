@@ -151,7 +151,7 @@ Ext.define('AccountManager.view.user.EditView', {
                         return ;
                     }
                     if(action.failureType === 'server') {
-                        Ext.Msg.alert('错误', '提交失败，运行错误！');
+                        Ext.Msg.alert('错误', action.result.msg);
                     }
                 },
                 scope: me
