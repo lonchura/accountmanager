@@ -38,7 +38,7 @@ Ext.define('AccountManager.view.user.View', {
             {text:'ID', dataIndex:'UserId', width:60},
             {text:'用户名', dataIndex:'Name', width:240, sortable:false},
             {text:'昵称', dataIndex:'NickName', width:240, sortable:false},
-            {text:'角色', dataIndex:'RoleId', width:120, sortable:false},
+            {text:'角色', dataIndex:'RoleName', width:120, sortable:false},
             {text:'创建时间', dataIndex:'CreateTime', sortable:false, flex:1, xtype:'datecolumn', format:'Y-m-d H:i:s'},
             {text:'修改时间', dataIndex:'UpdateTime', sortable:false, flex:1, xtype:'datecolumn', format:'Y-m-d H:i:s'}
         ];

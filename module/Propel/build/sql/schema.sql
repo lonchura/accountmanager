@@ -130,8 +130,28 @@ CREATE TABLE `user`
     `create_time` DATETIME NOT NULL,
     `update_time` DATETIME NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `user_U_1` (`name`)
+    UNIQUE INDEX `user_U_1` (`name`),
+    INDEX `user_FI_1` (`role_id`),
+    CONSTRAINT `user_FK_1`
+        FOREIGN KEY (`role_id`)
+        REFERENCES `role` (`id`)
 ) ENGINE=InnoDB COMMENT='用户表';
+
+-- ---------------------------------------------------------------------
+-- role
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `role`;
+
+CREATE TABLE `role`
+(
+    `id` INTEGER(3) NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(25) NOT NULL,
+    `create_time` DATETIME NOT NULL,
+    `update_time` DATETIME NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `role_U_1` (`name`)
+) ENGINE=InnoDB COMMENT='角色';
 
 -- ---------------------------------------------------------------------
 -- session

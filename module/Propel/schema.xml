@@ -139,6 +139,24 @@
             <parameter name="create_column" value="create_time" />
             <parameter name="update_column" value="update_time" />
         </behavior>
+        <foreign-key foreignTable="role" onDelete="restrict">
+            <reference local="role_id" foreign="id" />
+        </foreign-key>
+        <unique>
+            <unique-column name="name" />
+        </unique>
+    </table>
+
+    <!-- role -->
+    <table name="role" description="角色">
+        <column name="id" type="INTEGER" size="3" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="name" type="VARCHAR" size="25" required="true" />
+        <column name="create_time" type="TIMESTAMP" required="true" />
+        <column name="update_time" type="TIMESTAMP" required="true" />
+        <behavior name="timestampable">
+            <parameter name="create_column" value="create_time" />
+            <parameter name="update_column" value="update_time" />
+        </behavior>
         <unique>
             <unique-column name="name" />
         </unique>

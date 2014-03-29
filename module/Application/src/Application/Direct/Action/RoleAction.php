@@ -10,6 +10,7 @@
 
 namespace Application\Direct\Action;
 use PHPX\Ext\Direct\Result\Success;
+use Propel\RoleQuery;
 
 /**
  * Class RoleAction
@@ -22,9 +23,12 @@ class RoleAction extends BaseAction {
      * @return Success
      */
     public function listMethod(array $data) {
-        return new Success(array('data' => array(
-            array('RoleId' => 1, 'RoleName'=>'管理员'),
-            array('RoleId' => 2, 'RoleName'=>'普通用户')
-        )), '');
+        $roles = array();
+        foreach(RoleQuery::create()->find() as $role) {
+            array_push($roles, array(
+                'RoleId' => $role->getId(), 'RoleName' => $role->getName()
+            ));
+        }
+        return new Success(array('data' => $roles), '');
     }
 } 

@@ -129,15 +129,15 @@ Ext.define('AccountManager.view.user.EditView', {
                     var me = this,
                         result = action.result,
                         f = me.form.getForm(),
-                        roleName = f.findField('RoleId').getRawValue(),
                         store = Ext.StoreManager.lookup('User'),
                         rec = f.getRecord();
                     f.updateRecord(rec);
                     if(form.actionMethod == 'add') {
                         rec.set('UserId', result.UserId);
+                        rec.set('CreateTime', result.CreateTime);
                         store.insert(0, rec);
                     }
-                    rec.set('CreateTime', result.CreateTime);
+                    rec.set('RoleName', result.RoleName);
                     rec.set('UpdateTime', result.UpdateTime);
                     rec.commit();
                     me.close();

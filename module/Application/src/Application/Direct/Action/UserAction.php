@@ -37,6 +37,7 @@ class UserAction extends BaseAction {
                 'Name' => $user->getName(),
                 'NickName' => $user->getNickname(),
                 'RoleId' => $user->getRoleId(),
+                'RoleName' => $user->getRole()->getName(),
                 'CreateTime' => $user->getCreateTime(),
                 'UpdateTime' => $user->getUpdateTime()
             ));
@@ -73,6 +74,7 @@ class UserAction extends BaseAction {
             'Name' => $user->getName(),
             'NickName' => $user->getNickname(),
             'RoleId' => $user->getRoleId(),
+            'RoleName' => $user->getRole()->getName(),
             'CreateTime' => $user->getCreateTime(),
             'UpdateTime' => $user->getUpdateTime()
         ), '编辑成功');
@@ -97,6 +99,7 @@ class UserAction extends BaseAction {
             'Name' => $user->getName(),
             'NickName' => $user->getNickname(),
             'RoleId' => $user->getRoleId(),
+            'RoleName' => $user->getRole()->getName(),
             'CreateTime' => $user->getCreateTime(),
             'UpdateTime' => $user->getUpdateTime()
         ), '添加成功');

@@ -11,7 +11,7 @@ Ext.define('AccountManager.store.User', {
     extend: 'Ext.data.Store',
 
     model: 'AccountManager.model.User',
-    pageSize: 20,
+    pageSize: 50,
 
     autoLoad: true,
     remoteFilter: true,

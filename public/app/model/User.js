@@ -15,6 +15,7 @@ Ext.define('AccountManager.model.User', {
         'Name',
         'NickName',
         {name:'RoleId', type:'int'},
+        'RoleName',
         'Password',
         {name:'CreateTime', type:'date', dateFormat:'c'},
         {name:'UpdateTime', type:'date', dateFormat:'c'}

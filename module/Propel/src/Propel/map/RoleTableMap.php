@@ -7,7 +7,7 @@ use \TableMap;
 
 
 /**
- * This class defines the structure of the 'user' table.
+ * This class defines the structure of the 'role' table.
  *
  *
  *
@@ -18,13 +18,13 @@ use \TableMap;
  *
  * @package    propel.generator.Propel.map
  */
-class UserTableMap extends TableMap
+class RoleTableMap extends TableMap
 {
 
     /**
      * The (dot-path) name of this class
      */
-    const CLASS_NAME = 'Propel.map.UserTableMap';
+    const CLASS_NAME = 'Propel.map.RoleTableMap';
 
     /**
      * Initialize the table attributes, columns and validators
@@ -36,17 +36,14 @@ class UserTableMap extends TableMap
     public function initialize()
     {
         // attributes
-        $this->setName('user');
-        $this->setPhpName('User');
-        $this->setClassname('Propel\\User');
+        $this->setName('role');
+        $this->setPhpName('Role');
+        $this->setClassname('Propel\\Role');
         $this->setPackage('Propel');
         $this->setUseIdGenerator(true);
         // columns
-        $this->addPrimaryKey('id', 'Id', 'INTEGER', true, 4, null);
+        $this->addPrimaryKey('id', 'Id', 'INTEGER', true, 3, null);
         $this->addColumn('name', 'Name', 'VARCHAR', true, 25, null);
-        $this->addColumn('nickname', 'Nickname', 'VARCHAR', true, 25, null);
-        $this->addForeignKey('role_id', 'RoleId', 'INTEGER', 'role', 'id', true, 3, null);
-        $this->addColumn('password', 'Password', 'VARCHAR', true, 32, null);
         $this->addColumn('create_time', 'CreateTime', 'TIMESTAMP', true, null, null);
         $this->addColumn('update_time', 'UpdateTime', 'TIMESTAMP', true, null, null);
         // validators
@@ -57,7 +54,7 @@ class UserTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('Role', 'Propel\\Role', RelationMap::MANY_TO_ONE, array('role_id' => 'id', ), null, null);
+        $this->addRelation('User', 'Propel\\User', RelationMap::ONE_TO_MANY, array('id' => 'role_id', ), null, null, 'Users');
     } // buildRelations()
 
     /**
@@ -77,4 +74,4 @@ class UserTableMap extends TableMap
         );
     } // getBehaviors()
 
-} // UserTableMap
+} // RoleTableMap
