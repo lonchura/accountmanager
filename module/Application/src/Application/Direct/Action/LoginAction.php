@@ -39,7 +39,8 @@ class LoginAction extends BaseAction {
         }
 
         // check auth
-        $adapter = new Adapter($username, $password);
+        $cryptGenerator = $this->getServiceManager()->get('Accountmanager\Auth\Crypt');
+        $adapter = new Adapter($cryptGenerator, $username, $password);
         $authenticationService = new AuthenticationService();
         $result = $authenticationService->authenticate($adapter);
         if($result->isValid()) {

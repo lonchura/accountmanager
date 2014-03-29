@@ -66,6 +66,10 @@ return array(
             )
         ),
     ),
+    'authCrypt' => array(
+        'salt' => 'Faq3sIF3x3WA33M=ODA8ODo!zeFEh354',
+        'cost' => 9
+    ),
     'captcha' => array(
         'gcFreq'        => '100',
         'Expiration'    => 60,

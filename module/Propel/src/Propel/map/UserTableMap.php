@@ -46,7 +46,7 @@ class UserTableMap extends TableMap
         $this->addColumn('name', 'Name', 'VARCHAR', true, 25, null);
         $this->addColumn('nickname', 'Nickname', 'VARCHAR', true, 25, null);
         $this->addForeignKey('role_id', 'RoleId', 'INTEGER', 'role', 'id', true, 3, null);
-        $this->addColumn('password', 'Password', 'VARCHAR', true, 32, null);
+        $this->addColumn('password', 'Password', 'VARCHAR', true, 60, null);
         $this->addColumn('create_time', 'CreateTime', 'TIMESTAMP', true, null, null);
         $this->addColumn('update_time', 'UpdateTime', 'TIMESTAMP', true, null, null);
         // validators

@@ -15,6 +15,7 @@ use Propel\UserPeer;
 use Zend\Authentication\Adapter\AdapterInterface;
 use Application\Dao\Impl\UserDao;
 use Zend\Authentication\Result;
+use Zend\ServiceManager\ServiceManager;
 
 /**
  * Class Adapter
@@ -33,12 +34,19 @@ class Adapter implements AdapterInterface {
     private $password;
 
     /**
-     * @param $usename
+     * @var \Application\Auth\Crypt
+     */
+    private $cryptGenerator;
+
+    /**
+     * @param Crypt $cryptGenerator
+     * @param $username
      * @param $password
      */
-    public function __construct($usename, $password) {
-        $this->username = $usename;
+    public function __construct(\Application\Auth\Crypt $cryptGenerator, $username, $password) {
+        $this->username = $username;
         $this->password = $password;
+        $this->cryptGenerator = $cryptGenerator;
     }
 
     /**
@@ -49,11 +57,8 @@ class Adapter implements AdapterInterface {
      */
     public function authenticate() {
         $userDao = new UserDao();
-        $user = $userDao->findOneByWhere(array(
-            UserPeer::NAME => $this->username,
-            UserPeer::PASSWORD => $this->password
-        ));
-        if($user instanceof User) {
+        $user = $userDao->findOneByWhere(array(UserPeer::NAME => $this->username));
+        if($user instanceof User && $this->cryptGenerator->verify($this->password, $user->getPassword())) {
             return new Result(Result::SUCCESS, $user->getIdentity(), array());
         } else {
             return new Result(Result::FAILURE_CREDENTIAL_INVALID, null, array('用户名或密码不正确'));

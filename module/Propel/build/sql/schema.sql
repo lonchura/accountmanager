@@ -126,7 +126,7 @@ CREATE TABLE `user`
     `name` VARCHAR(25) NOT NULL,
     `nickname` VARCHAR(25) NOT NULL,
     `role_id` INTEGER(3) NOT NULL,
-    `password` VARCHAR(32) NOT NULL,
+    `password` VARCHAR(60) NOT NULL,
     `create_time` DATETIME NOT NULL,
     `update_time` DATETIME NOT NULL,
     PRIMARY KEY (`id`),

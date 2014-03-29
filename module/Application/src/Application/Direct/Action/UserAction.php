@@ -13,6 +13,7 @@ use PHPX\Ext\Direct\Result\Failure;
 use PHPX\Ext\Direct\Result\Success;
 use Propel\User;
 use Propel\UserPeer;
+use Zend\ServiceManager\ServiceManager;
 
 /**
  * Class UserAction
@@ -25,6 +26,21 @@ class UserAction extends BaseAction {
      * @var \Application\Dao\Impl\UserDao
      */
     private $userDao;
+
+    /**
+     * @var \Application\Auth\Crypt
+     */
+    private $cryptGenerator;
+
+    /**
+     * @override
+     * @param ServiceManager $sm
+     */
+    public function __construct(ServiceManager $sm)
+    {
+        parent::__construct($sm);
+        $this->cryptGenerator = $this->getServiceManager()->get('Accountmanager\Auth\Crypt');
+    }
 
     public function listMethod(array $data) {
         $page = $data[0];
@@ -65,7 +81,7 @@ class UserAction extends BaseAction {
         $user->setNickname($data['NickName']);
         $user->setRoleId($data['RoleId']);
         if(trim($data['Password'])) {
-            $user->setPassword($data['Password']);
+            $user->setPassword($this->cryptGenerator->create($data['Password']));
         }
         $this->userDao->save($user);
         // success return
@@ -91,7 +107,7 @@ class UserAction extends BaseAction {
         $user->setName($data['Name']);
         $user->setNickname($data['NickName']);
         $user->setRoleId($data['RoleId']);
-        $user->setPassword($data['Password']);
+        $user->setPassword($this->cryptGenerator->create($data['Password']));
         $this->userDao->save($user);
         // success return
         return new Success(array(

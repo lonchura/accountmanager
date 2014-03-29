@@ -35,6 +35,13 @@ return array(
             }
             return new \Application\Service\CaptchaService($config['captcha']);
         },
+        'Accountmanager\Auth\Crypt' => function($sm) {
+            $config = $sm->get('config');
+            if(!isset($config['authCrypt'])) {
+                throw new \Exception('auth crypt config not found in module');
+            }
+            return new \Application\Auth\Crypt($config['authCrypt']);
+        },
         /**
          * Zend\Session\SessionManager
          */
