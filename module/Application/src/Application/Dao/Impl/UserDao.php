@@ -10,6 +10,8 @@
 
 namespace Application\Dao\Impl;
 
+use Domain\Application\Dao\Exception;
+use Propel\User;
 use Propel\UserPeer;
 use Propel\UserQuery;
 
@@ -55,6 +57,20 @@ class UserDao implements \Application\Dao\UserDao {
      */
     public function getUserById($id) {
         return UserQuery::create()->findOneById($id);
+    }
+
+    /**
+     * @param User $user
+     * @return int
+     * @throws \Application\Dao\RuntimeException
+     */
+    public function save(User $user) {
+        try {
+            $rowsAffected = $user->save();
+        } catch(Exception $e) {
+            throw new \Application\Dao\RuntimeException('save($user) failed', 0, $e);
+        }
+        return $rowsAffected;
     }
 
     /**

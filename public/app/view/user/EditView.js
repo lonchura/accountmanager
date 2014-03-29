@@ -66,6 +66,7 @@ Ext.define('AccountManager.view.user.EditView', {
                     valueField: 'RoleId',
                     displayField: 'RoleName',
                     store: 'RoleCombo',
+                    editable: false,
                     forceSelection: true,
                     queryMode: 'local',
                     allowBlank: false,

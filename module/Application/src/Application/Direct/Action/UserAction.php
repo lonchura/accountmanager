@@ -67,7 +67,7 @@ class UserAction extends BaseAction {
         if(trim($data['Password'])) {
             $user->setPassword($data['Password']);
         }
-        $user->save();
+        $this->userDao->save($user);
         // success return
         return new Success(array(
             'UserId' => $user->getId(),
@@ -92,7 +92,7 @@ class UserAction extends BaseAction {
         $user->setNickname($data['NickName']);
         $user->setRoleId($data['RoleId']);
         $user->setPassword($data['Password']);
-        $user->save();
+        $this->userDao->save($user);
         // success return
         return new Success(array(
             'UserId' => $user->getId(),
