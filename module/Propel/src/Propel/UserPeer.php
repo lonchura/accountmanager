@@ -18,4 +18,7 @@ use Propel\om\BaseUserPeer;
  */
 class UserPeer extends BaseUserPeer
 {
+    public static $modelFieldMapping = array(
+        'UserId' => self::ID
+    );
 }

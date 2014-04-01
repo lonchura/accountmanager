@@ -30,7 +30,7 @@ class UserDao implements \Application\Dao\UserDao {
     }
 
     /**
-     * @param array $page
+     * @param array $page Ext direct page request
      * @return array(
      *      'total' => int
      *      'list' => \PropelObjectCollection
@@ -38,6 +38,16 @@ class UserDao implements \Application\Dao\UserDao {
      */
     public function find(array $page) {
         $criteria = new \Criteria();
+        if(isset($page['sort']) && is_array($page['sort'])) {
+            foreach($page['sort'] as $sort) {
+                \PHPX\Propel\Util\Ext\Direct\Criteria::bindSort(
+                    $criteria,
+                    array_merge($sort, array(
+                        'column' => UserPeer::$modelFieldMapping[$sort['property']]
+                    )
+                ));
+            }
+        }
         $criteria->setOffset($page['start']);
         $criteria->setLimit($page['limit']);
         return array(

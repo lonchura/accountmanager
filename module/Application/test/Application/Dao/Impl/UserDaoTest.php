@@ -80,6 +80,77 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase {
         $this->assertNull($user, 'Expect return null');
     }
 
+    public function testFindNormal() {
+        $page = array(
+            'limit' => 50,
+            'page' => 1,
+            'sort' => null,
+            'start' => 0
+        );
+        $pageResult = $this->userDao->find($page);
+        $this->assertTrue(is_array($pageResult), 'Page result should be array type');
+        $this->assertTrue(isset($pageResult['total']), 'Page result should has property "total"');
+        $this->assertInternalType('int', $pageResult['total'], 'Page result property "total" type is not int');
+        $this->assertTrue(isset($pageResult['list']), 'Page result should has property "list"');
+        $this->assertInstanceOf('\PropelObjectCollection', $pageResult['list'], 'Page result property "list" type is not instance of \PropelObjectCollection');
+        $this->assertEquals(2, count($pageResult['list']), 'Page result count unexpected on current context');
+    }
+
+    public function testFindSortDESC() {
+        $page = array(
+            'limit' => 50,
+            'page' => 1,
+            'sort' => array(
+                array(
+                    'property' => 'UserId',
+                    'direction' => 'DESC'
+                )
+            ),
+            'start' => 0
+        );
+        $pageResult = $this->userDao->find($page);
+        $user = current($pageResult['list']);
+        $this->assertEquals(self::$demoUser2['id'], $user->getId());
+        $user = next($pageResult['list']);
+        $this->assertEquals(self::$demoUser['id'], $user->getId());
+    }
+    public function testFindSortASC() {
+        $page = array(
+            'limit' => 50,
+            'page' => 1,
+            'sort' => array(
+                array(
+                    'property' => 'UserId',
+                    'direction' => 'ASC'
+                )
+            ),
+            'start' => 0
+        );
+        $pageResult = $this->userDao->find($page);
+        $user = current($pageResult['list']);
+        $this->assertEquals(self::$demoUser['id'], $user->getId());
+        $user = next($pageResult['list']);
+        $this->assertEquals(self::$demoUser2['id'], $user->getId());
+    }
+    /**
+     * @expectedException \PHPX\Propel\Util\Ext\RuntimeException
+     * @expectedExceptionMessage
+     */
+    public function testFindSortIllegalType() {
+        $page = array(
+            'limit' => 50,
+            'page' => 1,
+            'sort' => array(
+                array(
+                    'property' => 'UserId',
+                    'direction' => 'Illegal'
+                )
+            ),
+            'start' => 0
+        );
+        $this->userDao->find($page);
+    }
+
     public function testGetUserById() {
         $user = $this->userDao->getUserById(self::$demoUser['id']);
 
