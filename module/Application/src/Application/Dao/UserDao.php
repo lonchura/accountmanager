@@ -3,20 +3,13 @@
  * Author: Psyduck.Mans
  */
 namespace Application\Dao;
+use Propel\User;
 
 /**
  * Interface UserDao
  * @package Application\Dao
  */
 interface UserDao {
-    /**
-     * find User by where
-     *
-     * @param array $where
-     * @return \Propel\User
-     */
-    public function findOneByWhere(array $where);
-
     /**
      * @param array $page
      * @return array(
@@ -37,4 +30,11 @@ interface UserDao {
      * @return int
      */
     public function deleteRangeByIds(array $ids);
+
+    /**
+     * @param User $user
+     * @return int
+     * @throws \Application\Dao\RuntimeException
+     */
+    public function save(User $user);
 } 

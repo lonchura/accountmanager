@@ -9,14 +9,14 @@
          stopOnFailure="false"
          syntaxCheck="false"
          verbose="false"
-         bootstrap="tests/Bootstrap.php">
+         bootstrap="Bootstrap.php">
     <php>
-        <includePath>tests</includePath>
+        <includePath>.</includePath>
     </php>
 
     <testsuites>
         <testsuite name="Test Suite">
-            <directory suffix=".php">./tests/</directory>
+            <directory suffix=".php">.</directory>
         </testsuite>
     </testsuites>
 
@@ -24,11 +24,13 @@
         <whitelist>
         </whitelist>
         <blacklist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./module/Application/</directory>
-            <directory suffix=".php">./module/Propel/src/Propel/map/</directory>
-            <directory suffix=".php">./module/Propel/src/Propel/om/</directory>
-            <directory suffix=".php">./vendor/</directory>
-            <file>./module/Propel/Module.php</file>
+            <directory suffix=".php">.</directory>
+            <directory suffix=".php">../../Application/config</directory>
+            <directory suffix=".php">../../Propel/src/Propel/map/</directory>
+            <directory suffix=".php">../../Propel/src/Propel/om/</directory>
+            <directory suffix=".php">../../../vendor/</directory>
+            <file>../../Application/Module.php</file>
+            <file>../../Propel/Module.php</file>
         </blacklist>
     </filter>
 

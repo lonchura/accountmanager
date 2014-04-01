@@ -22,16 +22,11 @@ use Propel\UserQuery;
 class UserDao implements \Application\Dao\UserDao {
 
     /**
-     * @param array $where
+     * @param $name
      * @return \Propel\User|null
      */
-    public function findOneByWhere(array $where)
-    {
-        $criteria = new \Criteria();
-        foreach($where as $field=>$value) {
-            $criteria->addAnd($field, $value);
-        }
-        return UserQuery::create(null, $criteria)->findOne();
+    public function findOneByName($name) {
+        return UserQuery::create()->findOneByName($name);
     }
 
     /**
@@ -67,7 +62,7 @@ class UserDao implements \Application\Dao\UserDao {
     public function save(User $user) {
         try {
             $rowsAffected = $user->save();
-        } catch(Exception $e) {
+        } catch(\Exception $e) {
             throw new \Application\Dao\RuntimeException('save($user) failed', 0, $e);
         }
         return $rowsAffected;

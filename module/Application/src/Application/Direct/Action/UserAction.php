@@ -67,7 +67,7 @@ class UserAction extends BaseAction {
 
     public function editMethod(array $data) {
         // check dupli name
-        $user = $this->userDao->findOneByWhere(array(UserPeer::NAME => $data['Name']));
+        $user = $this->userDao->findOneByName($data['Name']);
         if($user && $user->getId()!=$data['UserId']) {
             return new Failure('用户名:“'.$data['Name'].'”已存在，请重新命名');
         }
@@ -98,7 +98,7 @@ class UserAction extends BaseAction {
 
     public function addMethod(array $data) {
         // check dupli name
-        $user = $this->userDao->findOneByWhere(array(UserPeer::NAME => $data['Name']));
+        $user = $this->userDao->findOneByName($data['Name']);
         if($user) {
             return new Failure('用户名:“'.$data['Name'].'”已存在，请重新命名');
         }

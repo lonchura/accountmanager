@@ -57,7 +57,7 @@ class Adapter implements AdapterInterface {
      */
     public function authenticate() {
         $userDao = new UserDao();
-        $user = $userDao->findOneByWhere(array(UserPeer::NAME => $this->username));
+        $user = $userDao->findOneByName($this->username);
         if($user instanceof User && $this->cryptGenerator->verify($this->password, $user->getPassword())) {
             return new Result(Result::SUCCESS, $user->getIdentity(), array());
         } else {
