@@ -18,4 +18,7 @@ use Propel\om\BaseAccountPeer;
  */
 class AccountPeer extends BaseAccountPeer
 {
+    public static $modelFieldMapping = array(
+        'Id' => self::ID
+    );
 }

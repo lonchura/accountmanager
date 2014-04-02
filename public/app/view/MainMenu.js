@@ -10,8 +10,8 @@ Ext.define('AccountManager.view.MainMenu', {
         identity = Ext.state.Manager.get('identity');
 
         buttons = [];
+        buttons.push({text:'资源管理', action:'resource'});
         buttons.push({text:'账号管理', action:'account'});
-        buttons.push({text:'密码管理', action:'password'});
         if(identity.role_id===1) {
             buttons.push({text:'用户管理', action:'user'});
         }

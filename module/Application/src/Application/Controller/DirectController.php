@@ -22,6 +22,7 @@ class DirectController extends BaseController {
             ->setActionManager(new \PHPX\Ext\Direct\ActionManager(array(
                 'actions' => array(
                     'AccountManager.Direct.Login' => $this->getServiceLocator()->get('Accountmanager\Direct\Service\login'),
+                    'AccountManager.Direct.Account' => $this->getServiceLocator()->get('Accountmanager\Direct\Service\Account'),
                     'AccountManager.Direct.User' => $this->getServiceLocator()->get('Accountmanager\Direct\Service\User'),
                     'AccountManager.Direct.Role' => $this->getServiceLocator()->get('Accountmanager\Direct\Service\Role')
                 )

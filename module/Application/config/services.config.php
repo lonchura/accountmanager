@@ -19,6 +19,9 @@ return array(
         'Accountmanager\Direct\Service\login' => function($sm) {
             return new \Application\Direct\Action\LoginAction($sm);
         },
+        'Accountmanager\Direct\Service\Account' => function($sm) {
+            return new \Application\Direct\Action\AccountAction($sm);
+        },
         'Accountmanager\Direct\Service\User' => function($sm) {
             return new \Application\Direct\Action\UserAction($sm);
         },
@@ -35,6 +38,9 @@ return array(
             }
             return new \Application\Service\CaptchaService($config['captcha']);
         },
+        /**
+         * Auth\Crypt
+         */
         'Accountmanager\Auth\Crypt' => function($sm) {
             $config = $sm->get('config');
             if(!isset($config['authCrypt'])) {
