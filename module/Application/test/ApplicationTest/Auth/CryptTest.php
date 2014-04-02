@@ -8,15 +8,15 @@
  * @author    Psyduck.Mans
  */
 
-namespace Application\Auth;
+namespace ApplicationTest\Auth;
 
 /**
  * Class CryptTest
- * @package Application\Auth
+ * @package ApplicationTest\Auth
  */
 class CryptTest extends \PHPUnit_Framework_TestCase {
     /**
-     * @var \Application\Auth\Crypt
+     * @var \ApplicationTest\Auth\Crypt
      */
     private $cryptGenerator;
     /**
@@ -25,7 +25,7 @@ class CryptTest extends \PHPUnit_Framework_TestCase {
     protected function setUp()
     {
         parent::setUp();
-        $this->cryptGenerator = \Application\Bootstrap::getServiceManager()->get('Accountmanager\Auth\Crypt');
+        $this->cryptGenerator = \Bootstrap::getServiceManager()->get('Accountmanager\Auth\Crypt');
     }
     /**
      * tearDown

@@ -20,7 +20,6 @@ use Zend\ServiceManager\ServiceManager;
  */
 class AccountAction extends BaseAction {
     /**
-     * @Inject \Application\Dao\Impl\AccountDao
      * @var \Application\Dao\Impl\AccountDao
      */
     private $accountDao;
@@ -32,6 +31,7 @@ class AccountAction extends BaseAction {
     public function __construct(ServiceManager $sm)
     {
         parent::__construct($sm);
+        $this->accountDao = new \Application\Dao\Impl\AccountDao($this->getIdentity()->getId());
     }
 
     public function listMethod(array $data) {

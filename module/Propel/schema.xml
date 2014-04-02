@@ -13,6 +13,7 @@
     <!-- account -->
     <table name="account" description="账号表">
         <column name="id" type="INTEGER" size="3" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="user_id" type="INTEGER" size="4" required="true" />
         <column name="identifier" type="VARCHAR" size="255" required="true" />
         <column name="password" type="VARCHAR" size="255" />
         <column name="create_time" type="TIMESTAMP" required="true" />
@@ -22,8 +23,12 @@
             <parameter name="update_column" value="update_time" />
         </behavior>
         <unique>
+            <unique-column name="user_id" />
             <unique-column name="identifier" />
         </unique>
+        <foreign-key foreignTable="user" onDelete="cascade">
+            <reference local="user_id" foreign="id" />
+        </foreign-key>
         <index>
             <index-column name="create_time" />
         </index>

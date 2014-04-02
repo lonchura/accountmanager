@@ -10,14 +10,15 @@
 
 namespace Application\Controller;
 
-
-use Application\Auth\Adapter;
-use Zend\Authentication\AuthenticationService;
 use Zend\Mvc\MvcEvent;
 
+/**
+ * Class AuthController
+ * @package Application\Controller
+ */
 class AuthController extends BaseController {
     /**
-     * @var mix|null
+     * @var \Application\Auth\Identity
      */
     private $identity;
     /**
@@ -37,23 +38,20 @@ class AuthController extends BaseController {
      * @param MvcEvent $e
      */
     public function preDispatch(\Zend\Mvc\MvcEvent $e) {
-        $authenticationService = new AuthenticationService();
-        if($authenticationService->getIdentity()) {
-            $this->identity = $authenticationService->getIdentity();
-        }
+        $this->identity = $e->getApplication()->getServiceManager()->get('Accountmanager\Auth\AuthenticationService')->getIdentity();
     }
 
     /**
      * @return bool
      */
-    public function hasIdentity() {
+    protected function hasIdentity() {
         return null !== $this->identity;
     }
 
     /**
-     * @return mix|null
+     * @return \Application\Auth\Identity
      */
-    public function getIdentity() {
+    protected function getIdentity() {
         return $this->identity;
     }
 }

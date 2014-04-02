@@ -9,6 +9,7 @@ use \PDOStatement;
 use \Propel;
 use \PropelException;
 use \PropelPDO;
+use Propel\AccountPeer;
 use Propel\RolePeer;
 use Propel\User;
 use Propel\UserPeer;
@@ -398,6 +399,9 @@ abstract class BaseUserPeer
      */
     public static function clearRelatedInstancePool()
     {
+        // Invalidate objects in AccountPeer instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+        AccountPeer::clearInstancePool();
     }
 
     /**

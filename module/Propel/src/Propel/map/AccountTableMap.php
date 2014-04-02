@@ -43,6 +43,7 @@ class AccountTableMap extends TableMap
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, 3, null);
+        $this->addForeignKey('user_id', 'UserId', 'INTEGER', 'user', 'id', true, 4, null);
         $this->addColumn('identifier', 'Identifier', 'VARCHAR', true, 255, null);
         $this->addColumn('password', 'Password', 'VARCHAR', false, 255, null);
         $this->addColumn('create_time', 'CreateTime', 'TIMESTAMP', true, null, null);
@@ -55,6 +56,7 @@ class AccountTableMap extends TableMap
      */
     public function buildRelations()
     {
+        $this->addRelation('User', 'Propel\\User', RelationMap::MANY_TO_ONE, array('user_id' => 'id', ), 'CASCADE', null);
         $this->addRelation('ResourceAccount', 'Propel\\ResourceAccount', RelationMap::ONE_TO_MANY, array('id' => 'account_id', ), null, null, 'ResourceAccounts');
         $this->addRelation('Resource', 'Propel\\Resource', RelationMap::MANY_TO_MANY, array(), null, null, 'Resources');
     } // buildRelations()

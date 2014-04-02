@@ -10,9 +10,13 @@ use \Exception;
 use \PDO;
 use \Persistent;
 use \Propel;
+use \PropelCollection;
 use \PropelDateTime;
 use \PropelException;
+use \PropelObjectCollection;
 use \PropelPDO;
+use Propel\Account;
+use Propel\AccountQuery;
 use Propel\Role;
 use Propel\RoleQuery;
 use Propel\User;
@@ -95,6 +99,12 @@ abstract class BaseUser extends BaseObject implements Persistent
     protected $aRole;
 
     /**
+     * @var        PropelObjectCollection|Account[] Collection to store aggregation of Account objects.
+     */
+    protected $collAccounts;
+    protected $collAccountsPartial;
+
+    /**
      * Flag to prevent endless save loop, if this object is referenced
      * by another object which falls in this transaction.
      * @var        boolean
@@ -113,6 +123,12 @@ abstract class BaseUser extends BaseObject implements Persistent
      * @var        boolean
      */
     protected $alreadyInClearAllReferencesDeep = false;
+
+    /**
+     * An array of objects scheduled for deletion.
+     * @var		PropelObjectCollection
+     */
+    protected $accountsScheduledForDeletion = null;
 
     /**
      * Get the [id] column value.
@@ -518,6 +534,8 @@ abstract class BaseUser extends BaseObject implements Persistent
         if ($deep) {  // also de-associate any related objects?
 
             $this->aRole = null;
+            $this->collAccounts = null;
+
         } // if (deep)
     }
 
@@ -663,6 +681,23 @@ abstract class BaseUser extends BaseObject implements Persistent
                 }
                 $affectedRows += 1;
                 $this->resetModified();
+            }
+
+            if ($this->accountsScheduledForDeletion !== null) {
+                if (!$this->accountsScheduledForDeletion->isEmpty()) {
+                    AccountQuery::create()
+                        ->filterByPrimaryKeys($this->accountsScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
+                    $this->accountsScheduledForDeletion = null;
+                }
+            }
+
+            if ($this->collAccounts !== null) {
+                foreach ($this->collAccounts as $referrerFK) {
+                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
+                        $affectedRows += $referrerFK->save($con);
+                    }
+                }
             }
 
             $this->alreadyInSave = false;
@@ -855,6 +890,14 @@ abstract class BaseUser extends BaseObject implements Persistent
             }
 
 
+                if ($this->collAccounts !== null) {
+                    foreach ($this->collAccounts as $referrerFK) {
+                        if (!$referrerFK->validate($columns)) {
+                            $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
+                        }
+                    }
+                }
+
 
             $this->alreadyInValidation = false;
         }
@@ -956,6 +999,9 @@ abstract class BaseUser extends BaseObject implements Persistent
         if ($includeForeignObjects) {
             if (null !== $this->aRole) {
                 $result['Role'] = $this->aRole->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
+            if (null !== $this->collAccounts) {
+                $result['Accounts'] = $this->collAccounts->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -1138,6 +1184,12 @@ abstract class BaseUser extends BaseObject implements Persistent
             // store object hash to prevent cycle
             $this->startCopy = true;
 
+            foreach ($this->getAccounts() as $relObj) {
+                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
+                    $copyObj->addAccount($relObj->copy($deepCopy));
+                }
+            }
+
             //unflag object copy
             $this->startCopy = false;
         } // if ($deepCopy)
@@ -1240,6 +1292,247 @@ abstract class BaseUser extends BaseObject implements Persistent
         return $this->aRole;
     }
 
+
+    /**
+     * Initializes a collection based on the name of a relation.
+     * Avoids crafting an 'init[$relationName]s' method name
+     * that wouldn't work when StandardEnglishPluralizer is used.
+     *
+     * @param string $relationName The name of the relation to initialize
+     * @return void
+     */
+    public function initRelation($relationName)
+    {
+        if ('Account' == $relationName) {
+            $this->initAccounts();
+        }
+    }
+
+    /**
+     * Clears out the collAccounts collection
+     *
+     * This does not modify the database; however, it will remove any associated objects, causing
+     * them to be refetched by subsequent calls to accessor method.
+     *
+     * @return User The current object (for fluent API support)
+     * @see        addAccounts()
+     */
+    public function clearAccounts()
+    {
+        $this->collAccounts = null; // important to set this to null since that means it is uninitialized
+        $this->collAccountsPartial = null;
+
+        return $this;
+    }
+
+    /**
+     * reset is the collAccounts collection loaded partially
+     *
+     * @return void
+     */
+    public function resetPartialAccounts($v = true)
+    {
+        $this->collAccountsPartial = $v;
+    }
+
+    /**
+     * Initializes the collAccounts collection.
+     *
+     * By default this just sets the collAccounts collection to an empty array (like clearcollAccounts());
+     * however, you may wish to override this method in your stub class to provide setting appropriate
+     * to your application -- for example, setting the initial array to the values stored in database.
+     *
+     * @param boolean $overrideExisting If set to true, the method call initializes
+     *                                        the collection even if it is not empty
+     *
+     * @return void
+     */
+    public function initAccounts($overrideExisting = true)
+    {
+        if (null !== $this->collAccounts && !$overrideExisting) {
+            return;
+        }
+        $this->collAccounts = new PropelObjectCollection();
+        $this->collAccounts->setModel('Account');
+    }
+
+    /**
+     * Gets an array of Account objects which contain a foreign key that references this object.
+     *
+     * If the $criteria is not null, it is used to always fetch the results from the database.
+     * Otherwise the results are fetched from the database the first time, then cached.
+     * Next time the same method is called without $criteria, the cached collection is returned.
+     * If this User is new, it will return
+     * an empty collection or the current collection; the criteria is ignored on a new object.
+     *
+     * @param Criteria $criteria optional Criteria object to narrow the query
+     * @param PropelPDO $con optional connection object
+     * @return PropelObjectCollection|Account[] List of Account objects
+     * @throws PropelException
+     */
+    public function getAccounts($criteria = null, PropelPDO $con = null)
+    {
+        $partial = $this->collAccountsPartial && !$this->isNew();
+        if (null === $this->collAccounts || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collAccounts) {
+                // return empty collection
+                $this->initAccounts();
+            } else {
+                $collAccounts = AccountQuery::create(null, $criteria)
+                    ->filterByUser($this)
+                    ->find($con);
+                if (null !== $criteria) {
+                    if (false !== $this->collAccountsPartial && count($collAccounts)) {
+                      $this->initAccounts(false);
+
+                      foreach ($collAccounts as $obj) {
+                        if (false == $this->collAccounts->contains($obj)) {
+                          $this->collAccounts->append($obj);
+                        }
+                      }
+
+                      $this->collAccountsPartial = true;
+                    }
+
+                    $collAccounts->getInternalIterator()->rewind();
+
+                    return $collAccounts;
+                }
+
+                if ($partial && $this->collAccounts) {
+                    foreach ($this->collAccounts as $obj) {
+                        if ($obj->isNew()) {
+                            $collAccounts[] = $obj;
+                        }
+                    }
+                }
+
+                $this->collAccounts = $collAccounts;
+                $this->collAccountsPartial = false;
+            }
+        }
+
+        return $this->collAccounts;
+    }
+
+    /**
+     * Sets a collection of Account objects related by a one-to-many relationship
+     * to the current object.
+     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
+     * and new objects from the given Propel collection.
+     *
+     * @param PropelCollection $accounts A Propel collection.
+     * @param PropelPDO $con Optional connection object
+     * @return User The current object (for fluent API support)
+     */
+    public function setAccounts(PropelCollection $accounts, PropelPDO $con = null)
+    {
+        $accountsToDelete = $this->getAccounts(new Criteria(), $con)->diff($accounts);
+
+
+        $this->accountsScheduledForDeletion = $accountsToDelete;
+
+        foreach ($accountsToDelete as $accountRemoved) {
+            $accountRemoved->setUser(null);
+        }
+
+        $this->collAccounts = null;
+        foreach ($accounts as $account) {
+            $this->addAccount($account);
+        }
+
+        $this->collAccounts = $accounts;
+        $this->collAccountsPartial = false;
+
+        return $this;
+    }
+
+    /**
+     * Returns the number of related Account objects.
+     *
+     * @param Criteria $criteria
+     * @param boolean $distinct
+     * @param PropelPDO $con
+     * @return int             Count of related Account objects.
+     * @throws PropelException
+     */
+    public function countAccounts(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+    {
+        $partial = $this->collAccountsPartial && !$this->isNew();
+        if (null === $this->collAccounts || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collAccounts) {
+                return 0;
+            }
+
+            if ($partial && !$criteria) {
+                return count($this->getAccounts());
+            }
+            $query = AccountQuery::create(null, $criteria);
+            if ($distinct) {
+                $query->distinct();
+            }
+
+            return $query
+                ->filterByUser($this)
+                ->count($con);
+        }
+
+        return count($this->collAccounts);
+    }
+
+    /**
+     * Method called to associate a Account object to this object
+     * through the Account foreign key attribute.
+     *
+     * @param    Account $l Account
+     * @return User The current object (for fluent API support)
+     */
+    public function addAccount(Account $l)
+    {
+        if ($this->collAccounts === null) {
+            $this->initAccounts();
+            $this->collAccountsPartial = true;
+        }
+
+        if (!in_array($l, $this->collAccounts->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
+            $this->doAddAccount($l);
+
+            if ($this->accountsScheduledForDeletion and $this->accountsScheduledForDeletion->contains($l)) {
+                $this->accountsScheduledForDeletion->remove($this->accountsScheduledForDeletion->search($l));
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param	Account $account The account object to add.
+     */
+    protected function doAddAccount($account)
+    {
+        $this->collAccounts[]= $account;
+        $account->setUser($this);
+    }
+
+    /**
+     * @param	Account $account The account object to remove.
+     * @return User The current object (for fluent API support)
+     */
+    public function removeAccount($account)
+    {
+        if ($this->getAccounts()->contains($account)) {
+            $this->collAccounts->remove($this->collAccounts->search($account));
+            if (null === $this->accountsScheduledForDeletion) {
+                $this->accountsScheduledForDeletion = clone $this->collAccounts;
+                $this->accountsScheduledForDeletion->clear();
+            }
+            $this->accountsScheduledForDeletion[]= clone $account;
+            $account->setUser(null);
+        }
+
+        return $this;
+    }
+
     /**
      * Clears the current object and sets all attributes to their default values
      */
@@ -1274,6 +1567,11 @@ abstract class BaseUser extends BaseObject implements Persistent
     {
         if ($deep && !$this->alreadyInClearAllReferencesDeep) {
             $this->alreadyInClearAllReferencesDeep = true;
+            if ($this->collAccounts) {
+                foreach ($this->collAccounts as $o) {
+                    $o->clearAllReferences($deep);
+                }
+            }
             if ($this->aRole instanceof Persistent) {
               $this->aRole->clearAllReferences($deep);
             }
@@ -1281,6 +1579,10 @@ abstract class BaseUser extends BaseObject implements Persistent
             $this->alreadyInClearAllReferencesDeep = false;
         } // if ($deep)
 
+        if ($this->collAccounts instanceof PropelCollection) {
+            $this->collAccounts->clearIterator();
+        }
+        $this->collAccounts = null;
         $this->aRole = null;
     }
 

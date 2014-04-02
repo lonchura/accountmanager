@@ -20,13 +20,24 @@ use Propel\AccountQuery;
  * @package Application\Dao\Impl
  */
 class AccountDao implements \Application\Dao\AccountDao {
+    /**
+     * @var
+     */
+    private $userId;
+
+    /**
+     * @param $userId
+     */
+    public function __construct($userId) {
+        $this->userId = $userId;
+    }
 
     /**
      * @param $identifier
      * @return \Propel\Account|null
      */
     public function findOneByIdentifier($identifier) {
-        return AccountQuery::create()->findOneByIdentifier($identifier);
+        return AccountQuery::create()->filterByUserId($this->userId)->findOneByIdentifier($identifier);
     }
 
     /**
@@ -51,8 +62,8 @@ class AccountDao implements \Application\Dao\AccountDao {
         $criteria->setOffset($page['start']);
         $criteria->setLimit($page['limit']);
         return array(
-            'total' => AccountQuery::create()->count(),
-            'list' => AccountQuery::create(null, $criteria)->find()
+            'total' => AccountQuery::create()->filterByUserId($this->userId)->count(),
+            'list' => AccountQuery::create(null, $criteria)->filterByUserId($this->userId)->find()
         );
     }
 
@@ -61,7 +72,7 @@ class AccountDao implements \Application\Dao\AccountDao {
      * @return \Propel\Account
      */
     public function getAccountById($id) {
-        return AccountQuery::create()->findOneById($id);
+        return AccountQuery::create()->filterByUserId($this->userId)->findOneById($id);
     }
 
     /**
@@ -85,6 +96,6 @@ class AccountDao implements \Application\Dao\AccountDao {
     public function deleteRangeByIds(array $ids) {
         $criteria = new \Criteria();
         $criteria->addAnd(AccountPeer::ID, $ids, \Criteria::IN);
-        return AccountQuery::create(null, $criteria)->delete();
+        return AccountQuery::create(null, $criteria)->filterByUserId($this->userId)->delete();
     }
 }

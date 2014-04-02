@@ -14,7 +14,6 @@ use Application\Auth\Adapter;
 use Application\Service\CaptchaService;
 use PHPX\Ext\Direct\Result\Failure;
 use PHPX\Ext\Direct\Result\Success;
-use Zend\Authentication\AuthenticationService;
 
 /**
  * Class LoginAction
@@ -41,10 +40,10 @@ class LoginAction extends BaseAction {
         // check auth
         $cryptGenerator = $this->getServiceManager()->get('Accountmanager\Auth\Crypt');
         $adapter = new Adapter($cryptGenerator, $username, $password);
-        $authenticationService = new AuthenticationService();
+        $authenticationService = $this->getServiceManager()->get('Accountmanager\Auth\AuthenticationService');
         $result = $authenticationService->authenticate($adapter);
         if($result->isValid()) {
-            return new Success(array('identity' => $result->getIdentity()), '登陆成功');
+            return new Success(array('identity' => $result->getIdentity()->toArray()), '登陆成功');
         } else {
             return new Failure('登陆失败, '.current($result->getMessages()));
         }

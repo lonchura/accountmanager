@@ -24,7 +24,7 @@ use Propel\ResourceQuery;
 /**
  * Base class that represents a row from the 'resource_account' table.
  *
- * 资源账户关联表
+ * 资源账号关联表
  *
  * @package    propel.generator.Propel.om
  */

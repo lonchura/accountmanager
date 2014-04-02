@@ -22,11 +22,13 @@ use Propel\Resource;
 use Propel\ResourceAccount;
 use Propel\ResourceAccountQuery;
 use Propel\ResourceQuery;
+use Propel\User;
+use Propel\UserQuery;
 
 /**
  * Base class that represents a row from the 'account' table.
  *
- * 账户表
+ * 账号表
  *
  * @package    propel.generator.Propel.om
  */
@@ -58,6 +60,12 @@ abstract class BaseAccount extends BaseObject implements Persistent
     protected $id;
 
     /**
+     * The value for the user_id field.
+     * @var        int
+     */
+    protected $user_id;
+
+    /**
      * The value for the identifier field.
      * @var        string
      */
@@ -80,6 +88,11 @@ abstract class BaseAccount extends BaseObject implements Persistent
      * @var        string
      */
     protected $update_time;
+
+    /**
+     * @var        User
+     */
+    protected $aUser;
 
     /**
      * @var        PropelObjectCollection|ResourceAccount[] Collection to store aggregation of ResourceAccount objects.
@@ -133,6 +146,17 @@ abstract class BaseAccount extends BaseObject implements Persistent
     {
 
         return $this->id;
+    }
+
+    /**
+     * Get the [user_id] column value.
+     *
+     * @return int
+     */
+    public function getUserId()
+    {
+
+        return $this->user_id;
     }
 
     /**
@@ -259,6 +283,31 @@ abstract class BaseAccount extends BaseObject implements Persistent
     } // setId()
 
     /**
+     * Set the value of [user_id] column.
+     *
+     * @param  int $v new value
+     * @return Account The current object (for fluent API support)
+     */
+    public function setUserId($v)
+    {
+        if ($v !== null && is_numeric($v)) {
+            $v = (int) $v;
+        }
+
+        if ($this->user_id !== $v) {
+            $this->user_id = $v;
+            $this->modifiedColumns[] = AccountPeer::USER_ID;
+        }
+
+        if ($this->aUser !== null && $this->aUser->getId() !== $v) {
+            $this->aUser = null;
+        }
+
+
+        return $this;
+    } // setUserId()
+
+    /**
      * Set the value of [identifier] column.
      *
      * @param  string $v new value
@@ -379,10 +428,11 @@ abstract class BaseAccount extends BaseObject implements Persistent
         try {
 
             $this->id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
-            $this->identifier = ($row[$startcol + 1] !== null) ? (string) $row[$startcol + 1] : null;
-            $this->password = ($row[$startcol + 2] !== null) ? (string) $row[$startcol + 2] : null;
-            $this->create_time = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
-            $this->update_time = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
+            $this->user_id = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
+            $this->identifier = ($row[$startcol + 2] !== null) ? (string) $row[$startcol + 2] : null;
+            $this->password = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
+            $this->create_time = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
+            $this->update_time = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -392,7 +442,7 @@ abstract class BaseAccount extends BaseObject implements Persistent
             }
             $this->postHydrate($row, $startcol, $rehydrate);
 
-            return $startcol + 5; // 5 = AccountPeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 6; // 6 = AccountPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating Account object", $e);
@@ -415,6 +465,9 @@ abstract class BaseAccount extends BaseObject implements Persistent
     public function ensureConsistency()
     {
 
+        if ($this->aUser !== null && $this->user_id !== $this->aUser->getId()) {
+            $this->aUser = null;
+        }
     } // ensureConsistency
 
     /**
@@ -454,6 +507,7 @@ abstract class BaseAccount extends BaseObject implements Persistent
 
         if ($deep) {  // also de-associate any related objects?
 
+            $this->aUser = null;
             $this->collResourceAccounts = null;
 
             $this->collResources = null;
@@ -581,6 +635,18 @@ abstract class BaseAccount extends BaseObject implements Persistent
         if (!$this->alreadyInSave) {
             $this->alreadyInSave = true;
 
+            // We call the save method on the following object(s) if they
+            // were passed to this object by their corresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aUser !== null) {
+                if ($this->aUser->isModified() || $this->aUser->isNew()) {
+                    $affectedRows += $this->aUser->save($con);
+                }
+                $this->setUser($this->aUser);
+            }
+
             if ($this->isNew() || $this->isModified()) {
                 // persist changes
                 if ($this->isNew()) {
@@ -664,6 +730,9 @@ abstract class BaseAccount extends BaseObject implements Persistent
         if ($this->isColumnModified(AccountPeer::ID)) {
             $modifiedColumns[':p' . $index++]  = '`id`';
         }
+        if ($this->isColumnModified(AccountPeer::USER_ID)) {
+            $modifiedColumns[':p' . $index++]  = '`user_id`';
+        }
         if ($this->isColumnModified(AccountPeer::IDENTIFIER)) {
             $modifiedColumns[':p' . $index++]  = '`identifier`';
         }
@@ -689,6 +758,9 @@ abstract class BaseAccount extends BaseObject implements Persistent
                 switch ($columnName) {
                     case '`id`':
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
+                        break;
+                    case '`user_id`':
+                        $stmt->bindValue($identifier, $this->user_id, PDO::PARAM_INT);
                         break;
                     case '`identifier`':
                         $stmt->bindValue($identifier, $this->identifier, PDO::PARAM_STR);
@@ -796,6 +868,18 @@ abstract class BaseAccount extends BaseObject implements Persistent
             $failureMap = array();
 
 
+            // We call the validate method on the following object(s) if they
+            // were passed to this object by their corresponding set
+            // method.  This object relates to these object(s) by a
+            // foreign key reference.
+
+            if ($this->aUser !== null) {
+                if (!$this->aUser->validate($columns)) {
+                    $failureMap = array_merge($failureMap, $this->aUser->getValidationFailures());
+                }
+            }
+
+
             if (($retval = AccountPeer::doValidate($this, $columns)) !== true) {
                 $failureMap = array_merge($failureMap, $retval);
             }
@@ -848,15 +932,18 @@ abstract class BaseAccount extends BaseObject implements Persistent
                 return $this->getId();
                 break;
             case 1:
-                return $this->getIdentifier();
+                return $this->getUserId();
                 break;
             case 2:
-                return $this->getPassword();
+                return $this->getIdentifier();
                 break;
             case 3:
-                return $this->getCreateTime();
+                return $this->getPassword();
                 break;
             case 4:
+                return $this->getCreateTime();
+                break;
+            case 5:
                 return $this->getUpdateTime();
                 break;
             default:
@@ -889,10 +976,11 @@ abstract class BaseAccount extends BaseObject implements Persistent
         $keys = AccountPeer::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
-            $keys[1] => $this->getIdentifier(),
-            $keys[2] => $this->getPassword(),
-            $keys[3] => $this->getCreateTime(),
-            $keys[4] => $this->getUpdateTime(),
+            $keys[1] => $this->getUserId(),
+            $keys[2] => $this->getIdentifier(),
+            $keys[3] => $this->getPassword(),
+            $keys[4] => $this->getCreateTime(),
+            $keys[5] => $this->getUpdateTime(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -900,6 +988,9 @@ abstract class BaseAccount extends BaseObject implements Persistent
         }
 
         if ($includeForeignObjects) {
+            if (null !== $this->aUser) {
+                $result['User'] = $this->aUser->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            }
             if (null !== $this->collResourceAccounts) {
                 $result['ResourceAccounts'] = $this->collResourceAccounts->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
@@ -941,15 +1032,18 @@ abstract class BaseAccount extends BaseObject implements Persistent
                 $this->setId($value);
                 break;
             case 1:
-                $this->setIdentifier($value);
+                $this->setUserId($value);
                 break;
             case 2:
-                $this->setPassword($value);
+                $this->setIdentifier($value);
                 break;
             case 3:
-                $this->setCreateTime($value);
+                $this->setPassword($value);
                 break;
             case 4:
+                $this->setCreateTime($value);
+                break;
+            case 5:
                 $this->setUpdateTime($value);
                 break;
         } // switch()
@@ -977,10 +1071,11 @@ abstract class BaseAccount extends BaseObject implements Persistent
         $keys = AccountPeer::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
-        if (array_key_exists($keys[1], $arr)) $this->setIdentifier($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setPassword($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setCreateTime($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setUpdateTime($arr[$keys[4]]);
+        if (array_key_exists($keys[1], $arr)) $this->setUserId($arr[$keys[1]]);
+        if (array_key_exists($keys[2], $arr)) $this->setIdentifier($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setPassword($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setCreateTime($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setUpdateTime($arr[$keys[5]]);
     }
 
     /**
@@ -993,6 +1088,7 @@ abstract class BaseAccount extends BaseObject implements Persistent
         $criteria = new Criteria(AccountPeer::DATABASE_NAME);
 
         if ($this->isColumnModified(AccountPeer::ID)) $criteria->add(AccountPeer::ID, $this->id);
+        if ($this->isColumnModified(AccountPeer::USER_ID)) $criteria->add(AccountPeer::USER_ID, $this->user_id);
         if ($this->isColumnModified(AccountPeer::IDENTIFIER)) $criteria->add(AccountPeer::IDENTIFIER, $this->identifier);
         if ($this->isColumnModified(AccountPeer::PASSWORD)) $criteria->add(AccountPeer::PASSWORD, $this->password);
         if ($this->isColumnModified(AccountPeer::CREATE_TIME)) $criteria->add(AccountPeer::CREATE_TIME, $this->create_time);
@@ -1060,6 +1156,7 @@ abstract class BaseAccount extends BaseObject implements Persistent
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
+        $copyObj->setUserId($this->getUserId());
         $copyObj->setIdentifier($this->getIdentifier());
         $copyObj->setPassword($this->getPassword());
         $copyObj->setCreateTime($this->getCreateTime());
@@ -1126,6 +1223,58 @@ abstract class BaseAccount extends BaseObject implements Persistent
         }
 
         return self::$peer;
+    }
+
+    /**
+     * Declares an association between this object and a User object.
+     *
+     * @param                  User $v
+     * @return Account The current object (for fluent API support)
+     * @throws PropelException
+     */
+    public function setUser(User $v = null)
+    {
+        if ($v === null) {
+            $this->setUserId(NULL);
+        } else {
+            $this->setUserId($v->getId());
+        }
+
+        $this->aUser = $v;
+
+        // Add binding for other direction of this n:n relationship.
+        // If this object has already been added to the User object, it will not be re-added.
+        if ($v !== null) {
+            $v->addAccount($this);
+        }
+
+
+        return $this;
+    }
+
+
+    /**
+     * Get the associated User object
+     *
+     * @param PropelPDO $con Optional Connection object.
+     * @param $doQuery Executes a query to get the object if required
+     * @return User The associated User object.
+     * @throws PropelException
+     */
+    public function getUser(PropelPDO $con = null, $doQuery = true)
+    {
+        if ($this->aUser === null && ($this->user_id !== null) && $doQuery) {
+            $this->aUser = UserQuery::create()->findPk($this->user_id, $con);
+            /* The following can be used additionally to
+                guarantee the related object contains a reference
+                to this object.  This level of coupling may, however, be
+                undesirable since it could result in an only partially populated collection
+                in the referenced object.
+                $this->aUser->addAccounts($this);
+             */
+        }
+
+        return $this->aUser;
     }
 
 
@@ -1591,6 +1740,7 @@ abstract class BaseAccount extends BaseObject implements Persistent
     public function clear()
     {
         $this->id = null;
+        $this->user_id = null;
         $this->identifier = null;
         $this->password = null;
         $this->create_time = null;
@@ -1627,6 +1777,9 @@ abstract class BaseAccount extends BaseObject implements Persistent
                     $o->clearAllReferences($deep);
                 }
             }
+            if ($this->aUser instanceof Persistent) {
+              $this->aUser->clearAllReferences($deep);
+            }
 
             $this->alreadyInClearAllReferencesDeep = false;
         } // if ($deep)
@@ -1639,6 +1792,7 @@ abstract class BaseAccount extends BaseObject implements Persistent
             $this->collResources->clearIterator();
         }
         $this->collResources = null;
+        $this->aUser = null;
     }
 
     /**

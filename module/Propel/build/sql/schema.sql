@@ -12,15 +12,20 @@ DROP TABLE IF EXISTS `account`;
 CREATE TABLE `account`
 (
     `id` INTEGER(3) NOT NULL AUTO_INCREMENT,
+    `user_id` INTEGER(4) NOT NULL,
     `identifier` VARCHAR(255) NOT NULL,
     `password` VARCHAR(255),
     `create_time` DATETIME NOT NULL,
     `update_time` DATETIME NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `account_U_1` (`identifier`),
+    UNIQUE INDEX `account_U_1` (`user_id`, `identifier`),
     INDEX `account_I_1` (`create_time`),
-    INDEX `account_I_2` (`update_time`)
-) ENGINE=InnoDB COMMENT='账户表';
+    INDEX `account_I_2` (`update_time`),
+    CONSTRAINT `account_FK_1`
+        FOREIGN KEY (`user_id`)
+        REFERENCES `user` (`id`)
+        ON DELETE CASCADE
+) ENGINE=InnoDB COMMENT='账号表';
 
 -- ---------------------------------------------------------------------
 -- resource
@@ -88,7 +93,7 @@ CREATE TABLE `resource_account`
     CONSTRAINT `resource_account_FK_2`
         FOREIGN KEY (`account_id`)
         REFERENCES `account` (`id`)
-) ENGINE=InnoDB COMMENT='资源账户关联表';
+) ENGINE=InnoDB COMMENT='资源账号关联表';
 
 -- ---------------------------------------------------------------------
 -- category_resource

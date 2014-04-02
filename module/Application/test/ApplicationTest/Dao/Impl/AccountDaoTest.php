@@ -8,30 +8,22 @@
  * @author    Psyduck.Mans
  */
 
-namespace Application\Dao\Impl;
+namespace ApplicationTest\Dao\Impl;
+
+require_once 'ApplicationTest/Dao/Impl/InitDaoTest.php';
+
 use Propel\Account;
 
 /**
  * Class AccountDaoTest
- * @package Application\Dao\Impl
+ * @package ApplicationTest\Dao\Impl
  */
-class AccountDaoTest extends \PHPUnit_Framework_TestCase {
+class AccountDaoTest extends InitDaoTest {
 
     /**
      * @var \Application\Dao\AccountDao
      */
     private $accountDao;
-
-    private static $demoAccount = array(
-        'id' => 9,
-        'identifier' => 'www.google.com',
-        'password' => '123456'
-    );
-    private static $demoAccount2 = array(
-        'id' => 10,
-        'identifier' => 'developer.apple.com',
-        'password' => '1234562'
-    );
 
     /**
      * setUp
@@ -39,15 +31,13 @@ class AccountDaoTest extends \PHPUnit_Framework_TestCase {
     protected function setUp()
     {
         parent::setUp();
-        $this->initAccount();
-        $this->accountDao = new \Application\Dao\Impl\AccountDao();
+        $this->accountDao = new \Application\Dao\Impl\AccountDao(self::$demoUser['id']);
     }
     /**
      * tearDown
      */
     protected function tearDown()
     {
-        $this->dropAccount();
         parent::tearDown();
     }
 
@@ -153,6 +143,7 @@ class AccountDaoTest extends \PHPUnit_Framework_TestCase {
         );
 
         $account = new Account();
+        $account->setUserId(self::$demoUser['id']);
         $account->setIdentifier($expectAccount['identifier']);
         $account->setPassword($expectAccount['password']);
 
@@ -165,6 +156,7 @@ class AccountDaoTest extends \PHPUnit_Framework_TestCase {
      */
     public function testSaveException() {
         $account = new Account();
+        $account->setUserId(self::$demoUser['id']);
         $account->setIdentifier(self::$demoAccount['identifier']);
         $account->setPassword('');
 
@@ -183,51 +175,6 @@ class AccountDaoTest extends \PHPUnit_Framework_TestCase {
         $expectedRowsAffected = 0;
         $rowsAffected = $this->accountDao->deleteRangeByIds(array(100));
         $this->assertEquals($expectedRowsAffected, $rowsAffected, 'rows affected('.$rowsAffected.') not '.$expectedRowsAffected);
-    }
-
-    private function initAccount()
-    {
-        $conn = \Propel::getConnection();
-        $conn->beginTransaction();
-        try {
-            $datetime = date('Y-m-d H:i:s');
-            $sql = sprintf("INSERT INTO `account_manager`.`account` (`id`, `identifier`, `password`, `create_time`, `update_time`) VALUES (?, ?, ?, ?, ?)");
-            $stmt = $conn->prepare($sql);
-            $ret = $stmt->execute(array(
-                self::$demoAccount['id'],
-                self::$demoAccount['identifier'],
-                self::$demoAccount['password'],
-                $datetime,
-                $datetime
-            ));
-            $ret = $stmt->execute(array(
-                self::$demoAccount2['id'],
-                self::$demoAccount2['identifier'],
-                self::$demoAccount2['password'],
-                $datetime,
-                $datetime
-            ));
-            $conn->commit();
-        } catch(\Exception $e) {
-            if($conn->inTransaction()) {
-                $conn->rollBack();
-            }
-            $this->assertFalse(true, $e->getMessage());
-        }
-    }
-    private function dropAccount()
-    {
-        $conn = \Propel::getConnection();
-        $conn->beginTransaction();
-        try {
-            $conn->exec('DELETE FROM account_manager.account');
-            $conn->commit();
-        } catch(\Exception $e) {
-            if($conn->inTransaction()) {
-                $conn->rollBack();
-            }
-            $this->assertFalse(true, $e->getMessage());
-        }
     }
 }
  

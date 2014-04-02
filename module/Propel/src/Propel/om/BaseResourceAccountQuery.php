@@ -21,7 +21,7 @@ use Propel\ResourceAccountQuery;
 /**
  * Base class that represents a query for the 'resource_account' table.
  *
- * 资源账户关联表
+ * 资源账号关联表
  *
  * @method ResourceAccountQuery orderByResourceId($order = Criteria::ASC) Order by the resource_id column
  * @method ResourceAccountQuery orderByAccountId($order = Criteria::ASC) Order by the account_id column

@@ -48,6 +48,9 @@ return array(
             }
             return new \Application\Auth\Crypt($config['authCrypt']);
         },
+        'Accountmanager\Auth\AuthenticationService' => function($sm) {
+            return new \Zend\Authentication\AuthenticationService();
+        },
         /**
          * Zend\Session\SessionManager
          */

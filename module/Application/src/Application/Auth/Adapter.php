@@ -59,7 +59,7 @@ class Adapter implements AdapterInterface {
         $userDao = new UserDao();
         $user = $userDao->findOneByName($this->username);
         if($user instanceof User && $this->cryptGenerator->verify($this->password, $user->getPassword())) {
-            return new Result(Result::SUCCESS, $user->getIdentity(), array());
+            return new Result(Result::SUCCESS, Identity::createFrom($user), array());
         } else {
             return new Result(Result::FAILURE_CREDENTIAL_INVALID, null, array('用户名或密码不正确'));
         }

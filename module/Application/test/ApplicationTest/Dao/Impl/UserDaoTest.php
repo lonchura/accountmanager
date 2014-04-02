@@ -8,14 +8,17 @@
  * @author    Psyduck.Mans
  */
 
-namespace Application\Dao\Impl;
+namespace ApplicationTest\Dao\Impl;
+
+require_once 'ApplicationTest/Dao/Impl/InitDaoTest.php';
+
 use Propel\User;
 
 /**
  * Class UserDaoTest
- * @package Application\Dao\Impl
+ * @package ApplicationTest\Dao\Impl
  */
-class UserDaoTest extends \PHPUnit_Framework_TestCase {
+class UserDaoTest extends InitDaoTest {
 
     /**
      * @var \Application\Dao\UserDao
@@ -23,37 +26,11 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase {
     private $userDao;
 
     /**
-     * @var \Application\Auth\Crypt
-     */
-    private $cryptGenerator;
-
-    private static $demoRole = array(
-        'id' => 1,
-        'name' => '管理员'
-    );
-    private static $demoUser = array(
-        'id' => 9,
-        'name' => 'aqua',
-        'nickname' => 'My oh my',
-        'role_id' => 1,
-        'password' => '123456'
-    );
-    private static $demoUser2 = array(
-        'id' => 10,
-        'name' => 'aqua2',
-        'nickname' => 'My oh my2',
-        'role_id' => 1,
-        'password' => '1234562'
-    );
-
-    /**
      * setUp
      */
     protected function setUp()
     {
         parent::setUp();
-        $this->cryptGenerator = \Application\Bootstrap::getServiceManager()->get('Accountmanager\Auth\Crypt');
-        $this->initUser();
         $this->userDao = new \Application\Dao\Impl\UserDao();
     }
     /**
@@ -61,7 +38,6 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase {
      */
     protected function tearDown()
     {
-        $this->dropUser();
         parent::tearDown();
     }
 
@@ -210,64 +186,6 @@ class UserDaoTest extends \PHPUnit_Framework_TestCase {
         $expectedRowsAffected = 0;
         $rowsAffected = $this->userDao->deleteRangeByIds(array(100));
         $this->assertEquals($expectedRowsAffected, $rowsAffected, 'rows affected('.$rowsAffected.') not '.$expectedRowsAffected);
-    }
-
-    private function initUser()
-    {
-        $conn = \Propel::getConnection();
-        $conn->beginTransaction();
-        try {
-            $datetime = date('Y-m-d H:i:s');
-            $sql = "INSERT INTO `account_manager`.`role` (`id`, `name`, `create_time`, `update_time`) VALUES (?, ?, ?, ?)";
-            $stmt = $conn->prepare($sql);
-            $ret = $stmt->execute(array(
-                self::$demoRole['id'],
-                self::$demoRole['name'],
-                $datetime,
-                $datetime
-            ));
-            $sql = sprintf("INSERT INTO `account_manager`.`user` (`id`, `name`, `nickname`, `role_id`, `password`, `create_time`, `update_time`) VALUES (?, ?, ?, ?, ?, ?, ?)");
-            $stmt = $conn->prepare($sql);
-            $ret = $stmt->execute(array(
-                self::$demoUser['id'],
-                self::$demoUser['name'],
-                self::$demoUser['nickname'],
-                self::$demoUser['role_id'],
-                $this->cryptGenerator->create(self::$demoUser['password']),
-                $datetime,
-                $datetime
-            ));
-            $ret = $stmt->execute(array(
-                self::$demoUser2['id'],
-                self::$demoUser2['name'],
-                self::$demoUser2['nickname'],
-                self::$demoUser2['role_id'],
-                $this->cryptGenerator->create(self::$demoUser2['password']),
-                $datetime,
-                $datetime
-            ));
-            $conn->commit();
-        } catch(\Exception $e) {
-            if($conn->inTransaction()) {
-                $conn->rollBack();
-            }
-            $this->assertFalse(true, $e->getMessage());
-        }
-    }
-    private function dropUser()
-    {
-        $conn = \Propel::getConnection();
-        $conn->beginTransaction();
-        try {
-            $conn->exec('DELETE FROM account_manager.user');
-            $conn->exec('DELETE FROM account_manager.role');
-            $conn->commit();
-        } catch(\Exception $e) {
-            if($conn->inTransaction()) {
-                $conn->rollBack();
-            }
-            $this->assertFalse(true, $e->getMessage());
-        }
     }
 }
  

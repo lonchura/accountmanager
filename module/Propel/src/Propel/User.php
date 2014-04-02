@@ -18,16 +18,5 @@ use Propel\om\BaseUser;
  */
 class User extends BaseUser
 {
-    /**
-     * Get identity
-     *
-     * @return array
-     */
-    public function getIdentity() {
-        return array(
-            'id' => $this->getId(),
-            'role_id' => $this->getRoleId(),
-            'nickname' => $this->getNickname()
-        );
-    }
+
 }
