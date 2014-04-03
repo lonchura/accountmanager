@@ -31,7 +31,11 @@ class AccountDaoTest extends InitDaoTest {
     protected function setUp()
     {
         parent::setUp();
-        $this->accountDao = new \Application\Dao\Impl\AccountDao(self::$demoUser['id']);
+        $user = $this->getMock('\Propel\User');
+        $user->expects($this->any())
+             ->method('getId')
+             ->will($this->returnValue(self::$demoUser['id']));
+        $this->accountDao = new \Application\Dao\Impl\AccountDao(new \Application\Auth\Identity($user));
     }
     /**
      * tearDown

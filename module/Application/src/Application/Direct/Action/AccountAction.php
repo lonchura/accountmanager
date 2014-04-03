@@ -11,6 +11,7 @@
 namespace Application\Direct\Action;
 use PHPX\Ext\Direct\Result\Failure;
 use PHPX\Ext\Direct\Result\Success;
+use PHPX\Proxy\DynamicProxy;
 use Propel\Account;
 use Zend\ServiceManager\ServiceManager;
 
@@ -20,25 +21,26 @@ use Zend\ServiceManager\ServiceManager;
  */
 class AccountAction extends BaseAction {
     /**
-     * @var \Application\Dao\Impl\AccountDao
+     * @var DynamicProxy<\Application\Dao\Impl\AccountDao>
      */
     private $accountDao;
 
     /**
-     * @override
-     * @param ServiceManager $sm
+     * @return DynamicProxy
      */
-    public function __construct(ServiceManager $sm)
-    {
-        parent::__construct($sm);
-        $this->accountDao = new \Application\Dao\Impl\AccountDao($this->getIdentity()->getId());
+    public function loadAccountDao() {
+        if(!$this->accountDao) {
+            $identity = $this->getServiceManager()->get('Accountmanager\Auth\AuthenticationService')->getIdentity();
+            $this->accountDao = DynamicProxy::createFrom(new \Application\Dao\Impl\AccountDao($identity));
+        }
+        return $this->accountDao;
     }
 
     public function listMethod(array $data) {
         $page = $data[0];
         $rows = array();
 
-        $result = $this->accountDao->find($page);
+        $result = $this->loadAccountDao()->find($page);
         foreach($result['list'] as $account) {
             array_push($rows, array(
                 'Id' => $account->getId(),
@@ -56,7 +58,7 @@ class AccountAction extends BaseAction {
 
     public function addMethod(array $data) {
         // check dupli name
-        $account = $this->accountDao->findOneByIdentifier($data['Identifier']);
+        $account = $this->loadAccountDao()->findOneByIdentifier($data['Identifier']);
         if($account) {
             return new Failure('账号标识:“'.$data['Identifier'].'”已存在，请重新命名');
         }
@@ -64,7 +66,7 @@ class AccountAction extends BaseAction {
         $account = new Account();
         $account->setIdentifier($data['Identifier']);
         $account->setPassword($data['Password']);
-        $this->accountDao->save($account);
+        $this->loadAccountDao()->save($account);
         // success return
         return new Success(array(
             'Id' => $account->getId(),
@@ -77,12 +79,12 @@ class AccountAction extends BaseAction {
 
     public function editMethod(array $data) {
         // check dupli name
-        $account = $this->accountDao->findOneByIdentifier($data['Identifier']);
+        $account = $this->loadAccountDao()->findOneByIdentifier($data['Identifier']);
         if($account && $account->getId()!=$data['Id']) {
             return new Failure('账号标识:“'.$data['Identifier'].'”已存在，请重新命名');
         }
         // check current account
-        $account = $this->accountDao->getAccountById($data['Id']);
+        $account = $this->loadAccountDao()->getAccountById($data['Id']);
         if(!$account) {
             return new Failure('用户:“'.$data['Id'].'”，未找到');
         }
@@ -91,7 +93,7 @@ class AccountAction extends BaseAction {
         if(trim($data['Password'])) {
             $account->setPassword($data['Password']);
         }
-        $this->accountDao->save($account);
+        $this->loadAccountDao()->save($account);
         // success return
         return new Success(array(
             'Id' => $account->getId(),
@@ -104,7 +106,7 @@ class AccountAction extends BaseAction {
 
     public function deleteMethod(array $data) {
         $ids = $data[0];
-        $this->accountDao->deleteRangeByIds($ids);
+        $this->loadAccountDao()->deleteRangeByIds($ids);
         return new Success($ids, '删除成功');
     }
-} 
+}

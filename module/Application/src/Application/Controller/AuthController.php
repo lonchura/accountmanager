@@ -36,6 +36,7 @@ class AuthController extends BaseController {
      * auth handle
      *
      * @param MvcEvent $e
+     * @TODO preDispatch scope should be protected, but $events->attach cause to public, maybe the responsibility not here
      */
     public function preDispatch(\Zend\Mvc\MvcEvent $e) {
         $this->identity = $e->getApplication()->getServiceManager()->get('Accountmanager\Auth\AuthenticationService')->getIdentity();

@@ -10,6 +10,8 @@ use \Propel;
 use \PropelException;
 use \PropelPDO;
 use Propel\AccountPeer;
+use Propel\CategoryPeer;
+use Propel\ResourcePeer;
 use Propel\RolePeer;
 use Propel\User;
 use Propel\UserPeer;
@@ -402,6 +404,12 @@ abstract class BaseUserPeer
         // Invalidate objects in AccountPeer instance pool,
         // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
         AccountPeer::clearInstancePool();
+        // Invalidate objects in ResourcePeer instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+        ResourcePeer::clearInstancePool();
+        // Invalidate objects in CategoryPeer instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+        CategoryPeer::clearInstancePool();
     }
 
     /**

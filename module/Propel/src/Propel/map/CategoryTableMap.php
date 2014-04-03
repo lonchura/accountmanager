@@ -44,6 +44,7 @@ class CategoryTableMap extends TableMap
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, 4, null);
         $this->addForeignKey('pid', 'Pid', 'INTEGER', 'category', 'id', false, 4, null);
+        $this->addForeignKey('user_id', 'UserId', 'INTEGER', 'user', 'id', true, 4, null);
         $this->addColumn('name', 'Name', 'VARCHAR', true, 45, null);
         $this->addColumn('create_time', 'CreateTime', 'TIMESTAMP', true, null, null);
         $this->addColumn('update_time', 'UpdateTime', 'TIMESTAMP', true, null, null);
@@ -56,6 +57,7 @@ class CategoryTableMap extends TableMap
     public function buildRelations()
     {
         $this->addRelation('CategoryRelatedByPid', 'Propel\\Category', RelationMap::MANY_TO_ONE, array('pid' => 'id', ), null, null);
+        $this->addRelation('User', 'Propel\\User', RelationMap::MANY_TO_ONE, array('user_id' => 'id', ), 'CASCADE', null);
         $this->addRelation('CategoryRelatedById', 'Propel\\Category', RelationMap::ONE_TO_MANY, array('id' => 'pid', ), null, null, 'CategorysRelatedById');
         $this->addRelation('CategoryResource', 'Propel\\CategoryResource', RelationMap::ONE_TO_MANY, array('id' => 'category_id', ), null, null, 'CategoryResources');
     } // buildRelations()

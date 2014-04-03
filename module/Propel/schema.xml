@@ -40,8 +40,9 @@
     <!-- resource -->
     <table name="resource" description="资源表">
         <column name="id" type="INTEGER" size="4" required="true" primaryKey="true" autoIncrement="true" />
+        <column name="user_id" type="INTEGER" size="4" required="true" />
         <column name="identifier" type="VARCHAR" size="255" required="true" />
-        <column name="type" type="ENUM" valueSet="'Website', 'Database', 'Server', 'Payment'" required="true" />
+        <column name="type" type="ENUM" valueSet="Website, Database, Server, Payment" required="true" />
         <column name="name" type="VARCHAR" size="128" required="true" />
         <column name="description" type="LONGVARCHAR" />
         <column name="create_time" type="TIMESTAMP" required="true" />
@@ -51,8 +52,12 @@
             <parameter name="update_column" value="update_time" />
         </behavior>
         <unique>
+            <unique-column name="user_id" />
             <unique-column name="identifier" />
         </unique>
+        <foreign-key foreignTable="user" onDelete="cascade">
+            <reference local="user_id" foreign="id" />
+        </foreign-key>
         <index>
             <index-column name="create_time" />
         </index>
@@ -64,6 +69,7 @@
     <table name="category" description="资源类别表">
         <column name="id" type="INTEGER" size="4" required="true" primaryKey="true" autoIncrement="true" />
         <column name="pid" type="INTEGER" size="4" />
+        <column name="user_id" type="INTEGER" size="4" required="true" />
         <column name="name" type="VARCHAR" size="45" required="true" />
         <column name="create_time" type="TIMESTAMP" required="true" />
         <column name="update_time" type="TIMESTAMP" required="true" />
@@ -73,6 +79,9 @@
         </behavior>
         <foreign-key foreignTable="category" onDelete="restrict">
             <reference local="pid" foreign="id" />
+        </foreign-key>
+        <foreign-key foreignTable="user" onDelete="cascade">
+            <reference local="user_id" foreign="id" />
         </foreign-key>
         <index>
             <index-column name="create_time" />

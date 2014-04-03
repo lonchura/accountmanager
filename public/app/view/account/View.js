@@ -11,7 +11,7 @@ Ext.define('AccountManager.view.account.View', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.accountview',
 
-    title: '密码管理',
+    title: '账号管理',
     id: 'accountView',
     store: 'Account',
     selType: 'checkboxmodel',

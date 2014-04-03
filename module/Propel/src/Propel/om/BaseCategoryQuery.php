@@ -16,6 +16,7 @@ use Propel\Category;
 use Propel\CategoryPeer;
 use Propel\CategoryQuery;
 use Propel\CategoryResource;
+use Propel\User;
 
 /**
  * Base class that represents a query for the 'category' table.
@@ -24,12 +25,14 @@ use Propel\CategoryResource;
  *
  * @method CategoryQuery orderById($order = Criteria::ASC) Order by the id column
  * @method CategoryQuery orderByPid($order = Criteria::ASC) Order by the pid column
+ * @method CategoryQuery orderByUserId($order = Criteria::ASC) Order by the user_id column
  * @method CategoryQuery orderByName($order = Criteria::ASC) Order by the name column
  * @method CategoryQuery orderByCreateTime($order = Criteria::ASC) Order by the create_time column
  * @method CategoryQuery orderByUpdateTime($order = Criteria::ASC) Order by the update_time column
  *
  * @method CategoryQuery groupById() Group by the id column
  * @method CategoryQuery groupByPid() Group by the pid column
+ * @method CategoryQuery groupByUserId() Group by the user_id column
  * @method CategoryQuery groupByName() Group by the name column
  * @method CategoryQuery groupByCreateTime() Group by the create_time column
  * @method CategoryQuery groupByUpdateTime() Group by the update_time column
@@ -41,6 +44,10 @@ use Propel\CategoryResource;
  * @method CategoryQuery leftJoinCategoryRelatedByPid($relationAlias = null) Adds a LEFT JOIN clause to the query using the CategoryRelatedByPid relation
  * @method CategoryQuery rightJoinCategoryRelatedByPid($relationAlias = null) Adds a RIGHT JOIN clause to the query using the CategoryRelatedByPid relation
  * @method CategoryQuery innerJoinCategoryRelatedByPid($relationAlias = null) Adds a INNER JOIN clause to the query using the CategoryRelatedByPid relation
+ *
+ * @method CategoryQuery leftJoinUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the User relation
+ * @method CategoryQuery rightJoinUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the User relation
+ * @method CategoryQuery innerJoinUser($relationAlias = null) Adds a INNER JOIN clause to the query using the User relation
  *
  * @method CategoryQuery leftJoinCategoryRelatedById($relationAlias = null) Adds a LEFT JOIN clause to the query using the CategoryRelatedById relation
  * @method CategoryQuery rightJoinCategoryRelatedById($relationAlias = null) Adds a RIGHT JOIN clause to the query using the CategoryRelatedById relation
@@ -54,12 +61,14 @@ use Propel\CategoryResource;
  * @method Category findOneOrCreate(PropelPDO $con = null) Return the first Category matching the query, or a new Category object populated from the query conditions when no match is found
  *
  * @method Category findOneByPid(int $pid) Return the first Category filtered by the pid column
+ * @method Category findOneByUserId(int $user_id) Return the first Category filtered by the user_id column
  * @method Category findOneByName(string $name) Return the first Category filtered by the name column
  * @method Category findOneByCreateTime(string $create_time) Return the first Category filtered by the create_time column
  * @method Category findOneByUpdateTime(string $update_time) Return the first Category filtered by the update_time column
  *
  * @method array findById(int $id) Return Category objects filtered by the id column
  * @method array findByPid(int $pid) Return Category objects filtered by the pid column
+ * @method array findByUserId(int $user_id) Return Category objects filtered by the user_id column
  * @method array findByName(string $name) Return Category objects filtered by the name column
  * @method array findByCreateTime(string $create_time) Return Category objects filtered by the create_time column
  * @method array findByUpdateTime(string $update_time) Return Category objects filtered by the update_time column
@@ -170,7 +179,7 @@ abstract class BaseCategoryQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `id`, `pid`, `name`, `create_time`, `update_time` FROM `category` WHERE `id` = :p0';
+        $sql = 'SELECT `id`, `pid`, `user_id`, `name`, `create_time`, `update_time` FROM `category` WHERE `id` = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -343,6 +352,50 @@ abstract class BaseCategoryQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(CategoryPeer::PID, $pid, $comparison);
+    }
+
+    /**
+     * Filter the query on the user_id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByUserId(1234); // WHERE user_id = 1234
+     * $query->filterByUserId(array(12, 34)); // WHERE user_id IN (12, 34)
+     * $query->filterByUserId(array('min' => 12)); // WHERE user_id >= 12
+     * $query->filterByUserId(array('max' => 12)); // WHERE user_id <= 12
+     * </code>
+     *
+     * @see       filterByUser()
+     *
+     * @param     mixed $userId The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return CategoryQuery The current query, for fluid interface
+     */
+    public function filterByUserId($userId = null, $comparison = null)
+    {
+        if (is_array($userId)) {
+            $useMinMax = false;
+            if (isset($userId['min'])) {
+                $this->addUsingAlias(CategoryPeer::USER_ID, $userId['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($userId['max'])) {
+                $this->addUsingAlias(CategoryPeer::USER_ID, $userId['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(CategoryPeer::USER_ID, $userId, $comparison);
     }
 
     /**
@@ -534,6 +587,82 @@ abstract class BaseCategoryQuery extends ModelCriteria
         return $this
             ->joinCategoryRelatedByPid($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'CategoryRelatedByPid', '\Propel\CategoryQuery');
+    }
+
+    /**
+     * Filter the query by a related User object
+     *
+     * @param   User|PropelObjectCollection $user The related object(s) to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return                 CategoryQuery The current query, for fluid interface
+     * @throws PropelException - if the provided filter is invalid.
+     */
+    public function filterByUser($user, $comparison = null)
+    {
+        if ($user instanceof User) {
+            return $this
+                ->addUsingAlias(CategoryPeer::USER_ID, $user->getId(), $comparison);
+        } elseif ($user instanceof PropelObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(CategoryPeer::USER_ID, $user->toKeyValue('PrimaryKey', 'Id'), $comparison);
+        } else {
+            throw new PropelException('filterByUser() only accepts arguments of type User or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the User relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return CategoryQuery The current query, for fluid interface
+     */
+    public function joinUser($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('User');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'User');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the User relation User object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   \Propel\UserQuery A secondary query class using the current class as primary query
+     */
+    public function useUserQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinUser($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'User', '\Propel\UserQuery');
     }
 
     /**

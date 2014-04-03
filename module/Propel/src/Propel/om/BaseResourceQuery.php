@@ -18,6 +18,7 @@ use Propel\Resource;
 use Propel\ResourceAccount;
 use Propel\ResourcePeer;
 use Propel\ResourceQuery;
+use Propel\User;
 
 /**
  * Base class that represents a query for the 'resource' table.
@@ -25,6 +26,7 @@ use Propel\ResourceQuery;
  * 资源表
  *
  * @method ResourceQuery orderById($order = Criteria::ASC) Order by the id column
+ * @method ResourceQuery orderByUserId($order = Criteria::ASC) Order by the user_id column
  * @method ResourceQuery orderByIdentifier($order = Criteria::ASC) Order by the identifier column
  * @method ResourceQuery orderByType($order = Criteria::ASC) Order by the type column
  * @method ResourceQuery orderByName($order = Criteria::ASC) Order by the name column
@@ -33,6 +35,7 @@ use Propel\ResourceQuery;
  * @method ResourceQuery orderByUpdateTime($order = Criteria::ASC) Order by the update_time column
  *
  * @method ResourceQuery groupById() Group by the id column
+ * @method ResourceQuery groupByUserId() Group by the user_id column
  * @method ResourceQuery groupByIdentifier() Group by the identifier column
  * @method ResourceQuery groupByType() Group by the type column
  * @method ResourceQuery groupByName() Group by the name column
@@ -43,6 +46,10 @@ use Propel\ResourceQuery;
  * @method ResourceQuery leftJoin($relation) Adds a LEFT JOIN clause to the query
  * @method ResourceQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method ResourceQuery innerJoin($relation) Adds a INNER JOIN clause to the query
+ *
+ * @method ResourceQuery leftJoinUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the User relation
+ * @method ResourceQuery rightJoinUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the User relation
+ * @method ResourceQuery innerJoinUser($relationAlias = null) Adds a INNER JOIN clause to the query using the User relation
  *
  * @method ResourceQuery leftJoinResourceAccount($relationAlias = null) Adds a LEFT JOIN clause to the query using the ResourceAccount relation
  * @method ResourceQuery rightJoinResourceAccount($relationAlias = null) Adds a RIGHT JOIN clause to the query using the ResourceAccount relation
@@ -55,6 +62,7 @@ use Propel\ResourceQuery;
  * @method Resource findOne(PropelPDO $con = null) Return the first Resource matching the query
  * @method Resource findOneOrCreate(PropelPDO $con = null) Return the first Resource matching the query, or a new Resource object populated from the query conditions when no match is found
  *
+ * @method Resource findOneByUserId(int $user_id) Return the first Resource filtered by the user_id column
  * @method Resource findOneByIdentifier(string $identifier) Return the first Resource filtered by the identifier column
  * @method Resource findOneByType(int $type) Return the first Resource filtered by the type column
  * @method Resource findOneByName(string $name) Return the first Resource filtered by the name column
@@ -63,6 +71,7 @@ use Propel\ResourceQuery;
  * @method Resource findOneByUpdateTime(string $update_time) Return the first Resource filtered by the update_time column
  *
  * @method array findById(int $id) Return Resource objects filtered by the id column
+ * @method array findByUserId(int $user_id) Return Resource objects filtered by the user_id column
  * @method array findByIdentifier(string $identifier) Return Resource objects filtered by the identifier column
  * @method array findByType(int $type) Return Resource objects filtered by the type column
  * @method array findByName(string $name) Return Resource objects filtered by the name column
@@ -176,7 +185,7 @@ abstract class BaseResourceQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `id`, `identifier`, `type`, `name`, `description`, `create_time`, `update_time` FROM `resource` WHERE `id` = :p0';
+        $sql = 'SELECT `id`, `user_id`, `identifier`, `type`, `name`, `description`, `create_time`, `update_time` FROM `resource` WHERE `id` = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -305,6 +314,50 @@ abstract class BaseResourceQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(ResourcePeer::ID, $id, $comparison);
+    }
+
+    /**
+     * Filter the query on the user_id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByUserId(1234); // WHERE user_id = 1234
+     * $query->filterByUserId(array(12, 34)); // WHERE user_id IN (12, 34)
+     * $query->filterByUserId(array('min' => 12)); // WHERE user_id >= 12
+     * $query->filterByUserId(array('max' => 12)); // WHERE user_id <= 12
+     * </code>
+     *
+     * @see       filterByUser()
+     *
+     * @param     mixed $userId The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ResourceQuery The current query, for fluid interface
+     */
+    public function filterByUserId($userId = null, $comparison = null)
+    {
+        if (is_array($userId)) {
+            $useMinMax = false;
+            if (isset($userId['min'])) {
+                $this->addUsingAlias(ResourcePeer::USER_ID, $userId['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($userId['max'])) {
+                $this->addUsingAlias(ResourcePeer::USER_ID, $userId['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(ResourcePeer::USER_ID, $userId, $comparison);
     }
 
     /**
@@ -505,6 +558,82 @@ abstract class BaseResourceQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(ResourcePeer::UPDATE_TIME, $updateTime, $comparison);
+    }
+
+    /**
+     * Filter the query by a related User object
+     *
+     * @param   User|PropelObjectCollection $user The related object(s) to use as filter
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return                 ResourceQuery The current query, for fluid interface
+     * @throws PropelException - if the provided filter is invalid.
+     */
+    public function filterByUser($user, $comparison = null)
+    {
+        if ($user instanceof User) {
+            return $this
+                ->addUsingAlias(ResourcePeer::USER_ID, $user->getId(), $comparison);
+        } elseif ($user instanceof PropelObjectCollection) {
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+
+            return $this
+                ->addUsingAlias(ResourcePeer::USER_ID, $user->toKeyValue('PrimaryKey', 'Id'), $comparison);
+        } else {
+            throw new PropelException('filterByUser() only accepts arguments of type User or PropelCollection');
+        }
+    }
+
+    /**
+     * Adds a JOIN clause to the query using the User relation
+     *
+     * @param     string $relationAlias optional alias for the relation
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return ResourceQuery The current query, for fluid interface
+     */
+    public function joinUser($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        $tableMap = $this->getTableMap();
+        $relationMap = $tableMap->getRelation('User');
+
+        // create a ModelJoin object for this join
+        $join = new ModelJoin();
+        $join->setJoinType($joinType);
+        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
+        if ($previousJoin = $this->getPreviousJoin()) {
+            $join->setPreviousJoin($previousJoin);
+        }
+
+        // add the ModelJoin to the current object
+        if ($relationAlias) {
+            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
+            $this->addJoinObject($join, $relationAlias);
+        } else {
+            $this->addJoinObject($join, 'User');
+        }
+
+        return $this;
+    }
+
+    /**
+     * Use the User relation User object
+     *
+     * @see       useQuery()
+     *
+     * @param     string $relationAlias optional alias for the relation,
+     *                                   to be used as main alias in the secondary query
+     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
+     *
+     * @return   \Propel\UserQuery A secondary query class using the current class as primary query
+     */
+    public function useUserQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    {
+        return $this
+            ->joinUser($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'User', '\Propel\UserQuery');
     }
 
     /**

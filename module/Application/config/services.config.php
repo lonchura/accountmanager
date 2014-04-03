@@ -20,13 +20,22 @@ return array(
             return new \Application\Direct\Action\LoginAction($sm);
         },
         'Accountmanager\Direct\Service\Account' => function($sm) {
-            return new \Application\Direct\Action\AccountAction($sm);
+            return new \Application\Direct\Action\AuthProxyAction(
+                $sm,
+                new \Application\Direct\Action\AccountAction($sm)
+            );
         },
         'Accountmanager\Direct\Service\User' => function($sm) {
-            return new \Application\Direct\Action\UserAction($sm);
+            return new \Application\Direct\Action\AuthProxyAction(
+                $sm,
+                new \Application\Direct\Action\UserAction($sm)
+            );
         },
         'Accountmanager\Direct\Service\Role' => function($sm) {
-            return new \Application\Direct\Action\RoleAction($sm);
+            return new \Application\Direct\Action\AuthProxyAction(
+                $sm,
+                new \Application\Direct\Action\RoleAction($sm)
+            );
         },
         /**
          * Captcha

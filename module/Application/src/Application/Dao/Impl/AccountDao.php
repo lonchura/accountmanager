@@ -21,15 +21,15 @@ use Propel\AccountQuery;
  */
 class AccountDao implements \Application\Dao\AccountDao {
     /**
-     * @var
+     * @var \Application\Auth\Identity
      */
-    private $userId;
+    private $identity;
 
     /**
-     * @param $userId
+     * @param \Application\Auth\Identity $identity
      */
-    public function __construct($userId) {
-        $this->userId = $userId;
+    public function __construct(\Application\Auth\Identity $identity) {
+        $this->identity = $identity;
     }
 
     /**
@@ -37,7 +37,7 @@ class AccountDao implements \Application\Dao\AccountDao {
      * @return \Propel\Account|null
      */
     public function findOneByIdentifier($identifier) {
-        return AccountQuery::create()->filterByUserId($this->userId)->findOneByIdentifier($identifier);
+        return AccountQuery::create()->filterByUserId($this->identity->getId())->findOneByIdentifier($identifier);
     }
 
     /**
@@ -62,8 +62,8 @@ class AccountDao implements \Application\Dao\AccountDao {
         $criteria->setOffset($page['start']);
         $criteria->setLimit($page['limit']);
         return array(
-            'total' => AccountQuery::create()->filterByUserId($this->userId)->count(),
-            'list' => AccountQuery::create(null, $criteria)->filterByUserId($this->userId)->find()
+            'total' => AccountQuery::create()->filterByUserId($this->identity->getId())->count(),
+            'list' => AccountQuery::create(null, $criteria)->filterByUserId($this->identity->getId())->find()
         );
     }
 
@@ -72,7 +72,7 @@ class AccountDao implements \Application\Dao\AccountDao {
      * @return \Propel\Account
      */
     public function getAccountById($id) {
-        return AccountQuery::create()->filterByUserId($this->userId)->findOneById($id);
+        return AccountQuery::create()->filterByUserId($this->identity->getId())->findOneById($id);
     }
 
     /**
@@ -96,6 +96,6 @@ class AccountDao implements \Application\Dao\AccountDao {
     public function deleteRangeByIds(array $ids) {
         $criteria = new \Criteria();
         $criteria->addAnd(AccountPeer::ID, $ids, \Criteria::IN);
-        return AccountQuery::create(null, $criteria)->filterByUserId($this->userId)->delete();
+        return AccountQuery::create(null, $criteria)->filterByUserId($this->identity->getId())->delete();
     }
 }

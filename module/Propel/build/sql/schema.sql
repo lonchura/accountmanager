@@ -36,6 +36,7 @@ DROP TABLE IF EXISTS `resource`;
 CREATE TABLE `resource`
 (
     `id` INTEGER(4) NOT NULL AUTO_INCREMENT,
+    `user_id` INTEGER(4) NOT NULL,
     `identifier` VARCHAR(255) NOT NULL,
     `type` TINYINT NOT NULL,
     `name` VARCHAR(128) NOT NULL,
@@ -43,9 +44,13 @@ CREATE TABLE `resource`
     `create_time` DATETIME NOT NULL,
     `update_time` DATETIME NOT NULL,
     PRIMARY KEY (`id`),
-    UNIQUE INDEX `resource_U_1` (`identifier`),
+    UNIQUE INDEX `resource_U_1` (`user_id`, `identifier`),
     INDEX `resource_I_1` (`create_time`),
-    INDEX `resource_I_2` (`update_time`)
+    INDEX `resource_I_2` (`update_time`),
+    CONSTRAINT `resource_FK_1`
+        FOREIGN KEY (`user_id`)
+        REFERENCES `user` (`id`)
+        ON DELETE CASCADE
 ) ENGINE=InnoDB COMMENT='资源表';
 
 -- ---------------------------------------------------------------------
@@ -58,6 +63,7 @@ CREATE TABLE `category`
 (
     `id` INTEGER(4) NOT NULL AUTO_INCREMENT,
     `pid` INTEGER(4),
+    `user_id` INTEGER(4) NOT NULL,
     `name` VARCHAR(45) NOT NULL,
     `create_time` DATETIME NOT NULL,
     `update_time` DATETIME NOT NULL,
@@ -65,9 +71,14 @@ CREATE TABLE `category`
     INDEX `category_I_1` (`create_time`),
     INDEX `category_I_2` (`update_time`),
     INDEX `category_FI_1` (`pid`),
+    INDEX `category_FI_2` (`user_id`),
     CONSTRAINT `category_FK_1`
         FOREIGN KEY (`pid`)
-        REFERENCES `category` (`id`)
+        REFERENCES `category` (`id`),
+    CONSTRAINT `category_FK_2`
+        FOREIGN KEY (`user_id`)
+        REFERENCES `user` (`id`)
+        ON DELETE CASCADE
 ) ENGINE=InnoDB COMMENT='资源类别表';
 
 -- ---------------------------------------------------------------------

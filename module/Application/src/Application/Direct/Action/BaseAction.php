@@ -23,11 +23,6 @@ class BaseAction {
     private $sm;
 
     /**
-     * @var \Application\Auth\Identity
-     */
-    private $identity;
-
-    /**
      * @var \DI\Container
      */
     protected $container;
@@ -41,9 +36,6 @@ class BaseAction {
         // service manager
         $this->sm = $sm;
 
-        // auth identity
-        $this->identity = $this->getServiceManager()->get('Accountmanager\Auth\AuthenticationService')->getIdentity();
-
         // Inject dependencies
         if ($this->container == null) {
             $this->container = new \DI\Container();
@@ -54,21 +46,7 @@ class BaseAction {
     /**
      * @return ServiceManager
      */
-    public function getServiceManager() {
+    protected function getServiceManager() {
         return $this->sm;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function hasIdentity() {
-        return null !== $this->identity;
-    }
-
-    /**
-     * @return \Application\Auth\Identity
-     */
-    protected function getIdentity() {
-        return $this->identity;
     }
 }
