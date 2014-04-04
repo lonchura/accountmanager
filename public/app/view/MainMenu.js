@@ -1,3 +1,12 @@
+/**
+ * Account Manager System (https://github.com/PsyduckMans/accountmanager)
+ *
+ * @link      https://github.com/PsyduckMans/accountmanager for the canonical source repository
+ * @copyright Copyright (c) 2014 PsyduckMans (https://ninth.not-bad.org)
+ * @license   https://github.com/PsyduckMans/accountmanager/blob/master/LICENSE MIT
+ * @author    Psyduck.Mans
+ */
+
 Ext.define('AccountManager.view.MainMenu', {
     extend: 'Ext.toolbar.Toolbar',
     alias: 'widget.mainmenu',
@@ -12,7 +21,6 @@ Ext.define('AccountManager.view.MainMenu', {
         buttons = [];
         buttons.push({text:'资源管理', action:'resource'});
         buttons.push({text:'账号管理', action:'account'});
-        buttons.push({text:'分类管理', action:'category'});
         if(identity.role_id===1) {
             buttons.push({text:'用户管理', action:'user'});
         }

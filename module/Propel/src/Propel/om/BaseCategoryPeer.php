@@ -37,19 +37,22 @@ abstract class BaseCategoryPeer
     const TM_CLASS = 'Propel\\map\\CategoryTableMap';
 
     /** The total number of columns. */
-    const NUM_COLUMNS = 6;
+    const NUM_COLUMNS = 7;
 
     /** The number of lazy-loaded columns. */
     const NUM_LAZY_LOAD_COLUMNS = 0;
 
     /** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
-    const NUM_HYDRATE_COLUMNS = 6;
+    const NUM_HYDRATE_COLUMNS = 7;
 
     /** the column name for the id field */
     const ID = 'category.id';
 
     /** the column name for the pid field */
     const PID = 'category.pid';
+
+    /** the column name for the child_count field */
+    const CHILD_COUNT = 'category.child_count';
 
     /** the column name for the user_id field */
     const USER_ID = 'category.user_id';
@@ -82,12 +85,12 @@ abstract class BaseCategoryPeer
      * e.g. CategoryPeer::$fieldNames[CategoryPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('Id', 'Pid', 'UserId', 'Name', 'CreateTime', 'UpdateTime', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'pid', 'userId', 'name', 'createTime', 'updateTime', ),
-        BasePeer::TYPE_COLNAME => array (CategoryPeer::ID, CategoryPeer::PID, CategoryPeer::USER_ID, CategoryPeer::NAME, CategoryPeer::CREATE_TIME, CategoryPeer::UPDATE_TIME, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'PID', 'USER_ID', 'NAME', 'CREATE_TIME', 'UPDATE_TIME', ),
-        BasePeer::TYPE_FIELDNAME => array ('id', 'pid', 'user_id', 'name', 'create_time', 'update_time', ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, )
+        BasePeer::TYPE_PHPNAME => array ('Id', 'Pid', 'ChildCount', 'UserId', 'Name', 'CreateTime', 'UpdateTime', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'pid', 'childCount', 'userId', 'name', 'createTime', 'updateTime', ),
+        BasePeer::TYPE_COLNAME => array (CategoryPeer::ID, CategoryPeer::PID, CategoryPeer::CHILD_COUNT, CategoryPeer::USER_ID, CategoryPeer::NAME, CategoryPeer::CREATE_TIME, CategoryPeer::UPDATE_TIME, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'PID', 'CHILD_COUNT', 'USER_ID', 'NAME', 'CREATE_TIME', 'UPDATE_TIME', ),
+        BasePeer::TYPE_FIELDNAME => array ('id', 'pid', 'child_count', 'user_id', 'name', 'create_time', 'update_time', ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, )
     );
 
     /**
@@ -97,12 +100,12 @@ abstract class BaseCategoryPeer
      * e.g. CategoryPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Pid' => 1, 'UserId' => 2, 'Name' => 3, 'CreateTime' => 4, 'UpdateTime' => 5, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'pid' => 1, 'userId' => 2, 'name' => 3, 'createTime' => 4, 'updateTime' => 5, ),
-        BasePeer::TYPE_COLNAME => array (CategoryPeer::ID => 0, CategoryPeer::PID => 1, CategoryPeer::USER_ID => 2, CategoryPeer::NAME => 3, CategoryPeer::CREATE_TIME => 4, CategoryPeer::UPDATE_TIME => 5, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'PID' => 1, 'USER_ID' => 2, 'NAME' => 3, 'CREATE_TIME' => 4, 'UPDATE_TIME' => 5, ),
-        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'pid' => 1, 'user_id' => 2, 'name' => 3, 'create_time' => 4, 'update_time' => 5, ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, )
+        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'Pid' => 1, 'ChildCount' => 2, 'UserId' => 3, 'Name' => 4, 'CreateTime' => 5, 'UpdateTime' => 6, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'pid' => 1, 'childCount' => 2, 'userId' => 3, 'name' => 4, 'createTime' => 5, 'updateTime' => 6, ),
+        BasePeer::TYPE_COLNAME => array (CategoryPeer::ID => 0, CategoryPeer::PID => 1, CategoryPeer::CHILD_COUNT => 2, CategoryPeer::USER_ID => 3, CategoryPeer::NAME => 4, CategoryPeer::CREATE_TIME => 5, CategoryPeer::UPDATE_TIME => 6, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'PID' => 1, 'CHILD_COUNT' => 2, 'USER_ID' => 3, 'NAME' => 4, 'CREATE_TIME' => 5, 'UPDATE_TIME' => 6, ),
+        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'pid' => 1, 'child_count' => 2, 'user_id' => 3, 'name' => 4, 'create_time' => 5, 'update_time' => 6, ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, 6, )
     );
 
     /**
@@ -178,6 +181,7 @@ abstract class BaseCategoryPeer
         if (null === $alias) {
             $criteria->addSelectColumn(CategoryPeer::ID);
             $criteria->addSelectColumn(CategoryPeer::PID);
+            $criteria->addSelectColumn(CategoryPeer::CHILD_COUNT);
             $criteria->addSelectColumn(CategoryPeer::USER_ID);
             $criteria->addSelectColumn(CategoryPeer::NAME);
             $criteria->addSelectColumn(CategoryPeer::CREATE_TIME);
@@ -185,6 +189,7 @@ abstract class BaseCategoryPeer
         } else {
             $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.pid');
+            $criteria->addSelectColumn($alias . '.child_count');
             $criteria->addSelectColumn($alias . '.user_id');
             $criteria->addSelectColumn($alias . '.name');
             $criteria->addSelectColumn($alias . '.create_time');
@@ -393,6 +398,9 @@ abstract class BaseCategoryPeer
      */
     public static function clearRelatedInstancePool()
     {
+        // Invalidate objects in CategoryPeer instance pool,
+        // since one or more of them may be deleted by ON DELETE CASCADE/SETNULL rule.
+        CategoryPeer::clearInstancePool();
     }
 
     /**

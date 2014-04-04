@@ -24,6 +24,12 @@ class DirectController extends BaseController {
                     'AccountManager.Direct.Login' => function() {
                         return $this->getServiceLocator()->get('Accountmanager\Direct\Service\login');
                     },
+                    'AccountManager.Direct.Resource' => function() {
+                        return $this->getServiceLocator()->get('Accountmanager\Direct\Service\Resource');
+                    },
+                    'AccountManager.Direct.Category' => function() {
+                        return $this->getServiceLocator()->get('Accountmanager\Direct\Service\Category');
+                    },
                     'AccountManager.Direct.Account' => function() {
                         return $this->getServiceLocator()->get('Accountmanager\Direct\Service\Account');
                     },

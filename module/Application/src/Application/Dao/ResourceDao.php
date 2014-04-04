@@ -9,38 +9,35 @@
  */
 
 namespace Application\Dao;
-use Propel\User;
+
+use Propel\Resource;
 
 /**
- * Interface UserDao
+ * Interface ResourceDao
  * @package Application\Dao
  */
-interface UserDao {
+interface ResourceDao {
+
     /**
-     * @param array $page
+     * @param $categoryId
+     * @param array $page Ext direct page request
      * @return array(
      *      'total' => int
      *      'list' => \PropelObjectCollection
      * )
      */
-    public function find(array $page);
+    public function findByCategoryId($categoryId, array $page);
 
     /**
      * @param $id
-     * @return \Propel\User
+     * @return \Propel\Resource|null
      */
-    public function getUserById($id);
+    //public function getResourceById($id);
 
     /**
-     * @param array $ids
-     * @return int
-     */
-    public function deleteRangeByIds(array $ids);
-
-    /**
-     * @param User $user
+     * @param Resource $resource
      * @return int
      * @throws \Application\Dao\RuntimeException
      */
-    public function save(User $user);
-} 
+    //public function save(Resource $resource);
+}

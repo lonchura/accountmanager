@@ -64,6 +64,12 @@ abstract class BaseCategory extends BaseObject implements Persistent
     protected $pid;
 
     /**
+     * The value for the child_count field.
+     * @var        int
+     */
+    protected $child_count;
+
+    /**
      * The value for the user_id field.
      * @var        int
      */
@@ -161,6 +167,17 @@ abstract class BaseCategory extends BaseObject implements Persistent
     {
 
         return $this->pid;
+    }
+
+    /**
+     * Get the [child_count] column value.
+     *
+     * @return int
+     */
+    public function getChildCount()
+    {
+
+        return $this->child_count;
     }
 
     /**
@@ -312,6 +329,27 @@ abstract class BaseCategory extends BaseObject implements Persistent
     } // setPid()
 
     /**
+     * Set the value of [child_count] column.
+     *
+     * @param  int $v new value
+     * @return Category The current object (for fluent API support)
+     */
+    public function setChildCount($v)
+    {
+        if ($v !== null && is_numeric($v)) {
+            $v = (int) $v;
+        }
+
+        if ($this->child_count !== $v) {
+            $this->child_count = $v;
+            $this->modifiedColumns[] = CategoryPeer::CHILD_COUNT;
+        }
+
+
+        return $this;
+    } // setChildCount()
+
+    /**
      * Set the value of [user_id] column.
      *
      * @param  int $v new value
@@ -437,10 +475,11 @@ abstract class BaseCategory extends BaseObject implements Persistent
 
             $this->id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
             $this->pid = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
-            $this->user_id = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
-            $this->name = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
-            $this->create_time = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
-            $this->update_time = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
+            $this->child_count = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
+            $this->user_id = ($row[$startcol + 3] !== null) ? (int) $row[$startcol + 3] : null;
+            $this->name = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
+            $this->create_time = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
+            $this->update_time = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -450,7 +489,7 @@ abstract class BaseCategory extends BaseObject implements Persistent
             }
             $this->postHydrate($row, $startcol, $rehydrate);
 
-            return $startcol + 6; // 6 = CategoryPeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 7; // 7 = CategoryPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating Category object", $e);
@@ -680,10 +719,9 @@ abstract class BaseCategory extends BaseObject implements Persistent
 
             if ($this->categorysRelatedByIdScheduledForDeletion !== null) {
                 if (!$this->categorysRelatedByIdScheduledForDeletion->isEmpty()) {
-                    foreach ($this->categorysRelatedByIdScheduledForDeletion as $categoryRelatedById) {
-                        // need to save related object because we set the relation to null
-                        $categoryRelatedById->save($con);
-                    }
+                    CategoryQuery::create()
+                        ->filterByPrimaryKeys($this->categorysRelatedByIdScheduledForDeletion->getPrimaryKeys(false))
+                        ->delete($con);
                     $this->categorysRelatedByIdScheduledForDeletion = null;
                 }
             }
@@ -745,6 +783,9 @@ abstract class BaseCategory extends BaseObject implements Persistent
         if ($this->isColumnModified(CategoryPeer::PID)) {
             $modifiedColumns[':p' . $index++]  = '`pid`';
         }
+        if ($this->isColumnModified(CategoryPeer::CHILD_COUNT)) {
+            $modifiedColumns[':p' . $index++]  = '`child_count`';
+        }
         if ($this->isColumnModified(CategoryPeer::USER_ID)) {
             $modifiedColumns[':p' . $index++]  = '`user_id`';
         }
@@ -773,6 +814,9 @@ abstract class BaseCategory extends BaseObject implements Persistent
                         break;
                     case '`pid`':
                         $stmt->bindValue($identifier, $this->pid, PDO::PARAM_INT);
+                        break;
+                    case '`child_count`':
+                        $stmt->bindValue($identifier, $this->child_count, PDO::PARAM_INT);
                         break;
                     case '`user_id`':
                         $stmt->bindValue($identifier, $this->user_id, PDO::PARAM_INT);
@@ -961,15 +1005,18 @@ abstract class BaseCategory extends BaseObject implements Persistent
                 return $this->getPid();
                 break;
             case 2:
-                return $this->getUserId();
+                return $this->getChildCount();
                 break;
             case 3:
-                return $this->getName();
+                return $this->getUserId();
                 break;
             case 4:
-                return $this->getCreateTime();
+                return $this->getName();
                 break;
             case 5:
+                return $this->getCreateTime();
+                break;
+            case 6:
                 return $this->getUpdateTime();
                 break;
             default:
@@ -1003,10 +1050,11 @@ abstract class BaseCategory extends BaseObject implements Persistent
         $result = array(
             $keys[0] => $this->getId(),
             $keys[1] => $this->getPid(),
-            $keys[2] => $this->getUserId(),
-            $keys[3] => $this->getName(),
-            $keys[4] => $this->getCreateTime(),
-            $keys[5] => $this->getUpdateTime(),
+            $keys[2] => $this->getChildCount(),
+            $keys[3] => $this->getUserId(),
+            $keys[4] => $this->getName(),
+            $keys[5] => $this->getCreateTime(),
+            $keys[6] => $this->getUpdateTime(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1067,15 +1115,18 @@ abstract class BaseCategory extends BaseObject implements Persistent
                 $this->setPid($value);
                 break;
             case 2:
-                $this->setUserId($value);
+                $this->setChildCount($value);
                 break;
             case 3:
-                $this->setName($value);
+                $this->setUserId($value);
                 break;
             case 4:
-                $this->setCreateTime($value);
+                $this->setName($value);
                 break;
             case 5:
+                $this->setCreateTime($value);
+                break;
+            case 6:
                 $this->setUpdateTime($value);
                 break;
         } // switch()
@@ -1104,10 +1155,11 @@ abstract class BaseCategory extends BaseObject implements Persistent
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
         if (array_key_exists($keys[1], $arr)) $this->setPid($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setUserId($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setName($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setCreateTime($arr[$keys[4]]);
-        if (array_key_exists($keys[5], $arr)) $this->setUpdateTime($arr[$keys[5]]);
+        if (array_key_exists($keys[2], $arr)) $this->setChildCount($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setUserId($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setName($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setCreateTime($arr[$keys[5]]);
+        if (array_key_exists($keys[6], $arr)) $this->setUpdateTime($arr[$keys[6]]);
     }
 
     /**
@@ -1121,6 +1173,7 @@ abstract class BaseCategory extends BaseObject implements Persistent
 
         if ($this->isColumnModified(CategoryPeer::ID)) $criteria->add(CategoryPeer::ID, $this->id);
         if ($this->isColumnModified(CategoryPeer::PID)) $criteria->add(CategoryPeer::PID, $this->pid);
+        if ($this->isColumnModified(CategoryPeer::CHILD_COUNT)) $criteria->add(CategoryPeer::CHILD_COUNT, $this->child_count);
         if ($this->isColumnModified(CategoryPeer::USER_ID)) $criteria->add(CategoryPeer::USER_ID, $this->user_id);
         if ($this->isColumnModified(CategoryPeer::NAME)) $criteria->add(CategoryPeer::NAME, $this->name);
         if ($this->isColumnModified(CategoryPeer::CREATE_TIME)) $criteria->add(CategoryPeer::CREATE_TIME, $this->create_time);
@@ -1189,6 +1242,7 @@ abstract class BaseCategory extends BaseObject implements Persistent
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
         $copyObj->setPid($this->getPid());
+        $copyObj->setChildCount($this->getChildCount());
         $copyObj->setUserId($this->getUserId());
         $copyObj->setName($this->getName());
         $copyObj->setCreateTime($this->getCreateTime());
@@ -1896,6 +1950,7 @@ abstract class BaseCategory extends BaseObject implements Persistent
     {
         $this->id = null;
         $this->pid = null;
+        $this->child_count = null;
         $this->user_id = null;
         $this->name = null;
         $this->create_time = null;

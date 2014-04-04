@@ -63,6 +63,7 @@ CREATE TABLE `category`
 (
     `id` INTEGER(4) NOT NULL AUTO_INCREMENT,
     `pid` INTEGER(4),
+    `child_count` INTEGER(2) NOT NULL,
     `user_id` INTEGER(4) NOT NULL,
     `name` VARCHAR(45) NOT NULL,
     `create_time` DATETIME NOT NULL,
@@ -74,7 +75,8 @@ CREATE TABLE `category`
     INDEX `category_FI_2` (`user_id`),
     CONSTRAINT `category_FK_1`
         FOREIGN KEY (`pid`)
-        REFERENCES `category` (`id`),
+        REFERENCES `category` (`id`)
+        ON DELETE CASCADE,
     CONSTRAINT `category_FK_2`
         FOREIGN KEY (`user_id`)
         REFERENCES `user` (`id`)

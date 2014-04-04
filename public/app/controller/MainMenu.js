@@ -1,3 +1,12 @@
+/**
+ * Account Manager System (https://github.com/PsyduckMans/accountmanager)
+ *
+ * @link      https://github.com/PsyduckMans/accountmanager for the canonical source repository
+ * @copyright Copyright (c) 2014 PsyduckMans (https://ninth.not-bad.org)
+ * @license   https://github.com/PsyduckMans/accountmanager/blob/master/LICENSE MIT
+ * @author    Psyduck.Mans
+ */
+
 Ext.define('AccountManager.controller.MainMenu', {
     extend: 'Ext.app.Controller',
 
@@ -12,10 +21,10 @@ Ext.define('AccountManager.controller.MainMenu', {
 
     init: function(app) {
         this.control({
-            '#mainmenu button[action=account]': {
+            '#mainmenu button[action=resource]': {
                 click: this.switchPage
             },
-            '#mainmenu button[action=password]': {
+            '#mainmenu button[action=account]': {
                 click: this.switchPage
             },
             '#mainmenu button[action=user]': {

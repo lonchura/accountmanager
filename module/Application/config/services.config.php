@@ -19,6 +19,18 @@ return array(
         'Accountmanager\Direct\Service\login' => function($sm) {
             return new \Application\Direct\Action\LoginAction($sm);
         },
+        'Accountmanager\Direct\Service\Resource' => function($sm) {
+            return new \Application\Direct\Action\AuthProxyAction(
+                $sm,
+                new \Application\Direct\Action\ResourceAction($sm)
+            );
+        },
+        'Accountmanager\Direct\Service\Category' => function($sm) {
+            return new \Application\Direct\Action\AuthProxyAction(
+                $sm,
+                new \Application\Direct\Action\CategoryAction($sm)
+            );
+        },
         'Accountmanager\Direct\Service\Account' => function($sm) {
             return new \Application\Direct\Action\AuthProxyAction(
                 $sm,

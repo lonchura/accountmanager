@@ -9,33 +9,38 @@
  */
 
 namespace Application\Dao;
-use Propel\Account;
+
+use Propel\Category;
 
 /**
- * Interface AccountDao
+ * Interface CategoryDao
  * @package Application\Dao
  */
-interface AccountDao {
-    /**
-     * @param $identifier
-     * @return \Propel\Account|null
-     */
-    public function findOneByIdentifier($identifier);
-
-    /**
-     * @param array $page
-     * @return array(
-     *      'total' => int
-     *      'list' => \PropelObjectCollection
-     * )
-     */
-    public function find(array $page);
-
+interface CategoryDao {
     /**
      * @param $id
-     * @return \Propel\Account
+     * @return \Propel\Category|null
      */
-    public function getAccountById($id);
+    //public function getCategoryById($id);
+
+    /**
+     * @param $pid
+     * @return \PropelObjectCollection
+     */
+    public function findByParentId($pid);
+
+    /**
+     * @param Category $category
+     * @return int
+     * @throws \Application\Dao\RuntimeException
+     */
+    public function save(Category $category);
+
+    /**
+     * @param Category $category
+     * @return int
+     */
+    public function update(Category $category);
 
     /**
      * @param array $ids
@@ -44,9 +49,7 @@ interface AccountDao {
     public function deleteRangeByIds(array $ids);
 
     /**
-     * @param Account $account
-     * @return int
-     * @throws \Application\Dao\RuntimeException
+     * @param $id
      */
-    public function save(Account $account);
-} 
+    public function deleteById($id);
+}

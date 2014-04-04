@@ -25,6 +25,7 @@ use Propel\User;
  *
  * @method CategoryQuery orderById($order = Criteria::ASC) Order by the id column
  * @method CategoryQuery orderByPid($order = Criteria::ASC) Order by the pid column
+ * @method CategoryQuery orderByChildCount($order = Criteria::ASC) Order by the child_count column
  * @method CategoryQuery orderByUserId($order = Criteria::ASC) Order by the user_id column
  * @method CategoryQuery orderByName($order = Criteria::ASC) Order by the name column
  * @method CategoryQuery orderByCreateTime($order = Criteria::ASC) Order by the create_time column
@@ -32,6 +33,7 @@ use Propel\User;
  *
  * @method CategoryQuery groupById() Group by the id column
  * @method CategoryQuery groupByPid() Group by the pid column
+ * @method CategoryQuery groupByChildCount() Group by the child_count column
  * @method CategoryQuery groupByUserId() Group by the user_id column
  * @method CategoryQuery groupByName() Group by the name column
  * @method CategoryQuery groupByCreateTime() Group by the create_time column
@@ -61,6 +63,7 @@ use Propel\User;
  * @method Category findOneOrCreate(PropelPDO $con = null) Return the first Category matching the query, or a new Category object populated from the query conditions when no match is found
  *
  * @method Category findOneByPid(int $pid) Return the first Category filtered by the pid column
+ * @method Category findOneByChildCount(int $child_count) Return the first Category filtered by the child_count column
  * @method Category findOneByUserId(int $user_id) Return the first Category filtered by the user_id column
  * @method Category findOneByName(string $name) Return the first Category filtered by the name column
  * @method Category findOneByCreateTime(string $create_time) Return the first Category filtered by the create_time column
@@ -68,6 +71,7 @@ use Propel\User;
  *
  * @method array findById(int $id) Return Category objects filtered by the id column
  * @method array findByPid(int $pid) Return Category objects filtered by the pid column
+ * @method array findByChildCount(int $child_count) Return Category objects filtered by the child_count column
  * @method array findByUserId(int $user_id) Return Category objects filtered by the user_id column
  * @method array findByName(string $name) Return Category objects filtered by the name column
  * @method array findByCreateTime(string $create_time) Return Category objects filtered by the create_time column
@@ -179,7 +183,7 @@ abstract class BaseCategoryQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `id`, `pid`, `user_id`, `name`, `create_time`, `update_time` FROM `category` WHERE `id` = :p0';
+        $sql = 'SELECT `id`, `pid`, `child_count`, `user_id`, `name`, `create_time`, `update_time` FROM `category` WHERE `id` = :p0';
         try {
             $stmt = $con->prepare($sql);
             $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
@@ -352,6 +356,48 @@ abstract class BaseCategoryQuery extends ModelCriteria
         }
 
         return $this->addUsingAlias(CategoryPeer::PID, $pid, $comparison);
+    }
+
+    /**
+     * Filter the query on the child_count column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterByChildCount(1234); // WHERE child_count = 1234
+     * $query->filterByChildCount(array(12, 34)); // WHERE child_count IN (12, 34)
+     * $query->filterByChildCount(array('min' => 12)); // WHERE child_count >= 12
+     * $query->filterByChildCount(array('max' => 12)); // WHERE child_count <= 12
+     * </code>
+     *
+     * @param     mixed $childCount The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return CategoryQuery The current query, for fluid interface
+     */
+    public function filterByChildCount($childCount = null, $comparison = null)
+    {
+        if (is_array($childCount)) {
+            $useMinMax = false;
+            if (isset($childCount['min'])) {
+                $this->addUsingAlias(CategoryPeer::CHILD_COUNT, $childCount['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($childCount['max'])) {
+                $this->addUsingAlias(CategoryPeer::CHILD_COUNT, $childCount['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
+        }
+
+        return $this->addUsingAlias(CategoryPeer::CHILD_COUNT, $childCount, $comparison);
     }
 
     /**

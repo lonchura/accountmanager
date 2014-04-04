@@ -69,6 +69,7 @@
     <table name="category" description="资源类别表">
         <column name="id" type="INTEGER" size="4" required="true" primaryKey="true" autoIncrement="true" />
         <column name="pid" type="INTEGER" size="4" />
+        <column name="child_count" type="INTEGER" size="2" required="true" />
         <column name="user_id" type="INTEGER" size="4" required="true" />
         <column name="name" type="VARCHAR" size="45" required="true" />
         <column name="create_time" type="TIMESTAMP" required="true" />
@@ -77,7 +78,7 @@
             <parameter name="create_column" value="create_time" />
             <parameter name="update_column" value="update_time" />
         </behavior>
-        <foreign-key foreignTable="category" onDelete="restrict">
+        <foreign-key foreignTable="category" onDelete="cascade">
             <reference local="pid" foreign="id" />
         </foreign-key>
         <foreign-key foreignTable="user" onDelete="cascade">

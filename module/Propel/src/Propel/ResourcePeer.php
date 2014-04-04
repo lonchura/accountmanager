@@ -18,4 +18,7 @@ use Propel\om\BaseResourcePeer;
  */
 class ResourcePeer extends BaseResourcePeer
 {
+    public static $modelFieldMapping = array(
+        'Id' => self::ID
+    );
 }
