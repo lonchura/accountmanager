@@ -19,8 +19,6 @@ use Propel\Account;
 use Propel\AccountQuery;
 use Propel\Category;
 use Propel\CategoryQuery;
-use Propel\Resource;
-use Propel\ResourceQuery;
 use Propel\Role;
 use Propel\RoleQuery;
 use Propel\User;
@@ -109,12 +107,6 @@ abstract class BaseUser extends BaseObject implements Persistent
     protected $collAccountsPartial;
 
     /**
-     * @var        PropelObjectCollection|Resource[] Collection to store aggregation of Resource objects.
-     */
-    protected $collResources;
-    protected $collResourcesPartial;
-
-    /**
      * @var        PropelObjectCollection|Category[] Collection to store aggregation of Category objects.
      */
     protected $collCategorys;
@@ -145,12 +137,6 @@ abstract class BaseUser extends BaseObject implements Persistent
      * @var		PropelObjectCollection
      */
     protected $accountsScheduledForDeletion = null;
-
-    /**
-     * An array of objects scheduled for deletion.
-     * @var		PropelObjectCollection
-     */
-    protected $resourcesScheduledForDeletion = null;
 
     /**
      * An array of objects scheduled for deletion.
@@ -564,8 +550,6 @@ abstract class BaseUser extends BaseObject implements Persistent
             $this->aRole = null;
             $this->collAccounts = null;
 
-            $this->collResources = null;
-
             $this->collCategorys = null;
 
         } // if (deep)
@@ -726,23 +710,6 @@ abstract class BaseUser extends BaseObject implements Persistent
 
             if ($this->collAccounts !== null) {
                 foreach ($this->collAccounts as $referrerFK) {
-                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
-                        $affectedRows += $referrerFK->save($con);
-                    }
-                }
-            }
-
-            if ($this->resourcesScheduledForDeletion !== null) {
-                if (!$this->resourcesScheduledForDeletion->isEmpty()) {
-                    ResourceQuery::create()
-                        ->filterByPrimaryKeys($this->resourcesScheduledForDeletion->getPrimaryKeys(false))
-                        ->delete($con);
-                    $this->resourcesScheduledForDeletion = null;
-                }
-            }
-
-            if ($this->collResources !== null) {
-                foreach ($this->collResources as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -964,14 +931,6 @@ abstract class BaseUser extends BaseObject implements Persistent
                     }
                 }
 
-                if ($this->collResources !== null) {
-                    foreach ($this->collResources as $referrerFK) {
-                        if (!$referrerFK->validate($columns)) {
-                            $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-                        }
-                    }
-                }
-
                 if ($this->collCategorys !== null) {
                     foreach ($this->collCategorys as $referrerFK) {
                         if (!$referrerFK->validate($columns)) {
@@ -1084,9 +1043,6 @@ abstract class BaseUser extends BaseObject implements Persistent
             }
             if (null !== $this->collAccounts) {
                 $result['Accounts'] = $this->collAccounts->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
-            }
-            if (null !== $this->collResources) {
-                $result['Resources'] = $this->collResources->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
             if (null !== $this->collCategorys) {
                 $result['Categorys'] = $this->collCategorys->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
@@ -1278,12 +1234,6 @@ abstract class BaseUser extends BaseObject implements Persistent
                 }
             }
 
-            foreach ($this->getResources() as $relObj) {
-                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addResource($relObj->copy($deepCopy));
-                }
-            }
-
             foreach ($this->getCategorys() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addCategory($relObj->copy($deepCopy));
@@ -1405,9 +1355,6 @@ abstract class BaseUser extends BaseObject implements Persistent
     {
         if ('Account' == $relationName) {
             $this->initAccounts();
-        }
-        if ('Resource' == $relationName) {
-            $this->initResources();
         }
         if ('Category' == $relationName) {
             $this->initCategorys();
@@ -1634,231 +1581,6 @@ abstract class BaseUser extends BaseObject implements Persistent
             }
             $this->accountsScheduledForDeletion[]= clone $account;
             $account->setUser(null);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Clears out the collResources collection
-     *
-     * This does not modify the database; however, it will remove any associated objects, causing
-     * them to be refetched by subsequent calls to accessor method.
-     *
-     * @return User The current object (for fluent API support)
-     * @see        addResources()
-     */
-    public function clearResources()
-    {
-        $this->collResources = null; // important to set this to null since that means it is uninitialized
-        $this->collResourcesPartial = null;
-
-        return $this;
-    }
-
-    /**
-     * reset is the collResources collection loaded partially
-     *
-     * @return void
-     */
-    public function resetPartialResources($v = true)
-    {
-        $this->collResourcesPartial = $v;
-    }
-
-    /**
-     * Initializes the collResources collection.
-     *
-     * By default this just sets the collResources collection to an empty array (like clearcollResources());
-     * however, you may wish to override this method in your stub class to provide setting appropriate
-     * to your application -- for example, setting the initial array to the values stored in database.
-     *
-     * @param boolean $overrideExisting If set to true, the method call initializes
-     *                                        the collection even if it is not empty
-     *
-     * @return void
-     */
-    public function initResources($overrideExisting = true)
-    {
-        if (null !== $this->collResources && !$overrideExisting) {
-            return;
-        }
-        $this->collResources = new PropelObjectCollection();
-        $this->collResources->setModel('Resource');
-    }
-
-    /**
-     * Gets an array of Resource objects which contain a foreign key that references this object.
-     *
-     * If the $criteria is not null, it is used to always fetch the results from the database.
-     * Otherwise the results are fetched from the database the first time, then cached.
-     * Next time the same method is called without $criteria, the cached collection is returned.
-     * If this User is new, it will return
-     * an empty collection or the current collection; the criteria is ignored on a new object.
-     *
-     * @param Criteria $criteria optional Criteria object to narrow the query
-     * @param PropelPDO $con optional connection object
-     * @return PropelObjectCollection|Resource[] List of Resource objects
-     * @throws PropelException
-     */
-    public function getResources($criteria = null, PropelPDO $con = null)
-    {
-        $partial = $this->collResourcesPartial && !$this->isNew();
-        if (null === $this->collResources || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collResources) {
-                // return empty collection
-                $this->initResources();
-            } else {
-                $collResources = ResourceQuery::create(null, $criteria)
-                    ->filterByUser($this)
-                    ->find($con);
-                if (null !== $criteria) {
-                    if (false !== $this->collResourcesPartial && count($collResources)) {
-                      $this->initResources(false);
-
-                      foreach ($collResources as $obj) {
-                        if (false == $this->collResources->contains($obj)) {
-                          $this->collResources->append($obj);
-                        }
-                      }
-
-                      $this->collResourcesPartial = true;
-                    }
-
-                    $collResources->getInternalIterator()->rewind();
-
-                    return $collResources;
-                }
-
-                if ($partial && $this->collResources) {
-                    foreach ($this->collResources as $obj) {
-                        if ($obj->isNew()) {
-                            $collResources[] = $obj;
-                        }
-                    }
-                }
-
-                $this->collResources = $collResources;
-                $this->collResourcesPartial = false;
-            }
-        }
-
-        return $this->collResources;
-    }
-
-    /**
-     * Sets a collection of Resource objects related by a one-to-many relationship
-     * to the current object.
-     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
-     * and new objects from the given Propel collection.
-     *
-     * @param PropelCollection $resources A Propel collection.
-     * @param PropelPDO $con Optional connection object
-     * @return User The current object (for fluent API support)
-     */
-    public function setResources(PropelCollection $resources, PropelPDO $con = null)
-    {
-        $resourcesToDelete = $this->getResources(new Criteria(), $con)->diff($resources);
-
-
-        $this->resourcesScheduledForDeletion = $resourcesToDelete;
-
-        foreach ($resourcesToDelete as $resourceRemoved) {
-            $resourceRemoved->setUser(null);
-        }
-
-        $this->collResources = null;
-        foreach ($resources as $resource) {
-            $this->addResource($resource);
-        }
-
-        $this->collResources = $resources;
-        $this->collResourcesPartial = false;
-
-        return $this;
-    }
-
-    /**
-     * Returns the number of related Resource objects.
-     *
-     * @param Criteria $criteria
-     * @param boolean $distinct
-     * @param PropelPDO $con
-     * @return int             Count of related Resource objects.
-     * @throws PropelException
-     */
-    public function countResources(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-    {
-        $partial = $this->collResourcesPartial && !$this->isNew();
-        if (null === $this->collResources || null !== $criteria || $partial) {
-            if ($this->isNew() && null === $this->collResources) {
-                return 0;
-            }
-
-            if ($partial && !$criteria) {
-                return count($this->getResources());
-            }
-            $query = ResourceQuery::create(null, $criteria);
-            if ($distinct) {
-                $query->distinct();
-            }
-
-            return $query
-                ->filterByUser($this)
-                ->count($con);
-        }
-
-        return count($this->collResources);
-    }
-
-    /**
-     * Method called to associate a Resource object to this object
-     * through the Resource foreign key attribute.
-     *
-     * @param    Resource $l Resource
-     * @return User The current object (for fluent API support)
-     */
-    public function addResource(Resource $l)
-    {
-        if ($this->collResources === null) {
-            $this->initResources();
-            $this->collResourcesPartial = true;
-        }
-
-        if (!in_array($l, $this->collResources->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
-            $this->doAddResource($l);
-
-            if ($this->resourcesScheduledForDeletion and $this->resourcesScheduledForDeletion->contains($l)) {
-                $this->resourcesScheduledForDeletion->remove($this->resourcesScheduledForDeletion->search($l));
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param	Resource $resource The resource object to add.
-     */
-    protected function doAddResource($resource)
-    {
-        $this->collResources[]= $resource;
-        $resource->setUser($this);
-    }
-
-    /**
-     * @param	Resource $resource The resource object to remove.
-     * @return User The current object (for fluent API support)
-     */
-    public function removeResource($resource)
-    {
-        if ($this->getResources()->contains($resource)) {
-            $this->collResources->remove($this->collResources->search($resource));
-            if (null === $this->resourcesScheduledForDeletion) {
-                $this->resourcesScheduledForDeletion = clone $this->collResources;
-                $this->resourcesScheduledForDeletion->clear();
-            }
-            $this->resourcesScheduledForDeletion[]= clone $resource;
-            $resource->setUser(null);
         }
 
         return $this;
@@ -2153,11 +1875,6 @@ abstract class BaseUser extends BaseObject implements Persistent
                     $o->clearAllReferences($deep);
                 }
             }
-            if ($this->collResources) {
-                foreach ($this->collResources as $o) {
-                    $o->clearAllReferences($deep);
-                }
-            }
             if ($this->collCategorys) {
                 foreach ($this->collCategorys as $o) {
                     $o->clearAllReferences($deep);
@@ -2174,10 +1891,6 @@ abstract class BaseUser extends BaseObject implements Persistent
             $this->collAccounts->clearIterator();
         }
         $this->collAccounts = null;
-        if ($this->collResources instanceof PropelCollection) {
-            $this->collResources->clearIterator();
-        }
-        $this->collResources = null;
         if ($this->collCategorys instanceof PropelCollection) {
             $this->collCategorys->clearIterator();
         }

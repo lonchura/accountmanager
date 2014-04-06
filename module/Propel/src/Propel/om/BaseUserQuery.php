@@ -14,7 +14,6 @@ use \PropelObjectCollection;
 use \PropelPDO;
 use Propel\Account;
 use Propel\Category;
-use Propel\Resource;
 use Propel\Role;
 use Propel\User;
 use Propel\UserPeer;
@@ -52,10 +51,6 @@ use Propel\UserQuery;
  * @method UserQuery leftJoinAccount($relationAlias = null) Adds a LEFT JOIN clause to the query using the Account relation
  * @method UserQuery rightJoinAccount($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Account relation
  * @method UserQuery innerJoinAccount($relationAlias = null) Adds a INNER JOIN clause to the query using the Account relation
- *
- * @method UserQuery leftJoinResource($relationAlias = null) Adds a LEFT JOIN clause to the query using the Resource relation
- * @method UserQuery rightJoinResource($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Resource relation
- * @method UserQuery innerJoinResource($relationAlias = null) Adds a INNER JOIN clause to the query using the Resource relation
  *
  * @method UserQuery leftJoinCategory($relationAlias = null) Adds a LEFT JOIN clause to the query using the Category relation
  * @method UserQuery rightJoinCategory($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Category relation
@@ -681,80 +676,6 @@ abstract class BaseUserQuery extends ModelCriteria
         return $this
             ->joinAccount($relationAlias, $joinType)
             ->useQuery($relationAlias ? $relationAlias : 'Account', '\Propel\AccountQuery');
-    }
-
-    /**
-     * Filter the query by a related Resource object
-     *
-     * @param   Resource|PropelObjectCollection $resource  the related object to use as filter
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return                 UserQuery The current query, for fluid interface
-     * @throws PropelException - if the provided filter is invalid.
-     */
-    public function filterByResource($resource, $comparison = null)
-    {
-        if ($resource instanceof Resource) {
-            return $this
-                ->addUsingAlias(UserPeer::ID, $resource->getUserId(), $comparison);
-        } elseif ($resource instanceof PropelObjectCollection) {
-            return $this
-                ->useResourceQuery()
-                ->filterByPrimaryKeys($resource->getPrimaryKeys())
-                ->endUse();
-        } else {
-            throw new PropelException('filterByResource() only accepts arguments of type Resource or PropelCollection');
-        }
-    }
-
-    /**
-     * Adds a JOIN clause to the query using the Resource relation
-     *
-     * @param     string $relationAlias optional alias for the relation
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return UserQuery The current query, for fluid interface
-     */
-    public function joinResource($relationAlias = null, $joinType = Criteria::INNER_JOIN)
-    {
-        $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('Resource');
-
-        // create a ModelJoin object for this join
-        $join = new ModelJoin();
-        $join->setJoinType($joinType);
-        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
-        if ($previousJoin = $this->getPreviousJoin()) {
-            $join->setPreviousJoin($previousJoin);
-        }
-
-        // add the ModelJoin to the current object
-        if ($relationAlias) {
-            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
-            $this->addJoinObject($join, $relationAlias);
-        } else {
-            $this->addJoinObject($join, 'Resource');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Use the Resource relation Resource object
-     *
-     * @see       useQuery()
-     *
-     * @param     string $relationAlias optional alias for the relation,
-     *                                   to be used as main alias in the secondary query
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return   \Propel\ResourceQuery A secondary query class using the current class as primary query
-     */
-    public function useResourceQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
-    {
-        return $this
-            ->joinResource($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'Resource', '\Propel\ResourceQuery');
     }
 
     /**

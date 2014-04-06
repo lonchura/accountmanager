@@ -17,15 +17,13 @@ use \PropelObjectCollection;
 use \PropelPDO;
 use Propel\Account;
 use Propel\AccountQuery;
-use Propel\CategoryResource;
-use Propel\CategoryResourceQuery;
+use Propel\Category;
+use Propel\CategoryQuery;
 use Propel\Resource;
 use Propel\ResourceAccount;
 use Propel\ResourceAccountQuery;
 use Propel\ResourcePeer;
 use Propel\ResourceQuery;
-use Propel\User;
-use Propel\UserQuery;
 
 /**
  * Base class that represents a row from the 'resource' table.
@@ -62,22 +60,10 @@ abstract class BaseResource extends BaseObject implements Persistent
     protected $id;
 
     /**
-     * The value for the user_id field.
+     * The value for the category_id field.
      * @var        int
      */
-    protected $user_id;
-
-    /**
-     * The value for the identifier field.
-     * @var        string
-     */
-    protected $identifier;
-
-    /**
-     * The value for the type field.
-     * @var        int
-     */
-    protected $type;
+    protected $category_id;
 
     /**
      * The value for the name field.
@@ -104,21 +90,15 @@ abstract class BaseResource extends BaseObject implements Persistent
     protected $update_time;
 
     /**
-     * @var        User
+     * @var        Category
      */
-    protected $aUser;
+    protected $aCategory;
 
     /**
      * @var        PropelObjectCollection|ResourceAccount[] Collection to store aggregation of ResourceAccount objects.
      */
     protected $collResourceAccounts;
     protected $collResourceAccountsPartial;
-
-    /**
-     * @var        PropelObjectCollection|CategoryResource[] Collection to store aggregation of CategoryResource objects.
-     */
-    protected $collCategoryResources;
-    protected $collCategoryResourcesPartial;
 
     /**
      * @var        PropelObjectCollection|Account[] Collection to store aggregation of Account objects.
@@ -158,12 +138,6 @@ abstract class BaseResource extends BaseObject implements Persistent
     protected $resourceAccountsScheduledForDeletion = null;
 
     /**
-     * An array of objects scheduled for deletion.
-     * @var		PropelObjectCollection
-     */
-    protected $categoryResourcesScheduledForDeletion = null;
-
-    /**
      * Get the [id] column value.
      *
      * @return int
@@ -175,44 +149,14 @@ abstract class BaseResource extends BaseObject implements Persistent
     }
 
     /**
-     * Get the [user_id] column value.
+     * Get the [category_id] column value.
      *
      * @return int
      */
-    public function getUserId()
+    public function getCategoryId()
     {
 
-        return $this->user_id;
-    }
-
-    /**
-     * Get the [identifier] column value.
-     *
-     * @return string
-     */
-    public function getIdentifier()
-    {
-
-        return $this->identifier;
-    }
-
-    /**
-     * Get the [type] column value.
-     *
-     * @return int
-     * @throws PropelException - if the stored enum key is unknown.
-     */
-    public function getType()
-    {
-        if (null === $this->type) {
-            return null;
-        }
-        $valueSet = ResourcePeer::getValueSet(ResourcePeer::TYPE);
-        if (!isset($valueSet[$this->type])) {
-            throw new PropelException('Unknown stored enum key: ' . $this->type);
-        }
-
-        return $valueSet[$this->type];
+        return $this->category_id;
     }
 
     /**
@@ -339,76 +283,29 @@ abstract class BaseResource extends BaseObject implements Persistent
     } // setId()
 
     /**
-     * Set the value of [user_id] column.
+     * Set the value of [category_id] column.
      *
      * @param  int $v new value
      * @return Resource The current object (for fluent API support)
      */
-    public function setUserId($v)
+    public function setCategoryId($v)
     {
         if ($v !== null && is_numeric($v)) {
             $v = (int) $v;
         }
 
-        if ($this->user_id !== $v) {
-            $this->user_id = $v;
-            $this->modifiedColumns[] = ResourcePeer::USER_ID;
+        if ($this->category_id !== $v) {
+            $this->category_id = $v;
+            $this->modifiedColumns[] = ResourcePeer::CATEGORY_ID;
         }
 
-        if ($this->aUser !== null && $this->aUser->getId() !== $v) {
-            $this->aUser = null;
-        }
-
-
-        return $this;
-    } // setUserId()
-
-    /**
-     * Set the value of [identifier] column.
-     *
-     * @param  string $v new value
-     * @return Resource The current object (for fluent API support)
-     */
-    public function setIdentifier($v)
-    {
-        if ($v !== null && is_numeric($v)) {
-            $v = (string) $v;
-        }
-
-        if ($this->identifier !== $v) {
-            $this->identifier = $v;
-            $this->modifiedColumns[] = ResourcePeer::IDENTIFIER;
+        if ($this->aCategory !== null && $this->aCategory->getId() !== $v) {
+            $this->aCategory = null;
         }
 
 
         return $this;
-    } // setIdentifier()
-
-    /**
-     * Set the value of [type] column.
-     *
-     * @param  int $v new value
-     * @return Resource The current object (for fluent API support)
-     * @throws PropelException - if the value is not accepted by this enum.
-     */
-    public function setType($v)
-    {
-        if ($v !== null) {
-            $valueSet = ResourcePeer::getValueSet(ResourcePeer::TYPE);
-            if (!in_array($v, $valueSet)) {
-                throw new PropelException(sprintf('Value "%s" is not accepted in this enumerated column', $v));
-            }
-            $v = array_search($v, $valueSet);
-        }
-
-        if ($this->type !== $v) {
-            $this->type = $v;
-            $this->modifiedColumns[] = ResourcePeer::TYPE;
-        }
-
-
-        return $this;
-    } // setType()
+    } // setCategoryId()
 
     /**
      * Set the value of [name] column.
@@ -531,13 +428,11 @@ abstract class BaseResource extends BaseObject implements Persistent
         try {
 
             $this->id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
-            $this->user_id = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
-            $this->identifier = ($row[$startcol + 2] !== null) ? (string) $row[$startcol + 2] : null;
-            $this->type = ($row[$startcol + 3] !== null) ? (int) $row[$startcol + 3] : null;
-            $this->name = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
-            $this->description = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
-            $this->create_time = ($row[$startcol + 6] !== null) ? (string) $row[$startcol + 6] : null;
-            $this->update_time = ($row[$startcol + 7] !== null) ? (string) $row[$startcol + 7] : null;
+            $this->category_id = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
+            $this->name = ($row[$startcol + 2] !== null) ? (string) $row[$startcol + 2] : null;
+            $this->description = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
+            $this->create_time = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
+            $this->update_time = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -547,7 +442,7 @@ abstract class BaseResource extends BaseObject implements Persistent
             }
             $this->postHydrate($row, $startcol, $rehydrate);
 
-            return $startcol + 8; // 8 = ResourcePeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 6; // 6 = ResourcePeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating Resource object", $e);
@@ -570,8 +465,8 @@ abstract class BaseResource extends BaseObject implements Persistent
     public function ensureConsistency()
     {
 
-        if ($this->aUser !== null && $this->user_id !== $this->aUser->getId()) {
-            $this->aUser = null;
+        if ($this->aCategory !== null && $this->category_id !== $this->aCategory->getId()) {
+            $this->aCategory = null;
         }
     } // ensureConsistency
 
@@ -612,10 +507,8 @@ abstract class BaseResource extends BaseObject implements Persistent
 
         if ($deep) {  // also de-associate any related objects?
 
-            $this->aUser = null;
+            $this->aCategory = null;
             $this->collResourceAccounts = null;
-
-            $this->collCategoryResources = null;
 
             $this->collAccounts = null;
         } // if (deep)
@@ -747,11 +640,11 @@ abstract class BaseResource extends BaseObject implements Persistent
             // method.  This object relates to these object(s) by a
             // foreign key reference.
 
-            if ($this->aUser !== null) {
-                if ($this->aUser->isModified() || $this->aUser->isNew()) {
-                    $affectedRows += $this->aUser->save($con);
+            if ($this->aCategory !== null) {
+                if ($this->aCategory->isModified() || $this->aCategory->isNew()) {
+                    $affectedRows += $this->aCategory->save($con);
                 }
-                $this->setUser($this->aUser);
+                $this->setCategory($this->aCategory);
             }
 
             if ($this->isNew() || $this->isModified()) {
@@ -808,23 +701,6 @@ abstract class BaseResource extends BaseObject implements Persistent
                 }
             }
 
-            if ($this->categoryResourcesScheduledForDeletion !== null) {
-                if (!$this->categoryResourcesScheduledForDeletion->isEmpty()) {
-                    CategoryResourceQuery::create()
-                        ->filterByPrimaryKeys($this->categoryResourcesScheduledForDeletion->getPrimaryKeys(false))
-                        ->delete($con);
-                    $this->categoryResourcesScheduledForDeletion = null;
-                }
-            }
-
-            if ($this->collCategoryResources !== null) {
-                foreach ($this->collCategoryResources as $referrerFK) {
-                    if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
-                        $affectedRows += $referrerFK->save($con);
-                    }
-                }
-            }
-
             $this->alreadyInSave = false;
 
         }
@@ -854,14 +730,8 @@ abstract class BaseResource extends BaseObject implements Persistent
         if ($this->isColumnModified(ResourcePeer::ID)) {
             $modifiedColumns[':p' . $index++]  = '`id`';
         }
-        if ($this->isColumnModified(ResourcePeer::USER_ID)) {
-            $modifiedColumns[':p' . $index++]  = '`user_id`';
-        }
-        if ($this->isColumnModified(ResourcePeer::IDENTIFIER)) {
-            $modifiedColumns[':p' . $index++]  = '`identifier`';
-        }
-        if ($this->isColumnModified(ResourcePeer::TYPE)) {
-            $modifiedColumns[':p' . $index++]  = '`type`';
+        if ($this->isColumnModified(ResourcePeer::CATEGORY_ID)) {
+            $modifiedColumns[':p' . $index++]  = '`category_id`';
         }
         if ($this->isColumnModified(ResourcePeer::NAME)) {
             $modifiedColumns[':p' . $index++]  = '`name`';
@@ -889,14 +759,8 @@ abstract class BaseResource extends BaseObject implements Persistent
                     case '`id`':
                         $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
                         break;
-                    case '`user_id`':
-                        $stmt->bindValue($identifier, $this->user_id, PDO::PARAM_INT);
-                        break;
-                    case '`identifier`':
-                        $stmt->bindValue($identifier, $this->identifier, PDO::PARAM_STR);
-                        break;
-                    case '`type`':
-                        $stmt->bindValue($identifier, $this->type, PDO::PARAM_INT);
+                    case '`category_id`':
+                        $stmt->bindValue($identifier, $this->category_id, PDO::PARAM_INT);
                         break;
                     case '`name`':
                         $stmt->bindValue($identifier, $this->name, PDO::PARAM_STR);
@@ -1009,9 +873,9 @@ abstract class BaseResource extends BaseObject implements Persistent
             // method.  This object relates to these object(s) by a
             // foreign key reference.
 
-            if ($this->aUser !== null) {
-                if (!$this->aUser->validate($columns)) {
-                    $failureMap = array_merge($failureMap, $this->aUser->getValidationFailures());
+            if ($this->aCategory !== null) {
+                if (!$this->aCategory->validate($columns)) {
+                    $failureMap = array_merge($failureMap, $this->aCategory->getValidationFailures());
                 }
             }
 
@@ -1023,14 +887,6 @@ abstract class BaseResource extends BaseObject implements Persistent
 
                 if ($this->collResourceAccounts !== null) {
                     foreach ($this->collResourceAccounts as $referrerFK) {
-                        if (!$referrerFK->validate($columns)) {
-                            $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
-                        }
-                    }
-                }
-
-                if ($this->collCategoryResources !== null) {
-                    foreach ($this->collCategoryResources as $referrerFK) {
                         if (!$referrerFK->validate($columns)) {
                             $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
                         }
@@ -1076,24 +932,18 @@ abstract class BaseResource extends BaseObject implements Persistent
                 return $this->getId();
                 break;
             case 1:
-                return $this->getUserId();
+                return $this->getCategoryId();
                 break;
             case 2:
-                return $this->getIdentifier();
-                break;
-            case 3:
-                return $this->getType();
-                break;
-            case 4:
                 return $this->getName();
                 break;
-            case 5:
+            case 3:
                 return $this->getDescription();
                 break;
-            case 6:
+            case 4:
                 return $this->getCreateTime();
                 break;
-            case 7:
+            case 5:
                 return $this->getUpdateTime();
                 break;
             default:
@@ -1119,20 +969,18 @@ abstract class BaseResource extends BaseObject implements Persistent
      */
     public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
-        if (isset($alreadyDumpedObjects['Resource'][$this->getPrimaryKey()])) {
+        if (isset($alreadyDumpedObjects['Resource'][serialize($this->getPrimaryKey())])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['Resource'][$this->getPrimaryKey()] = true;
+        $alreadyDumpedObjects['Resource'][serialize($this->getPrimaryKey())] = true;
         $keys = ResourcePeer::getFieldNames($keyType);
         $result = array(
             $keys[0] => $this->getId(),
-            $keys[1] => $this->getUserId(),
-            $keys[2] => $this->getIdentifier(),
-            $keys[3] => $this->getType(),
-            $keys[4] => $this->getName(),
-            $keys[5] => $this->getDescription(),
-            $keys[6] => $this->getCreateTime(),
-            $keys[7] => $this->getUpdateTime(),
+            $keys[1] => $this->getCategoryId(),
+            $keys[2] => $this->getName(),
+            $keys[3] => $this->getDescription(),
+            $keys[4] => $this->getCreateTime(),
+            $keys[5] => $this->getUpdateTime(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -1140,14 +988,11 @@ abstract class BaseResource extends BaseObject implements Persistent
         }
 
         if ($includeForeignObjects) {
-            if (null !== $this->aUser) {
-                $result['User'] = $this->aUser->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
+            if (null !== $this->aCategory) {
+                $result['Category'] = $this->aCategory->toArray($keyType, $includeLazyLoadColumns,  $alreadyDumpedObjects, true);
             }
             if (null !== $this->collResourceAccounts) {
                 $result['ResourceAccounts'] = $this->collResourceAccounts->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
-            }
-            if (null !== $this->collCategoryResources) {
-                $result['CategoryResources'] = $this->collCategoryResources->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -1187,28 +1032,18 @@ abstract class BaseResource extends BaseObject implements Persistent
                 $this->setId($value);
                 break;
             case 1:
-                $this->setUserId($value);
+                $this->setCategoryId($value);
                 break;
             case 2:
-                $this->setIdentifier($value);
-                break;
-            case 3:
-                $valueSet = ResourcePeer::getValueSet(ResourcePeer::TYPE);
-                if (isset($valueSet[$value])) {
-                    $value = $valueSet[$value];
-                }
-                $this->setType($value);
-                break;
-            case 4:
                 $this->setName($value);
                 break;
-            case 5:
+            case 3:
                 $this->setDescription($value);
                 break;
-            case 6:
+            case 4:
                 $this->setCreateTime($value);
                 break;
-            case 7:
+            case 5:
                 $this->setUpdateTime($value);
                 break;
         } // switch()
@@ -1236,13 +1071,11 @@ abstract class BaseResource extends BaseObject implements Persistent
         $keys = ResourcePeer::getFieldNames($keyType);
 
         if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
-        if (array_key_exists($keys[1], $arr)) $this->setUserId($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setIdentifier($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setType($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setName($arr[$keys[4]]);
-        if (array_key_exists($keys[5], $arr)) $this->setDescription($arr[$keys[5]]);
-        if (array_key_exists($keys[6], $arr)) $this->setCreateTime($arr[$keys[6]]);
-        if (array_key_exists($keys[7], $arr)) $this->setUpdateTime($arr[$keys[7]]);
+        if (array_key_exists($keys[1], $arr)) $this->setCategoryId($arr[$keys[1]]);
+        if (array_key_exists($keys[2], $arr)) $this->setName($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setDescription($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setCreateTime($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setUpdateTime($arr[$keys[5]]);
     }
 
     /**
@@ -1255,9 +1088,7 @@ abstract class BaseResource extends BaseObject implements Persistent
         $criteria = new Criteria(ResourcePeer::DATABASE_NAME);
 
         if ($this->isColumnModified(ResourcePeer::ID)) $criteria->add(ResourcePeer::ID, $this->id);
-        if ($this->isColumnModified(ResourcePeer::USER_ID)) $criteria->add(ResourcePeer::USER_ID, $this->user_id);
-        if ($this->isColumnModified(ResourcePeer::IDENTIFIER)) $criteria->add(ResourcePeer::IDENTIFIER, $this->identifier);
-        if ($this->isColumnModified(ResourcePeer::TYPE)) $criteria->add(ResourcePeer::TYPE, $this->type);
+        if ($this->isColumnModified(ResourcePeer::CATEGORY_ID)) $criteria->add(ResourcePeer::CATEGORY_ID, $this->category_id);
         if ($this->isColumnModified(ResourcePeer::NAME)) $criteria->add(ResourcePeer::NAME, $this->name);
         if ($this->isColumnModified(ResourcePeer::DESCRIPTION)) $criteria->add(ResourcePeer::DESCRIPTION, $this->description);
         if ($this->isColumnModified(ResourcePeer::CREATE_TIME)) $criteria->add(ResourcePeer::CREATE_TIME, $this->create_time);
@@ -1278,28 +1109,35 @@ abstract class BaseResource extends BaseObject implements Persistent
     {
         $criteria = new Criteria(ResourcePeer::DATABASE_NAME);
         $criteria->add(ResourcePeer::ID, $this->id);
+        $criteria->add(ResourcePeer::CATEGORY_ID, $this->category_id);
 
         return $criteria;
     }
 
     /**
-     * Returns the primary key for this object (row).
-     * @return int
+     * Returns the composite primary key for this object.
+     * The array elements will be in same order as specified in XML.
+     * @return array
      */
     public function getPrimaryKey()
     {
-        return $this->getId();
+        $pks = array();
+        $pks[0] = $this->getId();
+        $pks[1] = $this->getCategoryId();
+
+        return $pks;
     }
 
     /**
-     * Generic method to set the primary key (id column).
+     * Set the [composite] primary key.
      *
-     * @param  int $key Primary key.
+     * @param array $keys The elements of the composite key (order must match the order in XML file).
      * @return void
      */
-    public function setPrimaryKey($key)
+    public function setPrimaryKey($keys)
     {
-        $this->setId($key);
+        $this->setId($keys[0]);
+        $this->setCategoryId($keys[1]);
     }
 
     /**
@@ -1309,7 +1147,7 @@ abstract class BaseResource extends BaseObject implements Persistent
     public function isPrimaryKeyNull()
     {
 
-        return null === $this->getId();
+        return (null === $this->getId()) && (null === $this->getCategoryId());
     }
 
     /**
@@ -1325,9 +1163,7 @@ abstract class BaseResource extends BaseObject implements Persistent
      */
     public function copyInto($copyObj, $deepCopy = false, $makeNew = true)
     {
-        $copyObj->setUserId($this->getUserId());
-        $copyObj->setIdentifier($this->getIdentifier());
-        $copyObj->setType($this->getType());
+        $copyObj->setCategoryId($this->getCategoryId());
         $copyObj->setName($this->getName());
         $copyObj->setDescription($this->getDescription());
         $copyObj->setCreateTime($this->getCreateTime());
@@ -1343,12 +1179,6 @@ abstract class BaseResource extends BaseObject implements Persistent
             foreach ($this->getResourceAccounts() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
                     $copyObj->addResourceAccount($relObj->copy($deepCopy));
-                }
-            }
-
-            foreach ($this->getCategoryResources() as $relObj) {
-                if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addCategoryResource($relObj->copy($deepCopy));
                 }
             }
 
@@ -1403,24 +1233,24 @@ abstract class BaseResource extends BaseObject implements Persistent
     }
 
     /**
-     * Declares an association between this object and a User object.
+     * Declares an association between this object and a Category object.
      *
-     * @param                  User $v
+     * @param                  Category $v
      * @return Resource The current object (for fluent API support)
      * @throws PropelException
      */
-    public function setUser(User $v = null)
+    public function setCategory(Category $v = null)
     {
         if ($v === null) {
-            $this->setUserId(NULL);
+            $this->setCategoryId(NULL);
         } else {
-            $this->setUserId($v->getId());
+            $this->setCategoryId($v->getId());
         }
 
-        $this->aUser = $v;
+        $this->aCategory = $v;
 
         // Add binding for other direction of this n:n relationship.
-        // If this object has already been added to the User object, it will not be re-added.
+        // If this object has already been added to the Category object, it will not be re-added.
         if ($v !== null) {
             $v->addResource($this);
         }
@@ -1431,27 +1261,27 @@ abstract class BaseResource extends BaseObject implements Persistent
 
 
     /**
-     * Get the associated User object
+     * Get the associated Category object
      *
      * @param PropelPDO $con Optional Connection object.
      * @param $doQuery Executes a query to get the object if required
-     * @return User The associated User object.
+     * @return Category The associated Category object.
      * @throws PropelException
      */
-    public function getUser(PropelPDO $con = null, $doQuery = true)
+    public function getCategory(PropelPDO $con = null, $doQuery = true)
     {
-        if ($this->aUser === null && ($this->user_id !== null) && $doQuery) {
-            $this->aUser = UserQuery::create()->findPk($this->user_id, $con);
+        if ($this->aCategory === null && ($this->category_id !== null) && $doQuery) {
+            $this->aCategory = CategoryQuery::create()->findPk($this->category_id, $con);
             /* The following can be used additionally to
                 guarantee the related object contains a reference
                 to this object.  This level of coupling may, however, be
                 undesirable since it could result in an only partially populated collection
                 in the referenced object.
-                $this->aUser->addResources($this);
+                $this->aCategory->addResources($this);
              */
         }
 
-        return $this->aUser;
+        return $this->aCategory;
     }
 
 
@@ -1467,9 +1297,6 @@ abstract class BaseResource extends BaseObject implements Persistent
     {
         if ('ResourceAccount' == $relationName) {
             $this->initResourceAccounts();
-        }
-        if ('CategoryResource' == $relationName) {
-            $this->initCategoryResources();
         }
     }
 
@@ -1727,259 +1554,6 @@ abstract class BaseResource extends BaseObject implements Persistent
     }
 
     /**
-     * Clears out the collCategoryResources collection
-     *
-     * This does not modify the database; however, it will remove any associated objects, causing
-     * them to be refetched by subsequent calls to accessor method.
-     *
-     * @return Resource The current object (for fluent API support)
-     * @see        addCategoryResources()
-     */
-    public function clearCategoryResources()
-    {
-        $this->collCategoryResources = null; // important to set this to null since that means it is uninitialized
-        $this->collCategoryResourcesPartial = null;
-
-        return $this;
-    }
-
-    /**
-     * reset is the collCategoryResources collection loaded partially
-     *
-     * @return void
-     */
-    public function resetPartialCategoryResources($v = true)
-    {
-        $this->collCategoryResourcesPartial = $v;
-    }
-
-    /**
-     * Initializes the collCategoryResources collection.
-     *
-     * By default this just sets the collCategoryResources collection to an empty array (like clearcollCategoryResources());
-     * however, you may wish to override this method in your stub class to provide setting appropriate
-     * to your application -- for example, setting the initial array to the values stored in database.
-     *
-     * @param boolean $overrideExisting If set to true, the method call initializes
-     *                                        the collection even if it is not empty
-     *
-     * @return void
-     */
-    public function initCategoryResources($overrideExisting = true)
-    {
-        if (null !== $this->collCategoryResources && !$overrideExisting) {
-            return;
-        }
-        $this->collCategoryResources = new PropelObjectCollection();
-        $this->collCategoryResources->setModel('CategoryResource');
-    }
-
-    /**
-     * Gets an array of CategoryResource objects which contain a foreign key that references this object.
-     *
-     * If the $criteria is not null, it is used to always fetch the results from the database.
-     * Otherwise the results are fetched from the database the first time, then cached.
-     * Next time the same method is called without $criteria, the cached collection is returned.
-     * If this Resource is new, it will return
-     * an empty collection or the current collection; the criteria is ignored on a new object.
-     *
-     * @param Criteria $criteria optional Criteria object to narrow the query
-     * @param PropelPDO $con optional connection object
-     * @return PropelObjectCollection|CategoryResource[] List of CategoryResource objects
-     * @throws PropelException
-     */
-    public function getCategoryResources($criteria = null, PropelPDO $con = null)
-    {
-        $partial = $this->collCategoryResourcesPartial && !$this->isNew();
-        if (null === $this->collCategoryResources || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collCategoryResources) {
-                // return empty collection
-                $this->initCategoryResources();
-            } else {
-                $collCategoryResources = CategoryResourceQuery::create(null, $criteria)
-                    ->filterByResource($this)
-                    ->find($con);
-                if (null !== $criteria) {
-                    if (false !== $this->collCategoryResourcesPartial && count($collCategoryResources)) {
-                      $this->initCategoryResources(false);
-
-                      foreach ($collCategoryResources as $obj) {
-                        if (false == $this->collCategoryResources->contains($obj)) {
-                          $this->collCategoryResources->append($obj);
-                        }
-                      }
-
-                      $this->collCategoryResourcesPartial = true;
-                    }
-
-                    $collCategoryResources->getInternalIterator()->rewind();
-
-                    return $collCategoryResources;
-                }
-
-                if ($partial && $this->collCategoryResources) {
-                    foreach ($this->collCategoryResources as $obj) {
-                        if ($obj->isNew()) {
-                            $collCategoryResources[] = $obj;
-                        }
-                    }
-                }
-
-                $this->collCategoryResources = $collCategoryResources;
-                $this->collCategoryResourcesPartial = false;
-            }
-        }
-
-        return $this->collCategoryResources;
-    }
-
-    /**
-     * Sets a collection of CategoryResource objects related by a one-to-many relationship
-     * to the current object.
-     * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
-     * and new objects from the given Propel collection.
-     *
-     * @param PropelCollection $categoryResources A Propel collection.
-     * @param PropelPDO $con Optional connection object
-     * @return Resource The current object (for fluent API support)
-     */
-    public function setCategoryResources(PropelCollection $categoryResources, PropelPDO $con = null)
-    {
-        $categoryResourcesToDelete = $this->getCategoryResources(new Criteria(), $con)->diff($categoryResources);
-
-
-        //since at least one column in the foreign key is at the same time a PK
-        //we can not just set a PK to NULL in the lines below. We have to store
-        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
-        $this->categoryResourcesScheduledForDeletion = clone $categoryResourcesToDelete;
-
-        foreach ($categoryResourcesToDelete as $categoryResourceRemoved) {
-            $categoryResourceRemoved->setResource(null);
-        }
-
-        $this->collCategoryResources = null;
-        foreach ($categoryResources as $categoryResource) {
-            $this->addCategoryResource($categoryResource);
-        }
-
-        $this->collCategoryResources = $categoryResources;
-        $this->collCategoryResourcesPartial = false;
-
-        return $this;
-    }
-
-    /**
-     * Returns the number of related CategoryResource objects.
-     *
-     * @param Criteria $criteria
-     * @param boolean $distinct
-     * @param PropelPDO $con
-     * @return int             Count of related CategoryResource objects.
-     * @throws PropelException
-     */
-    public function countCategoryResources(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
-    {
-        $partial = $this->collCategoryResourcesPartial && !$this->isNew();
-        if (null === $this->collCategoryResources || null !== $criteria || $partial) {
-            if ($this->isNew() && null === $this->collCategoryResources) {
-                return 0;
-            }
-
-            if ($partial && !$criteria) {
-                return count($this->getCategoryResources());
-            }
-            $query = CategoryResourceQuery::create(null, $criteria);
-            if ($distinct) {
-                $query->distinct();
-            }
-
-            return $query
-                ->filterByResource($this)
-                ->count($con);
-        }
-
-        return count($this->collCategoryResources);
-    }
-
-    /**
-     * Method called to associate a CategoryResource object to this object
-     * through the CategoryResource foreign key attribute.
-     *
-     * @param    CategoryResource $l CategoryResource
-     * @return Resource The current object (for fluent API support)
-     */
-    public function addCategoryResource(CategoryResource $l)
-    {
-        if ($this->collCategoryResources === null) {
-            $this->initCategoryResources();
-            $this->collCategoryResourcesPartial = true;
-        }
-
-        if (!in_array($l, $this->collCategoryResources->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
-            $this->doAddCategoryResource($l);
-
-            if ($this->categoryResourcesScheduledForDeletion and $this->categoryResourcesScheduledForDeletion->contains($l)) {
-                $this->categoryResourcesScheduledForDeletion->remove($this->categoryResourcesScheduledForDeletion->search($l));
-            }
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param	CategoryResource $categoryResource The categoryResource object to add.
-     */
-    protected function doAddCategoryResource($categoryResource)
-    {
-        $this->collCategoryResources[]= $categoryResource;
-        $categoryResource->setResource($this);
-    }
-
-    /**
-     * @param	CategoryResource $categoryResource The categoryResource object to remove.
-     * @return Resource The current object (for fluent API support)
-     */
-    public function removeCategoryResource($categoryResource)
-    {
-        if ($this->getCategoryResources()->contains($categoryResource)) {
-            $this->collCategoryResources->remove($this->collCategoryResources->search($categoryResource));
-            if (null === $this->categoryResourcesScheduledForDeletion) {
-                $this->categoryResourcesScheduledForDeletion = clone $this->collCategoryResources;
-                $this->categoryResourcesScheduledForDeletion->clear();
-            }
-            $this->categoryResourcesScheduledForDeletion[]= clone $categoryResource;
-            $categoryResource->setResource(null);
-        }
-
-        return $this;
-    }
-
-
-    /**
-     * If this collection has already been initialized with
-     * an identical criteria, it returns the collection.
-     * Otherwise if this Resource is new, it will return
-     * an empty collection; or if this Resource has previously
-     * been saved, it will retrieve related CategoryResources from storage.
-     *
-     * This method is protected by default in order to keep the public
-     * api reasonable.  You can provide public methods for those you
-     * actually need in Resource.
-     *
-     * @param Criteria $criteria optional Criteria object to narrow the query
-     * @param PropelPDO $con optional connection object
-     * @param string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-     * @return PropelObjectCollection|CategoryResource[] List of CategoryResource objects
-     */
-    public function getCategoryResourcesJoinCategory($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-    {
-        $query = CategoryResourceQuery::create(null, $criteria);
-        $query->joinWith('Category', $join_behavior);
-
-        return $this->getCategoryResources($query, $con);
-    }
-
-    /**
      * Clears out the collAccounts collection
      *
      * This does not modify the database; however, it will remove any associated objects, causing
@@ -2173,9 +1747,7 @@ abstract class BaseResource extends BaseObject implements Persistent
     public function clear()
     {
         $this->id = null;
-        $this->user_id = null;
-        $this->identifier = null;
-        $this->type = null;
+        $this->category_id = null;
         $this->name = null;
         $this->description = null;
         $this->create_time = null;
@@ -2207,18 +1779,13 @@ abstract class BaseResource extends BaseObject implements Persistent
                     $o->clearAllReferences($deep);
                 }
             }
-            if ($this->collCategoryResources) {
-                foreach ($this->collCategoryResources as $o) {
-                    $o->clearAllReferences($deep);
-                }
-            }
             if ($this->collAccounts) {
                 foreach ($this->collAccounts as $o) {
                     $o->clearAllReferences($deep);
                 }
             }
-            if ($this->aUser instanceof Persistent) {
-              $this->aUser->clearAllReferences($deep);
+            if ($this->aCategory instanceof Persistent) {
+              $this->aCategory->clearAllReferences($deep);
             }
 
             $this->alreadyInClearAllReferencesDeep = false;
@@ -2228,15 +1795,11 @@ abstract class BaseResource extends BaseObject implements Persistent
             $this->collResourceAccounts->clearIterator();
         }
         $this->collResourceAccounts = null;
-        if ($this->collCategoryResources instanceof PropelCollection) {
-            $this->collCategoryResources->clearIterator();
-        }
-        $this->collCategoryResources = null;
         if ($this->collAccounts instanceof PropelCollection) {
             $this->collAccounts->clearIterator();
         }
         $this->collAccounts = null;
-        $this->aUser = null;
+        $this->aCategory = null;
     }
 
     /**

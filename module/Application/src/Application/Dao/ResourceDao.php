@@ -32,12 +32,18 @@ interface ResourceDao {
      * @param $id
      * @return \Propel\Resource|null
      */
-    //public function getResourceById($id);
+    public function findOneById($id);
 
     /**
-     * @param Resource $resource
-     * @return int
+     * @param \Propel\Resource|Resource $resource
      * @throws \Application\Dao\RuntimeException
+     * @return int
      */
-    //public function save(Resource $resource);
+    public function save(Resource $resource);
+
+    /**
+     * @param array $ids
+     * @return int
+     */
+    public function deleteRangeByIds(array $ids);
 }

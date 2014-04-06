@@ -15,7 +15,7 @@ use \PropelPDO;
 use Propel\Category;
 use Propel\CategoryPeer;
 use Propel\CategoryQuery;
-use Propel\CategoryResource;
+use Propel\Resource;
 use Propel\User;
 
 /**
@@ -55,9 +55,9 @@ use Propel\User;
  * @method CategoryQuery rightJoinCategoryRelatedById($relationAlias = null) Adds a RIGHT JOIN clause to the query using the CategoryRelatedById relation
  * @method CategoryQuery innerJoinCategoryRelatedById($relationAlias = null) Adds a INNER JOIN clause to the query using the CategoryRelatedById relation
  *
- * @method CategoryQuery leftJoinCategoryResource($relationAlias = null) Adds a LEFT JOIN clause to the query using the CategoryResource relation
- * @method CategoryQuery rightJoinCategoryResource($relationAlias = null) Adds a RIGHT JOIN clause to the query using the CategoryResource relation
- * @method CategoryQuery innerJoinCategoryResource($relationAlias = null) Adds a INNER JOIN clause to the query using the CategoryResource relation
+ * @method CategoryQuery leftJoinResource($relationAlias = null) Adds a LEFT JOIN clause to the query using the Resource relation
+ * @method CategoryQuery rightJoinResource($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Resource relation
+ * @method CategoryQuery innerJoinResource($relationAlias = null) Adds a INNER JOIN clause to the query using the Resource relation
  *
  * @method Category findOne(PropelPDO $con = null) Return the first Category matching the query
  * @method Category findOneOrCreate(PropelPDO $con = null) Return the first Category matching the query, or a new Category object populated from the query conditions when no match is found
@@ -786,41 +786,41 @@ abstract class BaseCategoryQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query by a related CategoryResource object
+     * Filter the query by a related Resource object
      *
-     * @param   CategoryResource|PropelObjectCollection $categoryResource  the related object to use as filter
+     * @param   Resource|PropelObjectCollection $resource  the related object to use as filter
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return                 CategoryQuery The current query, for fluid interface
      * @throws PropelException - if the provided filter is invalid.
      */
-    public function filterByCategoryResource($categoryResource, $comparison = null)
+    public function filterByResource($resource, $comparison = null)
     {
-        if ($categoryResource instanceof CategoryResource) {
+        if ($resource instanceof Resource) {
             return $this
-                ->addUsingAlias(CategoryPeer::ID, $categoryResource->getCategoryId(), $comparison);
-        } elseif ($categoryResource instanceof PropelObjectCollection) {
+                ->addUsingAlias(CategoryPeer::ID, $resource->getCategoryId(), $comparison);
+        } elseif ($resource instanceof PropelObjectCollection) {
             return $this
-                ->useCategoryResourceQuery()
-                ->filterByPrimaryKeys($categoryResource->getPrimaryKeys())
+                ->useResourceQuery()
+                ->filterByPrimaryKeys($resource->getPrimaryKeys())
                 ->endUse();
         } else {
-            throw new PropelException('filterByCategoryResource() only accepts arguments of type CategoryResource or PropelCollection');
+            throw new PropelException('filterByResource() only accepts arguments of type Resource or PropelCollection');
         }
     }
 
     /**
-     * Adds a JOIN clause to the query using the CategoryResource relation
+     * Adds a JOIN clause to the query using the Resource relation
      *
      * @param     string $relationAlias optional alias for the relation
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
      * @return CategoryQuery The current query, for fluid interface
      */
-    public function joinCategoryResource($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function joinResource($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('CategoryResource');
+        $relationMap = $tableMap->getRelation('Resource');
 
         // create a ModelJoin object for this join
         $join = new ModelJoin();
@@ -835,14 +835,14 @@ abstract class BaseCategoryQuery extends ModelCriteria
             $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
             $this->addJoinObject($join, $relationAlias);
         } else {
-            $this->addJoinObject($join, 'CategoryResource');
+            $this->addJoinObject($join, 'Resource');
         }
 
         return $this;
     }
 
     /**
-     * Use the CategoryResource relation CategoryResource object
+     * Use the Resource relation Resource object
      *
      * @see       useQuery()
      *
@@ -850,13 +850,13 @@ abstract class BaseCategoryQuery extends ModelCriteria
      *                                   to be used as main alias in the secondary query
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
-     * @return   \Propel\CategoryResourceQuery A secondary query class using the current class as primary query
+     * @return   \Propel\ResourceQuery A secondary query class using the current class as primary query
      */
-    public function useCategoryResourceQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function useResourceQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         return $this
-            ->joinCategoryResource($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'CategoryResource', '\Propel\CategoryResourceQuery');
+            ->joinResource($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Resource', '\Propel\ResourceQuery');
     }
 
     /**

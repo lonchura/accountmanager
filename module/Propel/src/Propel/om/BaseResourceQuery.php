@@ -13,12 +13,11 @@ use \PropelException;
 use \PropelObjectCollection;
 use \PropelPDO;
 use Propel\Account;
-use Propel\CategoryResource;
+use Propel\Category;
 use Propel\Resource;
 use Propel\ResourceAccount;
 use Propel\ResourcePeer;
 use Propel\ResourceQuery;
-use Propel\User;
 
 /**
  * Base class that represents a query for the 'resource' table.
@@ -26,18 +25,14 @@ use Propel\User;
  * 资源表
  *
  * @method ResourceQuery orderById($order = Criteria::ASC) Order by the id column
- * @method ResourceQuery orderByUserId($order = Criteria::ASC) Order by the user_id column
- * @method ResourceQuery orderByIdentifier($order = Criteria::ASC) Order by the identifier column
- * @method ResourceQuery orderByType($order = Criteria::ASC) Order by the type column
+ * @method ResourceQuery orderByCategoryId($order = Criteria::ASC) Order by the category_id column
  * @method ResourceQuery orderByName($order = Criteria::ASC) Order by the name column
  * @method ResourceQuery orderByDescription($order = Criteria::ASC) Order by the description column
  * @method ResourceQuery orderByCreateTime($order = Criteria::ASC) Order by the create_time column
  * @method ResourceQuery orderByUpdateTime($order = Criteria::ASC) Order by the update_time column
  *
  * @method ResourceQuery groupById() Group by the id column
- * @method ResourceQuery groupByUserId() Group by the user_id column
- * @method ResourceQuery groupByIdentifier() Group by the identifier column
- * @method ResourceQuery groupByType() Group by the type column
+ * @method ResourceQuery groupByCategoryId() Group by the category_id column
  * @method ResourceQuery groupByName() Group by the name column
  * @method ResourceQuery groupByDescription() Group by the description column
  * @method ResourceQuery groupByCreateTime() Group by the create_time column
@@ -47,33 +42,26 @@ use Propel\User;
  * @method ResourceQuery rightJoin($relation) Adds a RIGHT JOIN clause to the query
  * @method ResourceQuery innerJoin($relation) Adds a INNER JOIN clause to the query
  *
- * @method ResourceQuery leftJoinUser($relationAlias = null) Adds a LEFT JOIN clause to the query using the User relation
- * @method ResourceQuery rightJoinUser($relationAlias = null) Adds a RIGHT JOIN clause to the query using the User relation
- * @method ResourceQuery innerJoinUser($relationAlias = null) Adds a INNER JOIN clause to the query using the User relation
+ * @method ResourceQuery leftJoinCategory($relationAlias = null) Adds a LEFT JOIN clause to the query using the Category relation
+ * @method ResourceQuery rightJoinCategory($relationAlias = null) Adds a RIGHT JOIN clause to the query using the Category relation
+ * @method ResourceQuery innerJoinCategory($relationAlias = null) Adds a INNER JOIN clause to the query using the Category relation
  *
  * @method ResourceQuery leftJoinResourceAccount($relationAlias = null) Adds a LEFT JOIN clause to the query using the ResourceAccount relation
  * @method ResourceQuery rightJoinResourceAccount($relationAlias = null) Adds a RIGHT JOIN clause to the query using the ResourceAccount relation
  * @method ResourceQuery innerJoinResourceAccount($relationAlias = null) Adds a INNER JOIN clause to the query using the ResourceAccount relation
  *
- * @method ResourceQuery leftJoinCategoryResource($relationAlias = null) Adds a LEFT JOIN clause to the query using the CategoryResource relation
- * @method ResourceQuery rightJoinCategoryResource($relationAlias = null) Adds a RIGHT JOIN clause to the query using the CategoryResource relation
- * @method ResourceQuery innerJoinCategoryResource($relationAlias = null) Adds a INNER JOIN clause to the query using the CategoryResource relation
- *
  * @method Resource findOne(PropelPDO $con = null) Return the first Resource matching the query
  * @method Resource findOneOrCreate(PropelPDO $con = null) Return the first Resource matching the query, or a new Resource object populated from the query conditions when no match is found
  *
- * @method Resource findOneByUserId(int $user_id) Return the first Resource filtered by the user_id column
- * @method Resource findOneByIdentifier(string $identifier) Return the first Resource filtered by the identifier column
- * @method Resource findOneByType(int $type) Return the first Resource filtered by the type column
+ * @method Resource findOneById(int $id) Return the first Resource filtered by the id column
+ * @method Resource findOneByCategoryId(int $category_id) Return the first Resource filtered by the category_id column
  * @method Resource findOneByName(string $name) Return the first Resource filtered by the name column
  * @method Resource findOneByDescription(string $description) Return the first Resource filtered by the description column
  * @method Resource findOneByCreateTime(string $create_time) Return the first Resource filtered by the create_time column
  * @method Resource findOneByUpdateTime(string $update_time) Return the first Resource filtered by the update_time column
  *
  * @method array findById(int $id) Return Resource objects filtered by the id column
- * @method array findByUserId(int $user_id) Return Resource objects filtered by the user_id column
- * @method array findByIdentifier(string $identifier) Return Resource objects filtered by the identifier column
- * @method array findByType(int $type) Return Resource objects filtered by the type column
+ * @method array findByCategoryId(int $category_id) Return Resource objects filtered by the category_id column
  * @method array findByName(string $name) Return Resource objects filtered by the name column
  * @method array findByDescription(string $description) Return Resource objects filtered by the description column
  * @method array findByCreateTime(string $create_time) Return Resource objects filtered by the create_time column
@@ -129,10 +117,11 @@ abstract class BaseResourceQuery extends ModelCriteria
      * Go fast if the query is untouched.
      *
      * <code>
-     * $obj  = $c->findPk(12, $con);
+     * $obj = $c->findPk(array(12, 34), $con);
      * </code>
      *
-     * @param mixed $key Primary key to use for the query
+     * @param array $key Primary key to use for the query
+                         A Primary key composition: [$id, $category_id]
      * @param     PropelPDO $con an optional connection object
      *
      * @return   Resource|Resource[]|mixed the result, formatted by the current formatter
@@ -142,7 +131,7 @@ abstract class BaseResourceQuery extends ModelCriteria
         if ($key === null) {
             return null;
         }
-        if ((null !== ($obj = ResourcePeer::getInstanceFromPool((string) $key))) && !$this->formatter) {
+        if ((null !== ($obj = ResourcePeer::getInstanceFromPool(serialize(array((string) $key[0], (string) $key[1]))))) && !$this->formatter) {
             // the object is already in the instance pool
             return $obj;
         }
@@ -160,20 +149,6 @@ abstract class BaseResourceQuery extends ModelCriteria
     }
 
     /**
-     * Alias of findPk to use instance pooling
-     *
-     * @param     mixed $key Primary key to use for the query
-     * @param     PropelPDO $con A connection object
-     *
-     * @return                 Resource A model object, or null if the key is not found
-     * @throws PropelException
-     */
-     public function findOneById($key, $con = null)
-     {
-        return $this->findPk($key, $con);
-     }
-
-    /**
      * Find object by primary key using raw SQL to go fast.
      * Bypass doSelect() and the object formatter by using generated code.
      *
@@ -185,10 +160,11 @@ abstract class BaseResourceQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `id`, `user_id`, `identifier`, `type`, `name`, `description`, `create_time`, `update_time` FROM `resource` WHERE `id` = :p0';
+        $sql = 'SELECT `id`, `category_id`, `name`, `description`, `create_time`, `update_time` FROM `resource` WHERE `id` = :p0 AND `category_id` = :p1';
         try {
             $stmt = $con->prepare($sql);
-            $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
+            $stmt->bindValue(':p0', $key[0], PDO::PARAM_INT);
+            $stmt->bindValue(':p1', $key[1], PDO::PARAM_INT);
             $stmt->execute();
         } catch (Exception $e) {
             Propel::log($e->getMessage(), Propel::LOG_ERR);
@@ -198,7 +174,7 @@ abstract class BaseResourceQuery extends ModelCriteria
         if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
             $obj = new Resource();
             $obj->hydrate($row);
-            ResourcePeer::addInstanceToPool($obj, (string) $key);
+            ResourcePeer::addInstanceToPool($obj, serialize(array((string) $key[0], (string) $key[1])));
         }
         $stmt->closeCursor();
 
@@ -227,7 +203,7 @@ abstract class BaseResourceQuery extends ModelCriteria
     /**
      * Find objects by primary key
      * <code>
-     * $objs = $c->findPks(array(12, 56, 832), $con);
+     * $objs = $c->findPks(array(array(12, 56), array(832, 123), array(123, 456)), $con);
      * </code>
      * @param     array $keys Primary keys to use for the query
      * @param     PropelPDO $con an optional connection object
@@ -257,8 +233,10 @@ abstract class BaseResourceQuery extends ModelCriteria
      */
     public function filterByPrimaryKey($key)
     {
+        $this->addUsingAlias(ResourcePeer::ID, $key[0], Criteria::EQUAL);
+        $this->addUsingAlias(ResourcePeer::CATEGORY_ID, $key[1], Criteria::EQUAL);
 
-        return $this->addUsingAlias(ResourcePeer::ID, $key, Criteria::EQUAL);
+        return $this;
     }
 
     /**
@@ -270,8 +248,17 @@ abstract class BaseResourceQuery extends ModelCriteria
      */
     public function filterByPrimaryKeys($keys)
     {
+        if (empty($keys)) {
+            return $this->add(null, '1<>1', Criteria::CUSTOM);
+        }
+        foreach ($keys as $key) {
+            $cton0 = $this->getNewCriterion(ResourcePeer::ID, $key[0], Criteria::EQUAL);
+            $cton1 = $this->getNewCriterion(ResourcePeer::CATEGORY_ID, $key[1], Criteria::EQUAL);
+            $cton0->addAnd($cton1);
+            $this->addOr($cton0);
+        }
 
-        return $this->addUsingAlias(ResourcePeer::ID, $keys, Criteria::IN);
+        return $this;
     }
 
     /**
@@ -317,19 +304,19 @@ abstract class BaseResourceQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the user_id column
+     * Filter the query on the category_id column
      *
      * Example usage:
      * <code>
-     * $query->filterByUserId(1234); // WHERE user_id = 1234
-     * $query->filterByUserId(array(12, 34)); // WHERE user_id IN (12, 34)
-     * $query->filterByUserId(array('min' => 12)); // WHERE user_id >= 12
-     * $query->filterByUserId(array('max' => 12)); // WHERE user_id <= 12
+     * $query->filterByCategoryId(1234); // WHERE category_id = 1234
+     * $query->filterByCategoryId(array(12, 34)); // WHERE category_id IN (12, 34)
+     * $query->filterByCategoryId(array('min' => 12)); // WHERE category_id >= 12
+     * $query->filterByCategoryId(array('max' => 12)); // WHERE category_id <= 12
      * </code>
      *
-     * @see       filterByUser()
+     * @see       filterByCategory()
      *
-     * @param     mixed $userId The value to use as filter.
+     * @param     mixed $categoryId The value to use as filter.
      *              Use scalar values for equality.
      *              Use array values for in_array() equivalent.
      *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
@@ -337,16 +324,16 @@ abstract class BaseResourceQuery extends ModelCriteria
      *
      * @return ResourceQuery The current query, for fluid interface
      */
-    public function filterByUserId($userId = null, $comparison = null)
+    public function filterByCategoryId($categoryId = null, $comparison = null)
     {
-        if (is_array($userId)) {
+        if (is_array($categoryId)) {
             $useMinMax = false;
-            if (isset($userId['min'])) {
-                $this->addUsingAlias(ResourcePeer::USER_ID, $userId['min'], Criteria::GREATER_EQUAL);
+            if (isset($categoryId['min'])) {
+                $this->addUsingAlias(ResourcePeer::CATEGORY_ID, $categoryId['min'], Criteria::GREATER_EQUAL);
                 $useMinMax = true;
             }
-            if (isset($userId['max'])) {
-                $this->addUsingAlias(ResourcePeer::USER_ID, $userId['max'], Criteria::LESS_EQUAL);
+            if (isset($categoryId['max'])) {
+                $this->addUsingAlias(ResourcePeer::CATEGORY_ID, $categoryId['max'], Criteria::LESS_EQUAL);
                 $useMinMax = true;
             }
             if ($useMinMax) {
@@ -357,63 +344,7 @@ abstract class BaseResourceQuery extends ModelCriteria
             }
         }
 
-        return $this->addUsingAlias(ResourcePeer::USER_ID, $userId, $comparison);
-    }
-
-    /**
-     * Filter the query on the identifier column
-     *
-     * Example usage:
-     * <code>
-     * $query->filterByIdentifier('fooValue');   // WHERE identifier = 'fooValue'
-     * $query->filterByIdentifier('%fooValue%'); // WHERE identifier LIKE '%fooValue%'
-     * </code>
-     *
-     * @param     string $identifier The value to use as filter.
-     *              Accepts wildcards (* and % trigger a LIKE)
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return ResourceQuery The current query, for fluid interface
-     */
-    public function filterByIdentifier($identifier = null, $comparison = null)
-    {
-        if (null === $comparison) {
-            if (is_array($identifier)) {
-                $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $identifier)) {
-                $identifier = str_replace('*', '%', $identifier);
-                $comparison = Criteria::LIKE;
-            }
-        }
-
-        return $this->addUsingAlias(ResourcePeer::IDENTIFIER, $identifier, $comparison);
-    }
-
-    /**
-     * Filter the query on the type column
-     *
-     * @param     mixed $type The value to use as filter
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return ResourceQuery The current query, for fluid interface
-     * @throws PropelException - if the value is not accepted by the enum.
-     */
-    public function filterByType($type = null, $comparison = null)
-    {
-        if (is_scalar($type)) {
-            $type = ResourcePeer::getSqlValueForEnum(ResourcePeer::TYPE, $type);
-        } elseif (is_array($type)) {
-            $convertedValues = array();
-            foreach ($type as $value) {
-                $convertedValues[] = ResourcePeer::getSqlValueForEnum(ResourcePeer::TYPE, $value);
-            }
-            $type = $convertedValues;
-            if (null === $comparison) {
-                $comparison = Criteria::IN;
-            }
-        }
-
-        return $this->addUsingAlias(ResourcePeer::TYPE, $type, $comparison);
+        return $this->addUsingAlias(ResourcePeer::CATEGORY_ID, $categoryId, $comparison);
     }
 
     /**
@@ -561,43 +492,43 @@ abstract class BaseResourceQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query by a related User object
+     * Filter the query by a related Category object
      *
-     * @param   User|PropelObjectCollection $user The related object(s) to use as filter
+     * @param   Category|PropelObjectCollection $category The related object(s) to use as filter
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return                 ResourceQuery The current query, for fluid interface
      * @throws PropelException - if the provided filter is invalid.
      */
-    public function filterByUser($user, $comparison = null)
+    public function filterByCategory($category, $comparison = null)
     {
-        if ($user instanceof User) {
+        if ($category instanceof Category) {
             return $this
-                ->addUsingAlias(ResourcePeer::USER_ID, $user->getId(), $comparison);
-        } elseif ($user instanceof PropelObjectCollection) {
+                ->addUsingAlias(ResourcePeer::CATEGORY_ID, $category->getId(), $comparison);
+        } elseif ($category instanceof PropelObjectCollection) {
             if (null === $comparison) {
                 $comparison = Criteria::IN;
             }
 
             return $this
-                ->addUsingAlias(ResourcePeer::USER_ID, $user->toKeyValue('PrimaryKey', 'Id'), $comparison);
+                ->addUsingAlias(ResourcePeer::CATEGORY_ID, $category->toKeyValue('PrimaryKey', 'Id'), $comparison);
         } else {
-            throw new PropelException('filterByUser() only accepts arguments of type User or PropelCollection');
+            throw new PropelException('filterByCategory() only accepts arguments of type Category or PropelCollection');
         }
     }
 
     /**
-     * Adds a JOIN clause to the query using the User relation
+     * Adds a JOIN clause to the query using the Category relation
      *
      * @param     string $relationAlias optional alias for the relation
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
      * @return ResourceQuery The current query, for fluid interface
      */
-    public function joinUser($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function joinCategory($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('User');
+        $relationMap = $tableMap->getRelation('Category');
 
         // create a ModelJoin object for this join
         $join = new ModelJoin();
@@ -612,14 +543,14 @@ abstract class BaseResourceQuery extends ModelCriteria
             $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
             $this->addJoinObject($join, $relationAlias);
         } else {
-            $this->addJoinObject($join, 'User');
+            $this->addJoinObject($join, 'Category');
         }
 
         return $this;
     }
 
     /**
-     * Use the User relation User object
+     * Use the Category relation Category object
      *
      * @see       useQuery()
      *
@@ -627,13 +558,13 @@ abstract class BaseResourceQuery extends ModelCriteria
      *                                   to be used as main alias in the secondary query
      * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
      *
-     * @return   \Propel\UserQuery A secondary query class using the current class as primary query
+     * @return   \Propel\CategoryQuery A secondary query class using the current class as primary query
      */
-    public function useUserQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
+    public function useCategoryQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
     {
         return $this
-            ->joinUser($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'User', '\Propel\UserQuery');
+            ->joinCategory($relationAlias, $joinType)
+            ->useQuery($relationAlias ? $relationAlias : 'Category', '\Propel\CategoryQuery');
     }
 
     /**
@@ -711,80 +642,6 @@ abstract class BaseResourceQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query by a related CategoryResource object
-     *
-     * @param   CategoryResource|PropelObjectCollection $categoryResource  the related object to use as filter
-     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
-     *
-     * @return                 ResourceQuery The current query, for fluid interface
-     * @throws PropelException - if the provided filter is invalid.
-     */
-    public function filterByCategoryResource($categoryResource, $comparison = null)
-    {
-        if ($categoryResource instanceof CategoryResource) {
-            return $this
-                ->addUsingAlias(ResourcePeer::ID, $categoryResource->getResourceId(), $comparison);
-        } elseif ($categoryResource instanceof PropelObjectCollection) {
-            return $this
-                ->useCategoryResourceQuery()
-                ->filterByPrimaryKeys($categoryResource->getPrimaryKeys())
-                ->endUse();
-        } else {
-            throw new PropelException('filterByCategoryResource() only accepts arguments of type CategoryResource or PropelCollection');
-        }
-    }
-
-    /**
-     * Adds a JOIN clause to the query using the CategoryResource relation
-     *
-     * @param     string $relationAlias optional alias for the relation
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return ResourceQuery The current query, for fluid interface
-     */
-    public function joinCategoryResource($relationAlias = null, $joinType = Criteria::INNER_JOIN)
-    {
-        $tableMap = $this->getTableMap();
-        $relationMap = $tableMap->getRelation('CategoryResource');
-
-        // create a ModelJoin object for this join
-        $join = new ModelJoin();
-        $join->setJoinType($joinType);
-        $join->setRelationMap($relationMap, $this->useAliasInSQL ? $this->getModelAlias() : null, $relationAlias);
-        if ($previousJoin = $this->getPreviousJoin()) {
-            $join->setPreviousJoin($previousJoin);
-        }
-
-        // add the ModelJoin to the current object
-        if ($relationAlias) {
-            $this->addAlias($relationAlias, $relationMap->getRightTable()->getName());
-            $this->addJoinObject($join, $relationAlias);
-        } else {
-            $this->addJoinObject($join, 'CategoryResource');
-        }
-
-        return $this;
-    }
-
-    /**
-     * Use the CategoryResource relation CategoryResource object
-     *
-     * @see       useQuery()
-     *
-     * @param     string $relationAlias optional alias for the relation,
-     *                                   to be used as main alias in the secondary query
-     * @param     string $joinType Accepted values are null, 'left join', 'right join', 'inner join'
-     *
-     * @return   \Propel\CategoryResourceQuery A secondary query class using the current class as primary query
-     */
-    public function useCategoryResourceQuery($relationAlias = null, $joinType = Criteria::INNER_JOIN)
-    {
-        return $this
-            ->joinCategoryResource($relationAlias, $joinType)
-            ->useQuery($relationAlias ? $relationAlias : 'CategoryResource', '\Propel\CategoryResourceQuery');
-    }
-
-    /**
      * Filter the query by a related Account object
      * using the resource_account table as cross reference
      *
@@ -811,7 +668,9 @@ abstract class BaseResourceQuery extends ModelCriteria
     public function prune($resource = null)
     {
         if ($resource) {
-            $this->addUsingAlias(ResourcePeer::ID, $resource->getId(), Criteria::NOT_EQUAL);
+            $this->addCond('pruneCond0', $this->getAliasedColName(ResourcePeer::ID), $resource->getId(), Criteria::NOT_EQUAL);
+            $this->addCond('pruneCond1', $this->getAliasedColName(ResourcePeer::CATEGORY_ID), $resource->getCategoryId(), Criteria::NOT_EQUAL);
+            $this->combine(array('pruneCond0', 'pruneCond1'), Criteria::LOGICAL_OR);
         }
 
         return $this;

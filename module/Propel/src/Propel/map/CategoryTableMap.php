@@ -60,7 +60,7 @@ class CategoryTableMap extends TableMap
         $this->addRelation('CategoryRelatedByPid', 'Propel\\Category', RelationMap::MANY_TO_ONE, array('pid' => 'id', ), 'CASCADE', null);
         $this->addRelation('User', 'Propel\\User', RelationMap::MANY_TO_ONE, array('user_id' => 'id', ), 'CASCADE', null);
         $this->addRelation('CategoryRelatedById', 'Propel\\Category', RelationMap::ONE_TO_MANY, array('id' => 'pid', ), 'CASCADE', null, 'CategorysRelatedById');
-        $this->addRelation('CategoryResource', 'Propel\\CategoryResource', RelationMap::ONE_TO_MANY, array('id' => 'category_id', ), null, null, 'CategoryResources');
+        $this->addRelation('Resource', 'Propel\\Resource', RelationMap::ONE_TO_MANY, array('id' => 'category_id', ), null, null, 'Resources');
     } // buildRelations()
 
     /**

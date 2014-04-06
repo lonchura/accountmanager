@@ -18,8 +18,8 @@ use \PropelPDO;
 use Propel\Category;
 use Propel\CategoryPeer;
 use Propel\CategoryQuery;
-use Propel\CategoryResource;
-use Propel\CategoryResourceQuery;
+use Propel\Resource;
+use Propel\ResourceQuery;
 use Propel\User;
 use Propel\UserQuery;
 
@@ -110,10 +110,10 @@ abstract class BaseCategory extends BaseObject implements Persistent
     protected $collCategorysRelatedByIdPartial;
 
     /**
-     * @var        PropelObjectCollection|CategoryResource[] Collection to store aggregation of CategoryResource objects.
+     * @var        PropelObjectCollection|Resource[] Collection to store aggregation of Resource objects.
      */
-    protected $collCategoryResources;
-    protected $collCategoryResourcesPartial;
+    protected $collResources;
+    protected $collResourcesPartial;
 
     /**
      * Flag to prevent endless save loop, if this object is referenced
@@ -145,7 +145,7 @@ abstract class BaseCategory extends BaseObject implements Persistent
      * An array of objects scheduled for deletion.
      * @var		PropelObjectCollection
      */
-    protected $categoryResourcesScheduledForDeletion = null;
+    protected $resourcesScheduledForDeletion = null;
 
     /**
      * Get the [id] column value.
@@ -561,7 +561,7 @@ abstract class BaseCategory extends BaseObject implements Persistent
             $this->aUser = null;
             $this->collCategorysRelatedById = null;
 
-            $this->collCategoryResources = null;
+            $this->collResources = null;
 
         } // if (deep)
     }
@@ -734,17 +734,17 @@ abstract class BaseCategory extends BaseObject implements Persistent
                 }
             }
 
-            if ($this->categoryResourcesScheduledForDeletion !== null) {
-                if (!$this->categoryResourcesScheduledForDeletion->isEmpty()) {
-                    CategoryResourceQuery::create()
-                        ->filterByPrimaryKeys($this->categoryResourcesScheduledForDeletion->getPrimaryKeys(false))
+            if ($this->resourcesScheduledForDeletion !== null) {
+                if (!$this->resourcesScheduledForDeletion->isEmpty()) {
+                    ResourceQuery::create()
+                        ->filterByPrimaryKeys($this->resourcesScheduledForDeletion->getPrimaryKeys(false))
                         ->delete($con);
-                    $this->categoryResourcesScheduledForDeletion = null;
+                    $this->resourcesScheduledForDeletion = null;
                 }
             }
 
-            if ($this->collCategoryResources !== null) {
-                foreach ($this->collCategoryResources as $referrerFK) {
+            if ($this->collResources !== null) {
+                foreach ($this->collResources as $referrerFK) {
                     if (!$referrerFK->isDeleted() && ($referrerFK->isNew() || $referrerFK->isModified())) {
                         $affectedRows += $referrerFK->save($con);
                     }
@@ -955,8 +955,8 @@ abstract class BaseCategory extends BaseObject implements Persistent
                     }
                 }
 
-                if ($this->collCategoryResources !== null) {
-                    foreach ($this->collCategoryResources as $referrerFK) {
+                if ($this->collResources !== null) {
+                    foreach ($this->collResources as $referrerFK) {
                         if (!$referrerFK->validate($columns)) {
                             $failureMap = array_merge($failureMap, $referrerFK->getValidationFailures());
                         }
@@ -1071,8 +1071,8 @@ abstract class BaseCategory extends BaseObject implements Persistent
             if (null !== $this->collCategorysRelatedById) {
                 $result['CategorysRelatedById'] = $this->collCategorysRelatedById->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
-            if (null !== $this->collCategoryResources) {
-                $result['CategoryResources'] = $this->collCategoryResources->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
+            if (null !== $this->collResources) {
+                $result['Resources'] = $this->collResources->toArray(null, true, $keyType, $includeLazyLoadColumns, $alreadyDumpedObjects);
             }
         }
 
@@ -1261,9 +1261,9 @@ abstract class BaseCategory extends BaseObject implements Persistent
                 }
             }
 
-            foreach ($this->getCategoryResources() as $relObj) {
+            foreach ($this->getResources() as $relObj) {
                 if ($relObj !== $this) {  // ensure that we don't try to copy a reference to ourselves
-                    $copyObj->addCategoryResource($relObj->copy($deepCopy));
+                    $copyObj->addResource($relObj->copy($deepCopy));
                 }
             }
 
@@ -1435,8 +1435,8 @@ abstract class BaseCategory extends BaseObject implements Persistent
         if ('CategoryRelatedById' == $relationName) {
             $this->initCategorysRelatedById();
         }
-        if ('CategoryResource' == $relationName) {
-            $this->initCategoryResources();
+        if ('Resource' == $relationName) {
+            $this->initResources();
         }
     }
 
@@ -1691,36 +1691,36 @@ abstract class BaseCategory extends BaseObject implements Persistent
     }
 
     /**
-     * Clears out the collCategoryResources collection
+     * Clears out the collResources collection
      *
      * This does not modify the database; however, it will remove any associated objects, causing
      * them to be refetched by subsequent calls to accessor method.
      *
      * @return Category The current object (for fluent API support)
-     * @see        addCategoryResources()
+     * @see        addResources()
      */
-    public function clearCategoryResources()
+    public function clearResources()
     {
-        $this->collCategoryResources = null; // important to set this to null since that means it is uninitialized
-        $this->collCategoryResourcesPartial = null;
+        $this->collResources = null; // important to set this to null since that means it is uninitialized
+        $this->collResourcesPartial = null;
 
         return $this;
     }
 
     /**
-     * reset is the collCategoryResources collection loaded partially
+     * reset is the collResources collection loaded partially
      *
      * @return void
      */
-    public function resetPartialCategoryResources($v = true)
+    public function resetPartialResources($v = true)
     {
-        $this->collCategoryResourcesPartial = $v;
+        $this->collResourcesPartial = $v;
     }
 
     /**
-     * Initializes the collCategoryResources collection.
+     * Initializes the collResources collection.
      *
-     * By default this just sets the collCategoryResources collection to an empty array (like clearcollCategoryResources());
+     * By default this just sets the collResources collection to an empty array (like clearcollResources());
      * however, you may wish to override this method in your stub class to provide setting appropriate
      * to your application -- for example, setting the initial array to the values stored in database.
      *
@@ -1729,17 +1729,17 @@ abstract class BaseCategory extends BaseObject implements Persistent
      *
      * @return void
      */
-    public function initCategoryResources($overrideExisting = true)
+    public function initResources($overrideExisting = true)
     {
-        if (null !== $this->collCategoryResources && !$overrideExisting) {
+        if (null !== $this->collResources && !$overrideExisting) {
             return;
         }
-        $this->collCategoryResources = new PropelObjectCollection();
-        $this->collCategoryResources->setModel('CategoryResource');
+        $this->collResources = new PropelObjectCollection();
+        $this->collResources->setModel('Resource');
     }
 
     /**
-     * Gets an array of CategoryResource objects which contain a foreign key that references this object.
+     * Gets an array of Resource objects which contain a foreign key that references this object.
      *
      * If the $criteria is not null, it is used to always fetch the results from the database.
      * Otherwise the results are fetched from the database the first time, then cached.
@@ -1749,110 +1749,110 @@ abstract class BaseCategory extends BaseObject implements Persistent
      *
      * @param Criteria $criteria optional Criteria object to narrow the query
      * @param PropelPDO $con optional connection object
-     * @return PropelObjectCollection|CategoryResource[] List of CategoryResource objects
+     * @return PropelObjectCollection|Resource[] List of Resource objects
      * @throws PropelException
      */
-    public function getCategoryResources($criteria = null, PropelPDO $con = null)
+    public function getResources($criteria = null, PropelPDO $con = null)
     {
-        $partial = $this->collCategoryResourcesPartial && !$this->isNew();
-        if (null === $this->collCategoryResources || null !== $criteria  || $partial) {
-            if ($this->isNew() && null === $this->collCategoryResources) {
+        $partial = $this->collResourcesPartial && !$this->isNew();
+        if (null === $this->collResources || null !== $criteria  || $partial) {
+            if ($this->isNew() && null === $this->collResources) {
                 // return empty collection
-                $this->initCategoryResources();
+                $this->initResources();
             } else {
-                $collCategoryResources = CategoryResourceQuery::create(null, $criteria)
+                $collResources = ResourceQuery::create(null, $criteria)
                     ->filterByCategory($this)
                     ->find($con);
                 if (null !== $criteria) {
-                    if (false !== $this->collCategoryResourcesPartial && count($collCategoryResources)) {
-                      $this->initCategoryResources(false);
+                    if (false !== $this->collResourcesPartial && count($collResources)) {
+                      $this->initResources(false);
 
-                      foreach ($collCategoryResources as $obj) {
-                        if (false == $this->collCategoryResources->contains($obj)) {
-                          $this->collCategoryResources->append($obj);
+                      foreach ($collResources as $obj) {
+                        if (false == $this->collResources->contains($obj)) {
+                          $this->collResources->append($obj);
                         }
                       }
 
-                      $this->collCategoryResourcesPartial = true;
+                      $this->collResourcesPartial = true;
                     }
 
-                    $collCategoryResources->getInternalIterator()->rewind();
+                    $collResources->getInternalIterator()->rewind();
 
-                    return $collCategoryResources;
+                    return $collResources;
                 }
 
-                if ($partial && $this->collCategoryResources) {
-                    foreach ($this->collCategoryResources as $obj) {
+                if ($partial && $this->collResources) {
+                    foreach ($this->collResources as $obj) {
                         if ($obj->isNew()) {
-                            $collCategoryResources[] = $obj;
+                            $collResources[] = $obj;
                         }
                     }
                 }
 
-                $this->collCategoryResources = $collCategoryResources;
-                $this->collCategoryResourcesPartial = false;
+                $this->collResources = $collResources;
+                $this->collResourcesPartial = false;
             }
         }
 
-        return $this->collCategoryResources;
+        return $this->collResources;
     }
 
     /**
-     * Sets a collection of CategoryResource objects related by a one-to-many relationship
+     * Sets a collection of Resource objects related by a one-to-many relationship
      * to the current object.
      * It will also schedule objects for deletion based on a diff between old objects (aka persisted)
      * and new objects from the given Propel collection.
      *
-     * @param PropelCollection $categoryResources A Propel collection.
+     * @param PropelCollection $resources A Propel collection.
      * @param PropelPDO $con Optional connection object
      * @return Category The current object (for fluent API support)
      */
-    public function setCategoryResources(PropelCollection $categoryResources, PropelPDO $con = null)
+    public function setResources(PropelCollection $resources, PropelPDO $con = null)
     {
-        $categoryResourcesToDelete = $this->getCategoryResources(new Criteria(), $con)->diff($categoryResources);
+        $resourcesToDelete = $this->getResources(new Criteria(), $con)->diff($resources);
 
 
         //since at least one column in the foreign key is at the same time a PK
         //we can not just set a PK to NULL in the lines below. We have to store
         //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
-        $this->categoryResourcesScheduledForDeletion = clone $categoryResourcesToDelete;
+        $this->resourcesScheduledForDeletion = clone $resourcesToDelete;
 
-        foreach ($categoryResourcesToDelete as $categoryResourceRemoved) {
-            $categoryResourceRemoved->setCategory(null);
+        foreach ($resourcesToDelete as $resourceRemoved) {
+            $resourceRemoved->setCategory(null);
         }
 
-        $this->collCategoryResources = null;
-        foreach ($categoryResources as $categoryResource) {
-            $this->addCategoryResource($categoryResource);
+        $this->collResources = null;
+        foreach ($resources as $resource) {
+            $this->addResource($resource);
         }
 
-        $this->collCategoryResources = $categoryResources;
-        $this->collCategoryResourcesPartial = false;
+        $this->collResources = $resources;
+        $this->collResourcesPartial = false;
 
         return $this;
     }
 
     /**
-     * Returns the number of related CategoryResource objects.
+     * Returns the number of related Resource objects.
      *
      * @param Criteria $criteria
      * @param boolean $distinct
      * @param PropelPDO $con
-     * @return int             Count of related CategoryResource objects.
+     * @return int             Count of related Resource objects.
      * @throws PropelException
      */
-    public function countCategoryResources(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
+    public function countResources(Criteria $criteria = null, $distinct = false, PropelPDO $con = null)
     {
-        $partial = $this->collCategoryResourcesPartial && !$this->isNew();
-        if (null === $this->collCategoryResources || null !== $criteria || $partial) {
-            if ($this->isNew() && null === $this->collCategoryResources) {
+        $partial = $this->collResourcesPartial && !$this->isNew();
+        if (null === $this->collResources || null !== $criteria || $partial) {
+            if ($this->isNew() && null === $this->collResources) {
                 return 0;
             }
 
             if ($partial && !$criteria) {
-                return count($this->getCategoryResources());
+                return count($this->getResources());
             }
-            $query = CategoryResourceQuery::create(null, $criteria);
+            $query = ResourceQuery::create(null, $criteria);
             if ($distinct) {
                 $query->distinct();
             }
@@ -1862,28 +1862,28 @@ abstract class BaseCategory extends BaseObject implements Persistent
                 ->count($con);
         }
 
-        return count($this->collCategoryResources);
+        return count($this->collResources);
     }
 
     /**
-     * Method called to associate a CategoryResource object to this object
-     * through the CategoryResource foreign key attribute.
+     * Method called to associate a Resource object to this object
+     * through the Resource foreign key attribute.
      *
-     * @param    CategoryResource $l CategoryResource
+     * @param    Resource $l Resource
      * @return Category The current object (for fluent API support)
      */
-    public function addCategoryResource(CategoryResource $l)
+    public function addResource(Resource $l)
     {
-        if ($this->collCategoryResources === null) {
-            $this->initCategoryResources();
-            $this->collCategoryResourcesPartial = true;
+        if ($this->collResources === null) {
+            $this->initResources();
+            $this->collResourcesPartial = true;
         }
 
-        if (!in_array($l, $this->collCategoryResources->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
-            $this->doAddCategoryResource($l);
+        if (!in_array($l, $this->collResources->getArrayCopy(), true)) { // only add it if the **same** object is not already associated
+            $this->doAddResource($l);
 
-            if ($this->categoryResourcesScheduledForDeletion and $this->categoryResourcesScheduledForDeletion->contains($l)) {
-                $this->categoryResourcesScheduledForDeletion->remove($this->categoryResourcesScheduledForDeletion->search($l));
+            if ($this->resourcesScheduledForDeletion and $this->resourcesScheduledForDeletion->contains($l)) {
+                $this->resourcesScheduledForDeletion->remove($this->resourcesScheduledForDeletion->search($l));
             }
         }
 
@@ -1891,56 +1891,31 @@ abstract class BaseCategory extends BaseObject implements Persistent
     }
 
     /**
-     * @param	CategoryResource $categoryResource The categoryResource object to add.
+     * @param	Resource $resource The resource object to add.
      */
-    protected function doAddCategoryResource($categoryResource)
+    protected function doAddResource($resource)
     {
-        $this->collCategoryResources[]= $categoryResource;
-        $categoryResource->setCategory($this);
+        $this->collResources[]= $resource;
+        $resource->setCategory($this);
     }
 
     /**
-     * @param	CategoryResource $categoryResource The categoryResource object to remove.
+     * @param	Resource $resource The resource object to remove.
      * @return Category The current object (for fluent API support)
      */
-    public function removeCategoryResource($categoryResource)
+    public function removeResource($resource)
     {
-        if ($this->getCategoryResources()->contains($categoryResource)) {
-            $this->collCategoryResources->remove($this->collCategoryResources->search($categoryResource));
-            if (null === $this->categoryResourcesScheduledForDeletion) {
-                $this->categoryResourcesScheduledForDeletion = clone $this->collCategoryResources;
-                $this->categoryResourcesScheduledForDeletion->clear();
+        if ($this->getResources()->contains($resource)) {
+            $this->collResources->remove($this->collResources->search($resource));
+            if (null === $this->resourcesScheduledForDeletion) {
+                $this->resourcesScheduledForDeletion = clone $this->collResources;
+                $this->resourcesScheduledForDeletion->clear();
             }
-            $this->categoryResourcesScheduledForDeletion[]= clone $categoryResource;
-            $categoryResource->setCategory(null);
+            $this->resourcesScheduledForDeletion[]= clone $resource;
+            $resource->setCategory(null);
         }
 
         return $this;
-    }
-
-
-    /**
-     * If this collection has already been initialized with
-     * an identical criteria, it returns the collection.
-     * Otherwise if this Category is new, it will return
-     * an empty collection; or if this Category has previously
-     * been saved, it will retrieve related CategoryResources from storage.
-     *
-     * This method is protected by default in order to keep the public
-     * api reasonable.  You can provide public methods for those you
-     * actually need in Category.
-     *
-     * @param Criteria $criteria optional Criteria object to narrow the query
-     * @param PropelPDO $con optional connection object
-     * @param string $join_behavior optional join type to use (defaults to Criteria::LEFT_JOIN)
-     * @return PropelObjectCollection|CategoryResource[] List of CategoryResource objects
-     */
-    public function getCategoryResourcesJoinResource($criteria = null, $con = null, $join_behavior = Criteria::LEFT_JOIN)
-    {
-        $query = CategoryResourceQuery::create(null, $criteria);
-        $query->joinWith('Resource', $join_behavior);
-
-        return $this->getCategoryResources($query, $con);
     }
 
     /**
@@ -1982,8 +1957,8 @@ abstract class BaseCategory extends BaseObject implements Persistent
                     $o->clearAllReferences($deep);
                 }
             }
-            if ($this->collCategoryResources) {
-                foreach ($this->collCategoryResources as $o) {
+            if ($this->collResources) {
+                foreach ($this->collResources as $o) {
                     $o->clearAllReferences($deep);
                 }
             }
@@ -2001,10 +1976,10 @@ abstract class BaseCategory extends BaseObject implements Persistent
             $this->collCategorysRelatedById->clearIterator();
         }
         $this->collCategorysRelatedById = null;
-        if ($this->collCategoryResources instanceof PropelCollection) {
-            $this->collCategoryResources->clearIterator();
+        if ($this->collResources instanceof PropelCollection) {
+            $this->collResources->clearIterator();
         }
-        $this->collCategoryResources = null;
+        $this->collResources = null;
         $this->aCategoryRelatedByPid = null;
         $this->aUser = null;
     }

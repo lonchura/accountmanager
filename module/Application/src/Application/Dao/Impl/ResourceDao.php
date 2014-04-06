@@ -9,6 +9,7 @@
  */
 
 namespace Application\Dao\Impl;
+use Propel\Resource;
 use Propel\ResourcePeer;
 use Propel\ResourceQuery;
 
@@ -52,20 +53,44 @@ class ResourceDao implements \Application\Dao\ResourceDao {
         }
 
         return array(
-            'total' => ResourceQuery::create(null, $criteria)
-                    ->filterByUserId($this->identity->getId())
-                    ->useCategoryResourceQuery()
-                        ->filterByCategoryId($categoryId)
-                    ->endUse()
-                    ->count(),
-            'list' => ResourceQuery::create(null, $criteria)
-                    ->filterByUserId($this->identity->getId())
-                    ->useCategoryResourceQuery()
-                        ->filterByCategoryId($categoryId)
-                    ->endUse()
-                    ->setOffset($page['start'])
-                    ->setLimit($page['limit'])
-                    ->find()
+            'total' => ResourceQuery::create(null, $criteria)->filterByCategoryId($categoryId)->count(),
+            'list' => ResourceQuery::create(null, $criteria)->filterByCategoryId($categoryId)
+                        ->setOffset($page['start'])
+                        ->setLimit($page['limit'])
+                        ->find()
         );
+    }
+
+    /**
+     * @param \Propel\Resource|Resource $resource
+     * @throws \Application\Dao\RuntimeException
+     * @return int
+     */
+    public function save(Resource $resource) {
+        try {
+            $rowsAffected = $resource->save();
+        } catch(\Exception $e) {
+            throw new \Application\Dao\RuntimeException('save($resource) failed', 0, $e);
+        }
+        return $rowsAffected;
+    }
+
+    /**
+     * @param $id
+     * @return \Propel\Resource|null
+     */
+    public function findOneById($id)
+    {
+        return ResourceQuery::create()->findOneById($id);
+    }
+
+    /**
+     * @param array $ids
+     * @return int
+     */
+    public function deleteRangeByIds(array $ids) {
+        $criteria = new \Criteria();
+        $criteria->addAnd(ResourcePeer::ID, $ids, \Criteria::IN);
+        return ResourceQuery::create(null, $criteria)->delete();
     }
 }

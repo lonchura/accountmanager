@@ -1144,7 +1144,9 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     public function getResource(PropelPDO $con = null, $doQuery = true)
     {
         if ($this->aResource === null && ($this->resource_id !== null) && $doQuery) {
-            $this->aResource = ResourceQuery::create()->findPk($this->resource_id, $con);
+            $this->aResource = ResourceQuery::create()
+                ->filterByResourceAccount($this) // here
+                ->findOne($con);
             /* The following can be used additionally to
                 guarantee the related object contains a reference
                 to this object.  This level of coupling may, however, be

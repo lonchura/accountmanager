@@ -28,32 +28,6 @@ CREATE TABLE `account`
 ) ENGINE=InnoDB COMMENT='账号表';
 
 -- ---------------------------------------------------------------------
--- resource
--- ---------------------------------------------------------------------
-
-DROP TABLE IF EXISTS `resource`;
-
-CREATE TABLE `resource`
-(
-    `id` INTEGER(4) NOT NULL AUTO_INCREMENT,
-    `user_id` INTEGER(4) NOT NULL,
-    `identifier` VARCHAR(255) NOT NULL,
-    `type` TINYINT NOT NULL,
-    `name` VARCHAR(128) NOT NULL,
-    `description` TEXT,
-    `create_time` DATETIME NOT NULL,
-    `update_time` DATETIME NOT NULL,
-    PRIMARY KEY (`id`),
-    UNIQUE INDEX `resource_U_1` (`user_id`, `identifier`),
-    INDEX `resource_I_1` (`create_time`),
-    INDEX `resource_I_2` (`update_time`),
-    CONSTRAINT `resource_FK_1`
-        FOREIGN KEY (`user_id`)
-        REFERENCES `user` (`id`)
-        ON DELETE CASCADE
-) ENGINE=InnoDB COMMENT='资源表';
-
--- ---------------------------------------------------------------------
 -- category
 -- ---------------------------------------------------------------------
 
@@ -84,6 +58,29 @@ CREATE TABLE `category`
 ) ENGINE=InnoDB COMMENT='资源类别表';
 
 -- ---------------------------------------------------------------------
+-- resource
+-- ---------------------------------------------------------------------
+
+DROP TABLE IF EXISTS `resource`;
+
+CREATE TABLE `resource`
+(
+    `id` INTEGER(4) NOT NULL AUTO_INCREMENT,
+    `category_id` INTEGER(4) NOT NULL,
+    `name` VARCHAR(128) NOT NULL,
+    `description` TEXT,
+    `create_time` DATETIME NOT NULL,
+    `update_time` DATETIME NOT NULL,
+    PRIMARY KEY (`id`,`category_id`),
+    INDEX `resource_I_1` (`create_time`),
+    INDEX `resource_I_2` (`update_time`),
+    INDEX `resource_FI_1` (`category_id`),
+    CONSTRAINT `resource_FK_1`
+        FOREIGN KEY (`category_id`)
+        REFERENCES `category` (`id`)
+) ENGINE=InnoDB COMMENT='资源表';
+
+-- ---------------------------------------------------------------------
 -- resource_account
 -- ---------------------------------------------------------------------
 
@@ -107,30 +104,6 @@ CREATE TABLE `resource_account`
         FOREIGN KEY (`account_id`)
         REFERENCES `account` (`id`)
 ) ENGINE=InnoDB COMMENT='资源账号关联表';
-
--- ---------------------------------------------------------------------
--- category_resource
--- ---------------------------------------------------------------------
-
-DROP TABLE IF EXISTS `category_resource`;
-
-CREATE TABLE `category_resource`
-(
-    `category_id` INTEGER(4) NOT NULL,
-    `resource_id` INTEGER(4) NOT NULL,
-    `create_time` DATETIME NOT NULL,
-    `update_time` DATETIME NOT NULL,
-    PRIMARY KEY (`category_id`,`resource_id`),
-    INDEX `category_resource_I_1` (`create_time`),
-    INDEX `category_resource_I_2` (`update_time`),
-    INDEX `category_resource_FI_2` (`resource_id`),
-    CONSTRAINT `category_resource_FK_1`
-        FOREIGN KEY (`category_id`)
-        REFERENCES `category` (`id`),
-    CONSTRAINT `category_resource_FK_2`
-        FOREIGN KEY (`resource_id`)
-        REFERENCES `resource` (`id`)
-) ENGINE=InnoDB COMMENT='类别资源关联表';
 
 -- ---------------------------------------------------------------------
 -- user

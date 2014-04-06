@@ -68,7 +68,13 @@ Ext.define('AccountManager.view.resource.View', {
             tbar: {
                 xtype: 'pagingtoolbar',
                 store: 'Resource',
-                displayInfo:true
+                displayInfo: true,
+                items: [
+                    '|',
+                    {text:'增加', action:'resourceadd', disabled:true},
+                    {text:'编辑', action:'resourceedit', disabled:true},
+                    {text:'删除', action:'resourcedelete', disabled:true}
+                ]
             },
             selModel: {mode:'MULTI'},
             selType: 'checkboxmodel',
@@ -76,8 +82,6 @@ Ext.define('AccountManager.view.resource.View', {
             collapsible: true,
             columns: [
                 {text:'资源Id', dataIndex:'Id'},
-                {text:'Identifier', dataIndex:'Identifier', width:120},
-                {text:'类型', dataIndex:'Type'},
                 {text:'名称', dataIndex:'Name', sortable:false, flex:1},
                 {text:'创建时间', dataIndex:'CreateTime', sortable:false,  width:140, xtype:'datecolumn', format:'Y-m-d H:i:s'},
                 {text:'修改时间', dataIndex:'UpdateTime', sortable:false,  width:140, xtype:'datecolumn', format:'Y-m-d H:i:s'}
@@ -102,18 +106,18 @@ Ext.define('AccountManager.view.resource.View', {
         this.callParent(arguments);
     },
 
-    onTreeRefresh: function() {
-        //this.tree.view.select(0);
-    },
+    onTreeRefresh: function() { },
 
     onTreeSelect: function(model, sels) {
+        var me = this;
         if(sels.length>0) {
             var rs = sels[0],
                 store = this.resourceGrid.store;
-            //store.clearFilter(true);
-            //store.addFilter({property:"CategoryId", value:rs.data.Id}, false);
+            me.resourceGrid.down('button[action=resourceadd]').setDisabled(rs.data.Id == -1);
+            me.resourceGrid.down('button[action=resourceedit]').setDisabled(true);
+            me.resourceGrid.down('button[action=resourcedelete]').setDisabled(true);
+            me.resourceGrid.CategoryId = rs.data.Id;
             store.proxy.extraParams.CategoryId = rs.data.Id;
-            //this.detailsGrid.store.loadRecords([]);
             store.load();
         }
     },
@@ -124,12 +128,10 @@ Ext.define('AccountManager.view.resource.View', {
         }*/
     },
 
-    onResourceSelect: function(model, sels) {
-        /*var me=this;
-        if(sels.length>0) {
-            var rs = sels[0],
-                g=me.detailsGrid;
-//            g.store.loadRecords(rs.ResourceDetailsStore.data.items);
-        }*/
+    onResourceSelect: function(model, rs) {
+        var me = this,
+            flag = !(rs.length>0);
+        me.resourceGrid.down('button[action=resourceedit]').setDisabled(flag);
+        me.resourceGrid.down('button[action=resourcedelete]').setDisabled(flag);
     }
 });

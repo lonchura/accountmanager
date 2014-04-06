@@ -43,15 +43,7 @@ class ResourceTableMap extends TableMap
         $this->setUseIdGenerator(true);
         // columns
         $this->addPrimaryKey('id', 'Id', 'INTEGER', true, 4, null);
-        $this->addForeignKey('user_id', 'UserId', 'INTEGER', 'user', 'id', true, 4, null);
-        $this->addColumn('identifier', 'Identifier', 'VARCHAR', true, 255, null);
-        $this->addColumn('type', 'Type', 'ENUM', true, null, null);
-        $this->getColumn('type', false)->setValueSet(array (
-  0 => 'Website',
-  1 => 'Database',
-  2 => 'Server',
-  3 => 'Payment',
-));
+        $this->addForeignPrimaryKey('category_id', 'CategoryId', 'INTEGER' , 'category', 'id', true, 4, null);
         $this->addColumn('name', 'Name', 'VARCHAR', true, 128, null);
         $this->addColumn('description', 'Description', 'LONGVARCHAR', false, null, null);
         $this->addColumn('create_time', 'CreateTime', 'TIMESTAMP', true, null, null);
@@ -64,9 +56,8 @@ class ResourceTableMap extends TableMap
      */
     public function buildRelations()
     {
-        $this->addRelation('User', 'Propel\\User', RelationMap::MANY_TO_ONE, array('user_id' => 'id', ), 'CASCADE', null);
+        $this->addRelation('Category', 'Propel\\Category', RelationMap::MANY_TO_ONE, array('category_id' => 'id', ), null, null);
         $this->addRelation('ResourceAccount', 'Propel\\ResourceAccount', RelationMap::ONE_TO_MANY, array('id' => 'resource_id', ), null, null, 'ResourceAccounts');
-        $this->addRelation('CategoryResource', 'Propel\\CategoryResource', RelationMap::ONE_TO_MANY, array('id' => 'resource_id', ), null, null, 'CategoryResources');
         $this->addRelation('Account', 'Propel\\Account', RelationMap::MANY_TO_MANY, array(), null, null, 'Accounts');
     } // buildRelations()
 

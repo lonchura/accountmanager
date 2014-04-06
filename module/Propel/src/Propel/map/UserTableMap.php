@@ -59,7 +59,6 @@ class UserTableMap extends TableMap
     {
         $this->addRelation('Role', 'Propel\\Role', RelationMap::MANY_TO_ONE, array('role_id' => 'id', ), null, null);
         $this->addRelation('Account', 'Propel\\Account', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'Accounts');
-        $this->addRelation('Resource', 'Propel\\Resource', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'Resources');
         $this->addRelation('Category', 'Propel\\Category', RelationMap::ONE_TO_MANY, array('id' => 'user_id', ), 'CASCADE', null, 'Categorys');
     } // buildRelations()
 

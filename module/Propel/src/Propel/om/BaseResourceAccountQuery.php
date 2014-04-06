@@ -479,7 +479,7 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
             }
 
             return $this
-                ->addUsingAlias(ResourceAccountPeer::RESOURCE_ID, $resource->toKeyValue('PrimaryKey', 'Id'), $comparison);
+                ->addUsingAlias(ResourceAccountPeer::RESOURCE_ID, $resource->toKeyValue('Id', 'Id'), $comparison);
         } else {
             throw new PropelException('filterByResource() only accepts arguments of type Resource or PropelCollection');
         }

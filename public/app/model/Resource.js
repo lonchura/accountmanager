@@ -12,9 +12,7 @@ Ext.define('AccountManager.model.Resource', {
 
     fields: [
         {name:'Id', type:'int'},
-        {name:'UserId', type:'int'},
-        'Identifier',
-        'Type',
+        {name:'CategoryId', type:'int'},
         'Name',
         'Description',
         {name:'CreateTime', type:'date', dateFormat:'c'},

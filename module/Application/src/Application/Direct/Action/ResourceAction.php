@@ -12,6 +12,7 @@ namespace Application\Direct\Action;
 
 use PHPX\Ext\Direct\Result\Success;
 use PHPX\Proxy\DynamicProxy;
+use Propel\Resource;
 
 /**
  * Class ResourceAction
@@ -43,8 +44,6 @@ class ResourceAction extends BaseAction {
         foreach($result['list'] as $resource) {
             array_push($rows, array(
                 'Id' => $resource->getId(),
-                'Identifier' => $resource->getIdentifier(),
-                'Type' => $resource->getType(),
                 'Name' => $resource->getName(),
                 'Description' => $resource->getDescription(),
                 'CreateTime' => $resource->getCreateTime(),
@@ -56,5 +55,42 @@ class ResourceAction extends BaseAction {
             'total' => $result['total'],
             'data' => $rows
         ), '');
+    }
+
+    public function addMethod(array $data) {
+        $resource = new Resource();
+        $resource->setCategoryId($data['CategoryId']);
+        $resource->setName($data['Name']);
+        $resource->setDescription($data['Description']);
+
+        $this->loadResourceDao()->save($resource);
+        return new Success(array('data' => array(
+            'Id' => $resource->getId(),
+            'Name' => $resource->getName(),
+            'Description' => $resource->getDescription(),
+            'CreateTime' => $resource->getCreateTime(),
+            'UpdateTime' => $resource->getUpdateTime()
+        )), '添加成功');
+    }
+
+    public function editMethod(array $data) {
+        $resource = $this->loadResourceDao()->findOneById($data['Id']);
+        $resource->setName($data['Name']);
+        $resource->setDescription($data['Description']);
+
+        $this->loadResourceDao()->save($resource);
+        return new Success(array('data' => array(
+            'Id' => $resource->getId(),
+            'Name' => $resource->getName(),
+            'Description' => $resource->getDescription(),
+            'CreateTime' => $resource->getCreateTime(),
+            'UpdateTime' => $resource->getUpdateTime()
+        )), '修改成功');
+    }
+
+    public function deleteMethod(array $data) {
+        $ids = $data[0];
+        $this->loadResourceDao()->deleteRangeByIds($ids);
+        return new Success($ids, '删除成功');
     }
 } 
