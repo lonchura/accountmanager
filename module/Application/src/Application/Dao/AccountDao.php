@@ -32,6 +32,16 @@ interface AccountDao {
     public function find(array $page);
 
     /**
+     * @param $keyword
+     * @param array $page Ext direct page request
+     * @return array(
+     *      'total' => int
+     *      'list' => \PropelObjectCollection
+     * )
+     */
+    public function findByIdentifierKeyword($keyword, array $page);
+
+    /**
      * @param $id
      * @return \Propel\Account
      */

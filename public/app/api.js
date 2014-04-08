@@ -18,7 +18,10 @@ AccountManager.Direct.REMOTING_API = {
             {name: 'list', len:1},
             {name: 'add', formHandler:true, len:1},
             {name: 'edit', formHandler:true, len:1},
-            {name: 'delete', len:1}
+            {name: 'delete', len:1},
+            {name: 'accountList', len:1},
+            {name: 'accountAssociate', formHandler:true, len:1},
+            {name: 'accountDelete', len:1}
         ],
         "AccountManager.Direct.Account": [
             {name: 'list', len:1},

@@ -10,6 +10,8 @@
 
 namespace Application\Dao\Impl;
 use Propel\Resource;
+use Propel\ResourceAccountPeer;
+use Propel\ResourceAccountQuery;
 use Propel\ResourcePeer;
 use Propel\ResourceQuery;
 
@@ -92,5 +94,56 @@ class ResourceDao implements \Application\Dao\ResourceDao {
         $criteria = new \Criteria();
         $criteria->addAnd(ResourcePeer::ID, $ids, \Criteria::IN);
         return ResourceQuery::create(null, $criteria)->delete();
+    }
+
+    /**
+     * @param $resourceId
+     * @param array $page Ext direct page request
+     * @return array(
+     *      'total' => int
+     *      'list' => \PropelObjectCollection
+     * )
+     */
+    public function findAccountsByResourceId($resourceId, array $page) {
+        $criteria = new \Criteria();
+        if(isset($page['sort']) && is_array($page['sort'])) {
+            foreach($page['sort'] as $sort) {
+                \PHPX\Propel\Util\Ext\Direct\Criteria::bindSort(
+                    $criteria,
+                    array_merge($sort, array(
+                            'column' => ResourceAccountPeer::$modelFieldMapping[$sort['property']]
+                        )
+                    ));
+            }
+        }
+
+        return array(
+            'total' => ResourceAccountQuery::create(null, $criteria)->filterByResourceId($resourceId)->count(),
+            'list' => ResourceAccountQuery::create(null, $criteria)->filterByResourceId($resourceId)
+                    ->setOffset($page['start'])
+                    ->setLimit($page['limit'])
+                    ->find()
+        );
+    }
+
+    /**
+     * @param $resourceId
+     * @param $accountId
+     * @return bool
+     */
+    public function isAssociatedAccount($resourceId, $accountId) {
+        return null !== ResourceAccountQuery::create()->filterByResourceId($resourceId)->findOneByAccountId($accountId);
+    }
+
+    /**
+     * @param $resourceId
+     * @param $accountIds
+     * @return int
+     */
+    public function deleteRangeByAssociateAccountIds($resourceId, $accountIds) {
+        $criteria = new \Criteria();
+        $criteria->addAnd(ResourceAccountPeer::RESOURCE_ID, $resourceId, \Criteria::EQUAL);
+        $criteria->addAnd(ResourceAccountPeer::ACCOUNT_ID, $accountIds, \Criteria::IN);
+        return ResourceAccountQuery::create(null, $criteria)->delete();
     }
 }

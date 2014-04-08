@@ -18,4 +18,7 @@ use Propel\om\BaseResourceAccountPeer;
  */
 class ResourceAccountPeer extends BaseResourceAccountPeer
 {
+    public static $modelFieldMapping = array(
+        'CreateTime' => self::CREATE_TIME
+    );
 }

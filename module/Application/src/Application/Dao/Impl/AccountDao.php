@@ -59,11 +59,42 @@ class AccountDao implements \Application\Dao\AccountDao {
                 ));
             }
         }
-        $criteria->setOffset($page['start']);
-        $criteria->setLimit($page['limit']);
         return array(
             'total' => AccountQuery::create()->filterByUserId($this->identity->getId())->count(),
-            'list' => AccountQuery::create(null, $criteria)->filterByUserId($this->identity->getId())->find()
+            'list' => AccountQuery::create(null, $criteria)->filterByUserId($this->identity->getId())
+                    ->setOffset($page['start'])
+                    ->setLimit($page['limit'])
+                    ->find()
+        );
+    }
+
+    /**
+     * @param $keyword
+     * @param array $page Ext direct page request
+     * @return array(
+     *      'total' => int
+     *      'list' => \PropelObjectCollection
+     * )
+     */
+    public function findByIdentifierKeyword($keyword, array $page) {
+        $criteria = new \Criteria();
+        $criteria->addAnd(AccountPeer::IDENTIFIER, $keyword, \Criteria::LIKE);
+        if(isset($page['sort']) && is_array($page['sort'])) {
+            foreach($page['sort'] as $sort) {
+                \PHPX\Propel\Util\Ext\Direct\Criteria::bindSort(
+                    $criteria,
+                    array_merge($sort, array(
+                            'column' => AccountPeer::$modelFieldMapping[$sort['property']]
+                        )
+                    ));
+            }
+        }
+        return array(
+            'total' => AccountQuery::create(null, $criteria)->filterByUserId($this->identity->getId())->count(),
+            'list' => AccountQuery::create(null, $criteria)->filterByUserId($this->identity->getId())
+                    ->setLimit($page['limit'])
+                    ->setOffset($page['start'])
+                    ->find()
         );
     }
 
@@ -82,8 +113,10 @@ class AccountDao implements \Application\Dao\AccountDao {
      */
     public function save(Account $account) {
         try {
+            $account->setUserId($this->identity->getId());
             $rowsAffected = $account->save();
         } catch(\Exception $e) {
+            // TODO log
             throw new \Application\Dao\RuntimeException('save($account) failed', 0, $e);
         }
         return $rowsAffected;

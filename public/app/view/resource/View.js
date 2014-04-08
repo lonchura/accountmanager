@@ -11,10 +11,19 @@ Ext.define('AccountManager.view.resource.View', {
     extend: 'Ext.panel.Panel',
     alias: 'widget.resourceview',
 
-    layout: 'border',
-
     title: '资源管理',
     id: 'resourceView',
+
+    layout: {
+        type: 'border',
+        regionWeights: {
+            west:       20,
+            north:      10,
+            center:     0,
+            south:      -10,
+            east:       -20
+        }
+    },
 
     initComponent: function() {
         var me=this;
@@ -63,8 +72,11 @@ Ext.define('AccountManager.view.resource.View', {
 
         me.resourceGrid=Ext.widget('grid', {
             title: '资源',
-            region: 'center',
+            region: 'north',
             minHeight: 200,
+            height: 300,
+            collapsible: true,
+            split: true,
             tbar: {
                 xtype: 'pagingtoolbar',
                 store: 'Resource',
@@ -79,7 +91,6 @@ Ext.define('AccountManager.view.resource.View', {
             selModel: {mode:'MULTI'},
             selType: 'checkboxmodel',
             store: 'Resource',
-            collapsible: true,
             columns: [
                 {text:'资源Id', dataIndex:'Id'},
                 {text:'名称', dataIndex:'Name', sortable:false, flex:1},
@@ -98,9 +109,58 @@ Ext.define('AccountManager.view.resource.View', {
             }
         });
 
+        me.resourceInfo=Ext.widget('panel', {
+            title: '描述',
+            region: 'center',
+            bodyPadding: 5,
+            autoScroll: true,
+            minHeight: 100,
+            height: 100,
+            bodyStyle: {
+                background: '#DFE8F6'
+            },
+            split: true
+        })
+
+        me.resourceAccountGrid=Ext.widget('grid', {
+            minHeight: 200,
+            store: 'ResourceAccount',
+            selModel: {
+                mode: 'MULTI',
+                selType: 'cellmodel'
+            },
+            plugins: [new Ext.grid.plugin.CellEditing({
+                clicksToEdit: 1
+            })],
+            region: 'south',
+            split: true,
+            tbar: {
+                xtype: 'pagingtoolbar',
+                store: 'ResourceAccount',
+                displayInfo: true,
+                items: [
+                    '|',
+                    {text:'关联', action:'resourceaccountassociate', disabled:true},
+                    {text:'移除', action:'resourceaccountdelete', disabled:true}
+                ]
+            },
+            columns: [
+                {text:'账号ID', dataIndex:'AccountId', sortable:false},
+                {text:'账号标识', dataIndex:'Identifier', sortable:false, flex:1},
+                {text:'密码', dataIndex:'Password', sortable:false, flex:1, editor: {allowBlank: false}},
+                {text:'关联时间', dataIndex:'CreateTime',  width:140, xtype:'datecolumn', format:'Y-m-d H:i:s'},
+            ],
+            listeners: {
+                scope: me,
+                selectionchange: me.onResourceAccountSelect
+            }
+        });
+
         this.items=[
             me.categoryTree,
-            me.resourceGrid
+            me.resourceGrid,
+            me.resourceInfo,
+            me.resourceAccountGrid
         ];
 
         this.callParent(arguments);
@@ -122,16 +182,37 @@ Ext.define('AccountManager.view.resource.View', {
         }
     },
 
-    onResourceRefresh: function() {
-        /*if(this.resourceGrid.store.getCount()>0) {
-            this.resourceGrid.view.select(0);
-        }*/
+    onResourceRefresh: function() { },
+
+    onResourceSelect: function(model, sels) {
+        var me = this,
+            isSel = sels.length>0;
+        // change CURD buttons status
+        me.resourceGrid.down('button[action=resourceedit]').setDisabled(!isSel);
+        me.resourceGrid.down('button[action=resourcedelete]').setDisabled(!isSel);
+        me.resourceAccountGrid.down('button[action=resourceaccountassociate]').setDisabled(!isSel);
+        // change Resource detail
+        var description = '';
+        if(isSel) {
+            var rs = sels[0];
+            description = rs.data.Description;
+        }
+        me.resourceInfo.update(description);
+        // change Resource associate accounts
+        var store = me.resourceAccountGrid.store;
+        if(isSel) {
+            me.resourceAccountGrid.ResourceId = rs.data.Id;
+            store.proxy.extraParams.ResourceId = rs.data.Id;
+            store.load();
+        } else {
+            me.resourceAccountGrid.ResourceId = null;
+            store.removeAll();
+        }
     },
 
-    onResourceSelect: function(model, rs) {
+    onResourceAccountSelect: function(model, sels) {
         var me = this,
-            flag = !(rs.length>0);
-        me.resourceGrid.down('button[action=resourceedit]').setDisabled(flag);
-        me.resourceGrid.down('button[action=resourcedelete]').setDisabled(flag);
+            isSel = sels.length>0;
+        me.resourceAccountGrid.down('button[action=resourceaccountdelete]').setDisabled(!isSel);
     }
 });

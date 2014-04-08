@@ -12,6 +12,7 @@
 
         <!-- Scripts -->
         <?php echo $this->inlineScript()
+            ->appendFile($this->basepath().'/js/jquery.min.js')
             ->appendFile($this->basepath().'/ext/bootstrap.js')
             ->appendFile($this->basepath().'/ext/locale/Ext-lang-zh_CN.js')
         ?>

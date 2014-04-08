@@ -34,7 +34,7 @@ class LoginAction extends BaseAction {
         // check captcha
         $captcha = $this->getServiceManager()->get('Accountmanager\Service\Captcha');
         if(!$captcha->isVaild($vcodeId, $vcode)) {
-            throw new \Exception(current($captcha->getMessages()));
+            return new Failure('登陆失败, '.current($captcha->getMessages()));
         }
 
         // check auth

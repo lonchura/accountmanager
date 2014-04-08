@@ -39,8 +39,13 @@ class AccountAction extends BaseAction {
     public function listMethod(array $data) {
         $page = $data[0];
         $rows = array();
+        $result = array();
 
-        $result = $this->loadAccountDao()->find($page);
+        if(isset($page['q']) && $keyword=$page['q']) {
+            $result = $this->loadAccountDao()->findByIdentifierKeyword('%'.$keyword.'%', $page);
+        } else {
+            $result = $this->loadAccountDao()->find($page);
+        }
         foreach($result['list'] as $account) {
             array_push($rows, array(
                 'Id' => $account->getId(),

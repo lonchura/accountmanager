@@ -3,19 +3,24 @@ Ext.define('AccountManager.controller.Resource', {
 
     stores: [
         'Resource',
+        'ResourceAccount',
+        'AccountCombo',
         'CategoryTree'
     ],
 
     models: [
         'Resource',
+        'ResourceAccount',
+        'AccountCombo',
         'Category'
     ],
 
-    views: ['resource.View', 'resource.category.EditView', 'resource.EditView'],
+    views: ['resource.View', 'resource.category.EditView', 'resource.EditView', 'resource.resourceAccount.EditView'],
 
     refs: [
         {ref:'contentPage', selector:'#contentPage'},
-        {ref:'categoryTreeMenu', selector:'#categoryTreeMenu'}
+        {ref:'categoryTreeMenu', selector:'#categoryTreeMenu'},
+        {ref:'resourceAccountGridMenu', selector:'#resourceAccountGridMenu'}
     ],
 
     init: function() {
@@ -49,6 +54,12 @@ Ext.define('AccountManager.controller.Resource', {
             },
             '#resourceView grid button[action=resourcedelete]': {
                 click: me.resourceDelete
+            },
+            '#resourceView grid button[action=resourceaccountassociate]': {
+                click: me.resourceAccountAssociate
+            },
+            '#resourceView grid button[action=resourceaccountdelete]': {
+                click: me.resourceAccountDelete
             }
         });
         c.add(view);
@@ -128,7 +139,6 @@ Ext.define('AccountManager.controller.Resource', {
             win = me.getCategoryEditView(),
             categoryTree = me.getResourceViewView().categoryTree,
             f = win.form;
-        //id = f.findField('Id').getValue();
         if(f.isValid() && f.isDirty()) {
             f.submit({
                 waitMsg: '正在保存...',
@@ -240,6 +250,61 @@ Ext.define('AccountManager.controller.Resource', {
                 }
             }, grid);
         }
+    },
+
+    resourceAccountAssociate: function() {
+        var me = this,
+            grid = me.resourceView.resourceAccountGrid,
+            win = me.getResouceAccountEditView(),
+            f = win.form,
+            m = me.getResourceAccountStore().model;
+        f.getForm().api.submit = AccountManager.Direct.Resource.accountAssociate;
+        f.getForm().actionMethod = 'accountAssociate';
+        f.getForm().loadRecord(new m({ResourceId: grid.ResourceId}));
+        win.setTitle('添加关联账号');
+        win.show();
+    },
+
+    resourceAccountDelete: function() {
+        var me = this,
+            grid = me.resourceView.resourceAccountGrid,
+            resourceId = grid.ResourceId,
+            sels = grid.getSelectionModel().getSelection();
+        if(sels.length>0) {
+            var content = ['确定移除以下关联账号？'];
+            for(var i=0; ln=sels.length,i<ln; i++) {
+                content.push(sels[i].data.Identifier);
+            }
+            Ext.Msg.confirm('移除记录', content.join('<br />'), function(btn) {
+                if(btn == 'yes') {
+                    var me = this,
+                        store = me.store,
+                        ids = [],
+                        sels = me.getSelectionModel().getSelection();
+                    for(var i=0; ln=sels.length,i<ln; i++) {
+                        ids.push(sels[i].data.AccountId);
+                    }
+                    AccountManager.Direct.Resource.accountDelete({ResourceId: resourceId, AccountIds: ids}, function(result, e) {
+                        if(result.success) {
+                            Ext.Msg.alert('移除成功', '已成功移除', function() {
+                                me.store.load();
+                            });
+                        } else {
+                            Ext.Msg.alert('提示信息', result.msg);
+                        }
+                    })
+                }
+            }, grid);
+        }
+    },
+
+    getResouceAccountEditView: function() {
+        var me = this,
+            view = me.resourceaccounteditview;
+        if(!view) {
+            view = me.resourceaccounteditview = Ext.widget('resourceaccounteditview');
+        }
+        return view;
     },
 
     getResouceEditView: function() {

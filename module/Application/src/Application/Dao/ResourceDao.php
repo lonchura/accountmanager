@@ -46,4 +46,28 @@ interface ResourceDao {
      * @return int
      */
     public function deleteRangeByIds(array $ids);
+
+    /**
+     * @param $resourceId
+     * @param array $page Ext direct page request
+     * @return array(
+     *      'total' => int
+     *      'list' => \PropelObjectCollection
+     * )
+     */
+    public function findAccountsByResourceId($resourceId, array $page);
+
+    /**
+     * @param $resourceId
+     * @param $accountId
+     * @return bool
+     */
+    public function isAssociatedAccount($resourceId, $accountId);
+
+    /**
+     * @param $resourceId
+     * @param $accountIds
+     * @return int
+     */
+    public function deleteRangeByAssociateAccountIds($resourceId, $accountIds);
 }
