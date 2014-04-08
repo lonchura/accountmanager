@@ -17,7 +17,7 @@ Ext.define('AccountManager.view.resource.resourceAccount.EditView', {
     resizable: false,
     title: '',
     width: 400,
-    height: 130,
+    height: 155,
     modal: true,
 
     id: 'resourceAccountEditView',
@@ -46,6 +46,13 @@ Ext.define('AccountManager.view.resource.resourceAccount.EditView', {
                     name: 'ResourceId',
                     readOnly: true,
                     readOnlyCls: 'x-item-disabled'
+                },
+                {
+                    xtype: 'textfield',
+                    fieldLabel: '账户名',
+                    name: 'Identity',
+                    allowBlank: false,
+                    maxLength: 255
                 },
                 {
                     xtype: 'combo',

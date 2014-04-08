@@ -50,6 +50,12 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     protected $startCopy = false;
 
     /**
+     * The value for the id field.
+     * @var        int
+     */
+    protected $id;
+
+    /**
      * The value for the resource_id field.
      * @var        int
      */
@@ -62,10 +68,10 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     protected $account_id;
 
     /**
-     * The value for the description field.
+     * The value for the identity field.
      * @var        string
      */
-    protected $description;
+    protected $identity;
 
     /**
      * The value for the create_time field.
@@ -110,6 +116,17 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     protected $alreadyInClearAllReferencesDeep = false;
 
     /**
+     * Get the [id] column value.
+     *
+     * @return int
+     */
+    public function getId()
+    {
+
+        return $this->id;
+    }
+
+    /**
      * Get the [resource_id] column value.
      *
      * @return int
@@ -132,14 +149,14 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     }
 
     /**
-     * Get the [description] column value.
+     * Get the [identity] column value.
      *
      * @return string
      */
-    public function getDescription()
+    public function getIdentity()
     {
 
-        return $this->description;
+        return $this->identity;
     }
 
     /**
@@ -223,6 +240,27 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     }
 
     /**
+     * Set the value of [id] column.
+     *
+     * @param  int $v new value
+     * @return ResourceAccount The current object (for fluent API support)
+     */
+    public function setId($v)
+    {
+        if ($v !== null && is_numeric($v)) {
+            $v = (int) $v;
+        }
+
+        if ($this->id !== $v) {
+            $this->id = $v;
+            $this->modifiedColumns[] = ResourceAccountPeer::ID;
+        }
+
+
+        return $this;
+    } // setId()
+
+    /**
      * Set the value of [resource_id] column.
      *
      * @param  int $v new value
@@ -273,25 +311,25 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     } // setAccountId()
 
     /**
-     * Set the value of [description] column.
+     * Set the value of [identity] column.
      *
      * @param  string $v new value
      * @return ResourceAccount The current object (for fluent API support)
      */
-    public function setDescription($v)
+    public function setIdentity($v)
     {
         if ($v !== null && is_numeric($v)) {
             $v = (string) $v;
         }
 
-        if ($this->description !== $v) {
-            $this->description = $v;
-            $this->modifiedColumns[] = ResourceAccountPeer::DESCRIPTION;
+        if ($this->identity !== $v) {
+            $this->identity = $v;
+            $this->modifiedColumns[] = ResourceAccountPeer::IDENTITY;
         }
 
 
         return $this;
-    } // setDescription()
+    } // setIdentity()
 
     /**
      * Sets the value of [create_time] column to a normalized version of the date/time value specified.
@@ -371,11 +409,12 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     {
         try {
 
-            $this->resource_id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
-            $this->account_id = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
-            $this->description = ($row[$startcol + 2] !== null) ? (string) $row[$startcol + 2] : null;
-            $this->create_time = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
-            $this->update_time = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
+            $this->id = ($row[$startcol + 0] !== null) ? (int) $row[$startcol + 0] : null;
+            $this->resource_id = ($row[$startcol + 1] !== null) ? (int) $row[$startcol + 1] : null;
+            $this->account_id = ($row[$startcol + 2] !== null) ? (int) $row[$startcol + 2] : null;
+            $this->identity = ($row[$startcol + 3] !== null) ? (string) $row[$startcol + 3] : null;
+            $this->create_time = ($row[$startcol + 4] !== null) ? (string) $row[$startcol + 4] : null;
+            $this->update_time = ($row[$startcol + 5] !== null) ? (string) $row[$startcol + 5] : null;
             $this->resetModified();
 
             $this->setNew(false);
@@ -385,7 +424,7 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
             }
             $this->postHydrate($row, $startcol, $rehydrate);
 
-            return $startcol + 5; // 5 = ResourceAccountPeer::NUM_HYDRATE_COLUMNS.
+            return $startcol + 6; // 6 = ResourceAccountPeer::NUM_HYDRATE_COLUMNS.
 
         } catch (Exception $e) {
             throw new PropelException("Error populating ResourceAccount object", $e);
@@ -629,16 +668,23 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
         $modifiedColumns = array();
         $index = 0;
 
+        $this->modifiedColumns[] = ResourceAccountPeer::ID;
+        if (null !== $this->id) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key (' . ResourceAccountPeer::ID . ')');
+        }
 
          // check the columns in natural order for more readable SQL queries
+        if ($this->isColumnModified(ResourceAccountPeer::ID)) {
+            $modifiedColumns[':p' . $index++]  = '`id`';
+        }
         if ($this->isColumnModified(ResourceAccountPeer::RESOURCE_ID)) {
             $modifiedColumns[':p' . $index++]  = '`resource_id`';
         }
         if ($this->isColumnModified(ResourceAccountPeer::ACCOUNT_ID)) {
             $modifiedColumns[':p' . $index++]  = '`account_id`';
         }
-        if ($this->isColumnModified(ResourceAccountPeer::DESCRIPTION)) {
-            $modifiedColumns[':p' . $index++]  = '`description`';
+        if ($this->isColumnModified(ResourceAccountPeer::IDENTITY)) {
+            $modifiedColumns[':p' . $index++]  = '`identity`';
         }
         if ($this->isColumnModified(ResourceAccountPeer::CREATE_TIME)) {
             $modifiedColumns[':p' . $index++]  = '`create_time`';
@@ -657,14 +703,17 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
             $stmt = $con->prepare($sql);
             foreach ($modifiedColumns as $identifier => $columnName) {
                 switch ($columnName) {
+                    case '`id`':
+                        $stmt->bindValue($identifier, $this->id, PDO::PARAM_INT);
+                        break;
                     case '`resource_id`':
                         $stmt->bindValue($identifier, $this->resource_id, PDO::PARAM_INT);
                         break;
                     case '`account_id`':
                         $stmt->bindValue($identifier, $this->account_id, PDO::PARAM_INT);
                         break;
-                    case '`description`':
-                        $stmt->bindValue($identifier, $this->description, PDO::PARAM_STR);
+                    case '`identity`':
+                        $stmt->bindValue($identifier, $this->identity, PDO::PARAM_STR);
                         break;
                     case '`create_time`':
                         $stmt->bindValue($identifier, $this->create_time, PDO::PARAM_STR);
@@ -679,6 +728,13 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
             Propel::log($e->getMessage(), Propel::LOG_ERR);
             throw new PropelException(sprintf('Unable to execute INSERT statement [%s]', $sql), $e);
         }
+
+        try {
+            $pk = $con->lastInsertId();
+        } catch (Exception $e) {
+            throw new PropelException('Unable to get autoincrement id.', $e);
+        }
+        $this->setId($pk);
 
         $this->setNew(false);
     }
@@ -818,18 +874,21 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     {
         switch ($pos) {
             case 0:
-                return $this->getResourceId();
+                return $this->getId();
                 break;
             case 1:
-                return $this->getAccountId();
+                return $this->getResourceId();
                 break;
             case 2:
-                return $this->getDescription();
+                return $this->getAccountId();
                 break;
             case 3:
-                return $this->getCreateTime();
+                return $this->getIdentity();
                 break;
             case 4:
+                return $this->getCreateTime();
+                break;
+            case 5:
                 return $this->getUpdateTime();
                 break;
             default:
@@ -855,17 +914,18 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
      */
     public function toArray($keyType = BasePeer::TYPE_PHPNAME, $includeLazyLoadColumns = true, $alreadyDumpedObjects = array(), $includeForeignObjects = false)
     {
-        if (isset($alreadyDumpedObjects['ResourceAccount'][serialize($this->getPrimaryKey())])) {
+        if (isset($alreadyDumpedObjects['ResourceAccount'][$this->getPrimaryKey()])) {
             return '*RECURSION*';
         }
-        $alreadyDumpedObjects['ResourceAccount'][serialize($this->getPrimaryKey())] = true;
+        $alreadyDumpedObjects['ResourceAccount'][$this->getPrimaryKey()] = true;
         $keys = ResourceAccountPeer::getFieldNames($keyType);
         $result = array(
-            $keys[0] => $this->getResourceId(),
-            $keys[1] => $this->getAccountId(),
-            $keys[2] => $this->getDescription(),
-            $keys[3] => $this->getCreateTime(),
-            $keys[4] => $this->getUpdateTime(),
+            $keys[0] => $this->getId(),
+            $keys[1] => $this->getResourceId(),
+            $keys[2] => $this->getAccountId(),
+            $keys[3] => $this->getIdentity(),
+            $keys[4] => $this->getCreateTime(),
+            $keys[5] => $this->getUpdateTime(),
         );
         $virtualColumns = $this->virtualColumns;
         foreach ($virtualColumns as $key => $virtualColumn) {
@@ -914,18 +974,21 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     {
         switch ($pos) {
             case 0:
-                $this->setResourceId($value);
+                $this->setId($value);
                 break;
             case 1:
-                $this->setAccountId($value);
+                $this->setResourceId($value);
                 break;
             case 2:
-                $this->setDescription($value);
+                $this->setAccountId($value);
                 break;
             case 3:
-                $this->setCreateTime($value);
+                $this->setIdentity($value);
                 break;
             case 4:
+                $this->setCreateTime($value);
+                break;
+            case 5:
                 $this->setUpdateTime($value);
                 break;
         } // switch()
@@ -952,11 +1015,12 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     {
         $keys = ResourceAccountPeer::getFieldNames($keyType);
 
-        if (array_key_exists($keys[0], $arr)) $this->setResourceId($arr[$keys[0]]);
-        if (array_key_exists($keys[1], $arr)) $this->setAccountId($arr[$keys[1]]);
-        if (array_key_exists($keys[2], $arr)) $this->setDescription($arr[$keys[2]]);
-        if (array_key_exists($keys[3], $arr)) $this->setCreateTime($arr[$keys[3]]);
-        if (array_key_exists($keys[4], $arr)) $this->setUpdateTime($arr[$keys[4]]);
+        if (array_key_exists($keys[0], $arr)) $this->setId($arr[$keys[0]]);
+        if (array_key_exists($keys[1], $arr)) $this->setResourceId($arr[$keys[1]]);
+        if (array_key_exists($keys[2], $arr)) $this->setAccountId($arr[$keys[2]]);
+        if (array_key_exists($keys[3], $arr)) $this->setIdentity($arr[$keys[3]]);
+        if (array_key_exists($keys[4], $arr)) $this->setCreateTime($arr[$keys[4]]);
+        if (array_key_exists($keys[5], $arr)) $this->setUpdateTime($arr[$keys[5]]);
     }
 
     /**
@@ -968,9 +1032,10 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     {
         $criteria = new Criteria(ResourceAccountPeer::DATABASE_NAME);
 
+        if ($this->isColumnModified(ResourceAccountPeer::ID)) $criteria->add(ResourceAccountPeer::ID, $this->id);
         if ($this->isColumnModified(ResourceAccountPeer::RESOURCE_ID)) $criteria->add(ResourceAccountPeer::RESOURCE_ID, $this->resource_id);
         if ($this->isColumnModified(ResourceAccountPeer::ACCOUNT_ID)) $criteria->add(ResourceAccountPeer::ACCOUNT_ID, $this->account_id);
-        if ($this->isColumnModified(ResourceAccountPeer::DESCRIPTION)) $criteria->add(ResourceAccountPeer::DESCRIPTION, $this->description);
+        if ($this->isColumnModified(ResourceAccountPeer::IDENTITY)) $criteria->add(ResourceAccountPeer::IDENTITY, $this->identity);
         if ($this->isColumnModified(ResourceAccountPeer::CREATE_TIME)) $criteria->add(ResourceAccountPeer::CREATE_TIME, $this->create_time);
         if ($this->isColumnModified(ResourceAccountPeer::UPDATE_TIME)) $criteria->add(ResourceAccountPeer::UPDATE_TIME, $this->update_time);
 
@@ -988,36 +1053,29 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     public function buildPkeyCriteria()
     {
         $criteria = new Criteria(ResourceAccountPeer::DATABASE_NAME);
-        $criteria->add(ResourceAccountPeer::RESOURCE_ID, $this->resource_id);
-        $criteria->add(ResourceAccountPeer::ACCOUNT_ID, $this->account_id);
+        $criteria->add(ResourceAccountPeer::ID, $this->id);
 
         return $criteria;
     }
 
     /**
-     * Returns the composite primary key for this object.
-     * The array elements will be in same order as specified in XML.
-     * @return array
+     * Returns the primary key for this object (row).
+     * @return int
      */
     public function getPrimaryKey()
     {
-        $pks = array();
-        $pks[0] = $this->getResourceId();
-        $pks[1] = $this->getAccountId();
-
-        return $pks;
+        return $this->getId();
     }
 
     /**
-     * Set the [composite] primary key.
+     * Generic method to set the primary key (id column).
      *
-     * @param array $keys The elements of the composite key (order must match the order in XML file).
+     * @param  int $key Primary key.
      * @return void
      */
-    public function setPrimaryKey($keys)
+    public function setPrimaryKey($key)
     {
-        $this->setResourceId($keys[0]);
-        $this->setAccountId($keys[1]);
+        $this->setId($key);
     }
 
     /**
@@ -1027,7 +1085,7 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     public function isPrimaryKeyNull()
     {
 
-        return (null === $this->getResourceId()) && (null === $this->getAccountId());
+        return null === $this->getId();
     }
 
     /**
@@ -1045,7 +1103,7 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
     {
         $copyObj->setResourceId($this->getResourceId());
         $copyObj->setAccountId($this->getAccountId());
-        $copyObj->setDescription($this->getDescription());
+        $copyObj->setIdentity($this->getIdentity());
         $copyObj->setCreateTime($this->getCreateTime());
         $copyObj->setUpdateTime($this->getUpdateTime());
 
@@ -1062,6 +1120,7 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
 
         if ($makeNew) {
             $copyObj->setNew(true);
+            $copyObj->setId(NULL); // this is a auto-increment column, so set to default value
         }
     }
 
@@ -1216,9 +1275,10 @@ abstract class BaseResourceAccount extends BaseObject implements Persistent
      */
     public function clear()
     {
+        $this->id = null;
         $this->resource_id = null;
         $this->account_id = null;
-        $this->description = null;
+        $this->identity = null;
         $this->create_time = null;
         $this->update_time = null;
         $this->alreadyInSave = false;

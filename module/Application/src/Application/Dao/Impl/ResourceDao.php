@@ -128,22 +128,20 @@ class ResourceDao implements \Application\Dao\ResourceDao {
 
     /**
      * @param $resourceId
-     * @param $accountId
+     * @param $identity
      * @return bool
      */
-    public function isAssociatedAccount($resourceId, $accountId) {
-        return null !== ResourceAccountQuery::create()->filterByResourceId($resourceId)->findOneByAccountId($accountId);
+    public function isAssociatedAccount($resourceId, $identity) {
+        return null !== ResourceAccountQuery::create()->filterByResourceId($resourceId)->findOneByIdentity($identity);
     }
 
     /**
-     * @param $resourceId
-     * @param $accountIds
+     * @param array $ids
      * @return int
      */
-    public function deleteRangeByAssociateAccountIds($resourceId, $accountIds) {
+    public function deleteRangeByAssociateAccountIds(array $ids) {
         $criteria = new \Criteria();
-        $criteria->addAnd(ResourceAccountPeer::RESOURCE_ID, $resourceId, \Criteria::EQUAL);
-        $criteria->addAnd(ResourceAccountPeer::ACCOUNT_ID, $accountIds, \Criteria::IN);
+        $criteria->addAnd(ResourceAccountPeer::ID, $ids, \Criteria::IN);
         return ResourceAccountQuery::create(null, $criteria)->delete();
     }
 }

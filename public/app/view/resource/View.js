@@ -145,9 +145,10 @@ Ext.define('AccountManager.view.resource.View', {
                 ]
             },
             columns: [
-                {text:'账号ID', dataIndex:'AccountId', sortable:false},
-                {text:'账号标识', dataIndex:'Identifier', sortable:false, flex:1},
+                {text:'账号名', dataIndex:'Identity', sortable:false, flex:1, editor: {allowBlank: false}},
                 {text:'密码', dataIndex:'Password', sortable:false, flex:1, editor: {allowBlank: false}},
+                {text:'关联账号ID', dataIndex:'AccountId', sortable:false},
+                {text:'关联账号标识', dataIndex:'Identifier', sortable:false, flex:1},
                 {text:'关联时间', dataIndex:'CreateTime',  width:140, xtype:'datecolumn', format:'Y-m-d H:i:s'},
             ],
             listeners: {

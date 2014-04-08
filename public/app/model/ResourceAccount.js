@@ -11,11 +11,13 @@ Ext.define('AccountManager.model.ResourceAccount', {
     extend: 'Ext.data.Model',
 
     fields: [
+        {name: 'Id', type:'int'},
         {name: 'ResourceId', type:'int'},
         {name: 'AccountId', type:'auto'},
         'Identifier',
+        'Identity',
         'Password',
         {name:'CreateTime', type:'date', dateFormat:'c'}
     ],
-    idProperty: 'AccountId'
+    idProperty: 'Id'
 });

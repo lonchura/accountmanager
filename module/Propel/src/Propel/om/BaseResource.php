@@ -1422,10 +1422,7 @@ abstract class BaseResource extends BaseObject implements Persistent
         $resourceAccountsToDelete = $this->getResourceAccounts(new Criteria(), $con)->diff($resourceAccounts);
 
 
-        //since at least one column in the foreign key is at the same time a PK
-        //we can not just set a PK to NULL in the lines below. We have to store
-        //a backup of all values, so we are able to manipulate these items based on the onDelete value later.
-        $this->resourceAccountsScheduledForDeletion = clone $resourceAccountsToDelete;
+        $this->resourceAccountsScheduledForDeletion = $resourceAccountsToDelete;
 
         foreach ($resourceAccountsToDelete as $resourceAccountRemoved) {
             $resourceAccountRemoved->setResource(null);

@@ -23,15 +23,17 @@ use Propel\ResourceAccountQuery;
  *
  * 资源账号关联表
  *
+ * @method ResourceAccountQuery orderById($order = Criteria::ASC) Order by the id column
  * @method ResourceAccountQuery orderByResourceId($order = Criteria::ASC) Order by the resource_id column
  * @method ResourceAccountQuery orderByAccountId($order = Criteria::ASC) Order by the account_id column
- * @method ResourceAccountQuery orderByDescription($order = Criteria::ASC) Order by the description column
+ * @method ResourceAccountQuery orderByIdentity($order = Criteria::ASC) Order by the identity column
  * @method ResourceAccountQuery orderByCreateTime($order = Criteria::ASC) Order by the create_time column
  * @method ResourceAccountQuery orderByUpdateTime($order = Criteria::ASC) Order by the update_time column
  *
+ * @method ResourceAccountQuery groupById() Group by the id column
  * @method ResourceAccountQuery groupByResourceId() Group by the resource_id column
  * @method ResourceAccountQuery groupByAccountId() Group by the account_id column
- * @method ResourceAccountQuery groupByDescription() Group by the description column
+ * @method ResourceAccountQuery groupByIdentity() Group by the identity column
  * @method ResourceAccountQuery groupByCreateTime() Group by the create_time column
  * @method ResourceAccountQuery groupByUpdateTime() Group by the update_time column
  *
@@ -52,13 +54,14 @@ use Propel\ResourceAccountQuery;
  *
  * @method ResourceAccount findOneByResourceId(int $resource_id) Return the first ResourceAccount filtered by the resource_id column
  * @method ResourceAccount findOneByAccountId(int $account_id) Return the first ResourceAccount filtered by the account_id column
- * @method ResourceAccount findOneByDescription(string $description) Return the first ResourceAccount filtered by the description column
+ * @method ResourceAccount findOneByIdentity(string $identity) Return the first ResourceAccount filtered by the identity column
  * @method ResourceAccount findOneByCreateTime(string $create_time) Return the first ResourceAccount filtered by the create_time column
  * @method ResourceAccount findOneByUpdateTime(string $update_time) Return the first ResourceAccount filtered by the update_time column
  *
+ * @method array findById(int $id) Return ResourceAccount objects filtered by the id column
  * @method array findByResourceId(int $resource_id) Return ResourceAccount objects filtered by the resource_id column
  * @method array findByAccountId(int $account_id) Return ResourceAccount objects filtered by the account_id column
- * @method array findByDescription(string $description) Return ResourceAccount objects filtered by the description column
+ * @method array findByIdentity(string $identity) Return ResourceAccount objects filtered by the identity column
  * @method array findByCreateTime(string $create_time) Return ResourceAccount objects filtered by the create_time column
  * @method array findByUpdateTime(string $update_time) Return ResourceAccount objects filtered by the update_time column
  *
@@ -112,11 +115,10 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
      * Go fast if the query is untouched.
      *
      * <code>
-     * $obj = $c->findPk(array(12, 34), $con);
+     * $obj  = $c->findPk(12, $con);
      * </code>
      *
-     * @param array $key Primary key to use for the query
-                         A Primary key composition: [$resource_id, $account_id]
+     * @param mixed $key Primary key to use for the query
      * @param     PropelPDO $con an optional connection object
      *
      * @return   ResourceAccount|ResourceAccount[]|mixed the result, formatted by the current formatter
@@ -126,7 +128,7 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
         if ($key === null) {
             return null;
         }
-        if ((null !== ($obj = ResourceAccountPeer::getInstanceFromPool(serialize(array((string) $key[0], (string) $key[1]))))) && !$this->formatter) {
+        if ((null !== ($obj = ResourceAccountPeer::getInstanceFromPool((string) $key))) && !$this->formatter) {
             // the object is already in the instance pool
             return $obj;
         }
@@ -144,6 +146,20 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
     }
 
     /**
+     * Alias of findPk to use instance pooling
+     *
+     * @param     mixed $key Primary key to use for the query
+     * @param     PropelPDO $con A connection object
+     *
+     * @return                 ResourceAccount A model object, or null if the key is not found
+     * @throws PropelException
+     */
+     public function findOneById($key, $con = null)
+     {
+        return $this->findPk($key, $con);
+     }
+
+    /**
      * Find object by primary key using raw SQL to go fast.
      * Bypass doSelect() and the object formatter by using generated code.
      *
@@ -155,11 +171,10 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
      */
     protected function findPkSimple($key, $con)
     {
-        $sql = 'SELECT `resource_id`, `account_id`, `description`, `create_time`, `update_time` FROM `resource_account` WHERE `resource_id` = :p0 AND `account_id` = :p1';
+        $sql = 'SELECT `id`, `resource_id`, `account_id`, `identity`, `create_time`, `update_time` FROM `resource_account` WHERE `id` = :p0';
         try {
             $stmt = $con->prepare($sql);
-            $stmt->bindValue(':p0', $key[0], PDO::PARAM_INT);
-            $stmt->bindValue(':p1', $key[1], PDO::PARAM_INT);
+            $stmt->bindValue(':p0', $key, PDO::PARAM_INT);
             $stmt->execute();
         } catch (Exception $e) {
             Propel::log($e->getMessage(), Propel::LOG_ERR);
@@ -169,7 +184,7 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
         if ($row = $stmt->fetch(PDO::FETCH_NUM)) {
             $obj = new ResourceAccount();
             $obj->hydrate($row);
-            ResourceAccountPeer::addInstanceToPool($obj, serialize(array((string) $key[0], (string) $key[1])));
+            ResourceAccountPeer::addInstanceToPool($obj, (string) $key);
         }
         $stmt->closeCursor();
 
@@ -198,7 +213,7 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
     /**
      * Find objects by primary key
      * <code>
-     * $objs = $c->findPks(array(array(12, 56), array(832, 123), array(123, 456)), $con);
+     * $objs = $c->findPks(array(12, 56, 832), $con);
      * </code>
      * @param     array $keys Primary keys to use for the query
      * @param     PropelPDO $con an optional connection object
@@ -228,10 +243,8 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
      */
     public function filterByPrimaryKey($key)
     {
-        $this->addUsingAlias(ResourceAccountPeer::RESOURCE_ID, $key[0], Criteria::EQUAL);
-        $this->addUsingAlias(ResourceAccountPeer::ACCOUNT_ID, $key[1], Criteria::EQUAL);
 
-        return $this;
+        return $this->addUsingAlias(ResourceAccountPeer::ID, $key, Criteria::EQUAL);
     }
 
     /**
@@ -243,17 +256,50 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
      */
     public function filterByPrimaryKeys($keys)
     {
-        if (empty($keys)) {
-            return $this->add(null, '1<>1', Criteria::CUSTOM);
-        }
-        foreach ($keys as $key) {
-            $cton0 = $this->getNewCriterion(ResourceAccountPeer::RESOURCE_ID, $key[0], Criteria::EQUAL);
-            $cton1 = $this->getNewCriterion(ResourceAccountPeer::ACCOUNT_ID, $key[1], Criteria::EQUAL);
-            $cton0->addAnd($cton1);
-            $this->addOr($cton0);
+
+        return $this->addUsingAlias(ResourceAccountPeer::ID, $keys, Criteria::IN);
+    }
+
+    /**
+     * Filter the query on the id column
+     *
+     * Example usage:
+     * <code>
+     * $query->filterById(1234); // WHERE id = 1234
+     * $query->filterById(array(12, 34)); // WHERE id IN (12, 34)
+     * $query->filterById(array('min' => 12)); // WHERE id >= 12
+     * $query->filterById(array('max' => 12)); // WHERE id <= 12
+     * </code>
+     *
+     * @param     mixed $id The value to use as filter.
+     *              Use scalar values for equality.
+     *              Use array values for in_array() equivalent.
+     *              Use associative array('min' => $minValue, 'max' => $maxValue) for intervals.
+     * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
+     *
+     * @return ResourceAccountQuery The current query, for fluid interface
+     */
+    public function filterById($id = null, $comparison = null)
+    {
+        if (is_array($id)) {
+            $useMinMax = false;
+            if (isset($id['min'])) {
+                $this->addUsingAlias(ResourceAccountPeer::ID, $id['min'], Criteria::GREATER_EQUAL);
+                $useMinMax = true;
+            }
+            if (isset($id['max'])) {
+                $this->addUsingAlias(ResourceAccountPeer::ID, $id['max'], Criteria::LESS_EQUAL);
+                $useMinMax = true;
+            }
+            if ($useMinMax) {
+                return $this;
+            }
+            if (null === $comparison) {
+                $comparison = Criteria::IN;
+            }
         }
 
-        return $this;
+        return $this->addUsingAlias(ResourceAccountPeer::ID, $id, $comparison);
     }
 
     /**
@@ -345,32 +391,32 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
     }
 
     /**
-     * Filter the query on the description column
+     * Filter the query on the identity column
      *
      * Example usage:
      * <code>
-     * $query->filterByDescription('fooValue');   // WHERE description = 'fooValue'
-     * $query->filterByDescription('%fooValue%'); // WHERE description LIKE '%fooValue%'
+     * $query->filterByIdentity('fooValue');   // WHERE identity = 'fooValue'
+     * $query->filterByIdentity('%fooValue%'); // WHERE identity LIKE '%fooValue%'
      * </code>
      *
-     * @param     string $description The value to use as filter.
+     * @param     string $identity The value to use as filter.
      *              Accepts wildcards (* and % trigger a LIKE)
      * @param     string $comparison Operator to use for the column comparison, defaults to Criteria::EQUAL
      *
      * @return ResourceAccountQuery The current query, for fluid interface
      */
-    public function filterByDescription($description = null, $comparison = null)
+    public function filterByIdentity($identity = null, $comparison = null)
     {
         if (null === $comparison) {
-            if (is_array($description)) {
+            if (is_array($identity)) {
                 $comparison = Criteria::IN;
-            } elseif (preg_match('/[\%\*]/', $description)) {
-                $description = str_replace('*', '%', $description);
+            } elseif (preg_match('/[\%\*]/', $identity)) {
+                $identity = str_replace('*', '%', $identity);
                 $comparison = Criteria::LIKE;
             }
         }
 
-        return $this->addUsingAlias(ResourceAccountPeer::DESCRIPTION, $description, $comparison);
+        return $this->addUsingAlias(ResourceAccountPeer::IDENTITY, $identity, $comparison);
     }
 
     /**
@@ -621,9 +667,7 @@ abstract class BaseResourceAccountQuery extends ModelCriteria
     public function prune($resourceAccount = null)
     {
         if ($resourceAccount) {
-            $this->addCond('pruneCond0', $this->getAliasedColName(ResourceAccountPeer::RESOURCE_ID), $resourceAccount->getResourceId(), Criteria::NOT_EQUAL);
-            $this->addCond('pruneCond1', $this->getAliasedColName(ResourceAccountPeer::ACCOUNT_ID), $resourceAccount->getAccountId(), Criteria::NOT_EQUAL);
-            $this->combine(array('pruneCond0', 'pruneCond1'), Criteria::LOGICAL_OR);
+            $this->addUsingAlias(ResourceAccountPeer::ID, $resourceAccount->getId(), Criteria::NOT_EQUAL);
         }
 
         return $this;

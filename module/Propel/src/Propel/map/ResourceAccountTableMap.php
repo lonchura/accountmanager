@@ -40,12 +40,13 @@ class ResourceAccountTableMap extends TableMap
         $this->setPhpName('ResourceAccount');
         $this->setClassname('Propel\\ResourceAccount');
         $this->setPackage('Propel');
-        $this->setUseIdGenerator(false);
+        $this->setUseIdGenerator(true);
         $this->setIsCrossRef(true);
         // columns
-        $this->addForeignPrimaryKey('resource_id', 'ResourceId', 'INTEGER' , 'resource', 'id', true, 4, null);
-        $this->addForeignPrimaryKey('account_id', 'AccountId', 'INTEGER' , 'account', 'id', true, 3, null);
-        $this->addColumn('description', 'Description', 'LONGVARCHAR', false, null, null);
+        $this->addPrimaryKey('id', 'Id', 'INTEGER', true, 4, null);
+        $this->addForeignKey('resource_id', 'ResourceId', 'INTEGER', 'resource', 'id', true, 4, null);
+        $this->addForeignKey('account_id', 'AccountId', 'INTEGER', 'account', 'id', true, 3, null);
+        $this->addColumn('identity', 'Identity', 'VARCHAR', true, 255, null);
         $this->addColumn('create_time', 'CreateTime', 'TIMESTAMP', true, null, null);
         $this->addColumn('update_time', 'UpdateTime', 'TIMESTAMP', true, null, null);
         // validators

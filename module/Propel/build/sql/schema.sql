@@ -88,12 +88,14 @@ DROP TABLE IF EXISTS `resource_account`;
 
 CREATE TABLE `resource_account`
 (
+    `id` INTEGER(4) NOT NULL AUTO_INCREMENT,
     `resource_id` INTEGER(4) NOT NULL,
     `account_id` INTEGER(3) NOT NULL,
-    `description` TEXT,
+    `identity` VARCHAR(255) NOT NULL,
     `create_time` DATETIME NOT NULL,
     `update_time` DATETIME NOT NULL,
-    PRIMARY KEY (`resource_id`,`account_id`),
+    PRIMARY KEY (`id`),
+    UNIQUE INDEX `resource_account_U_1` (`resource_id`, `account_id`, `identity`),
     INDEX `resource_account_I_1` (`create_time`),
     INDEX `resource_account_I_2` (`update_time`),
     INDEX `resource_account_FI_2` (`account_id`),

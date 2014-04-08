@@ -38,13 +38,16 @@ abstract class BaseResourceAccountPeer
     const TM_CLASS = 'Propel\\map\\ResourceAccountTableMap';
 
     /** The total number of columns. */
-    const NUM_COLUMNS = 5;
+    const NUM_COLUMNS = 6;
 
     /** The number of lazy-loaded columns. */
     const NUM_LAZY_LOAD_COLUMNS = 0;
 
     /** The number of columns to hydrate (NUM_COLUMNS - NUM_LAZY_LOAD_COLUMNS) */
-    const NUM_HYDRATE_COLUMNS = 5;
+    const NUM_HYDRATE_COLUMNS = 6;
+
+    /** the column name for the id field */
+    const ID = 'resource_account.id';
 
     /** the column name for the resource_id field */
     const RESOURCE_ID = 'resource_account.resource_id';
@@ -52,8 +55,8 @@ abstract class BaseResourceAccountPeer
     /** the column name for the account_id field */
     const ACCOUNT_ID = 'resource_account.account_id';
 
-    /** the column name for the description field */
-    const DESCRIPTION = 'resource_account.description';
+    /** the column name for the identity field */
+    const IDENTITY = 'resource_account.identity';
 
     /** the column name for the create_time field */
     const CREATE_TIME = 'resource_account.create_time';
@@ -80,12 +83,12 @@ abstract class BaseResourceAccountPeer
      * e.g. ResourceAccountPeer::$fieldNames[ResourceAccountPeer::TYPE_PHPNAME][0] = 'Id'
      */
     protected static $fieldNames = array (
-        BasePeer::TYPE_PHPNAME => array ('ResourceId', 'AccountId', 'Description', 'CreateTime', 'UpdateTime', ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('resourceId', 'accountId', 'description', 'createTime', 'updateTime', ),
-        BasePeer::TYPE_COLNAME => array (ResourceAccountPeer::RESOURCE_ID, ResourceAccountPeer::ACCOUNT_ID, ResourceAccountPeer::DESCRIPTION, ResourceAccountPeer::CREATE_TIME, ResourceAccountPeer::UPDATE_TIME, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('RESOURCE_ID', 'ACCOUNT_ID', 'DESCRIPTION', 'CREATE_TIME', 'UPDATE_TIME', ),
-        BasePeer::TYPE_FIELDNAME => array ('resource_id', 'account_id', 'description', 'create_time', 'update_time', ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, )
+        BasePeer::TYPE_PHPNAME => array ('Id', 'ResourceId', 'AccountId', 'Identity', 'CreateTime', 'UpdateTime', ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id', 'resourceId', 'accountId', 'identity', 'createTime', 'updateTime', ),
+        BasePeer::TYPE_COLNAME => array (ResourceAccountPeer::ID, ResourceAccountPeer::RESOURCE_ID, ResourceAccountPeer::ACCOUNT_ID, ResourceAccountPeer::IDENTITY, ResourceAccountPeer::CREATE_TIME, ResourceAccountPeer::UPDATE_TIME, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID', 'RESOURCE_ID', 'ACCOUNT_ID', 'IDENTITY', 'CREATE_TIME', 'UPDATE_TIME', ),
+        BasePeer::TYPE_FIELDNAME => array ('id', 'resource_id', 'account_id', 'identity', 'create_time', 'update_time', ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -95,12 +98,12 @@ abstract class BaseResourceAccountPeer
      * e.g. ResourceAccountPeer::$fieldNames[BasePeer::TYPE_PHPNAME]['Id'] = 0
      */
     protected static $fieldKeys = array (
-        BasePeer::TYPE_PHPNAME => array ('ResourceId' => 0, 'AccountId' => 1, 'Description' => 2, 'CreateTime' => 3, 'UpdateTime' => 4, ),
-        BasePeer::TYPE_STUDLYPHPNAME => array ('resourceId' => 0, 'accountId' => 1, 'description' => 2, 'createTime' => 3, 'updateTime' => 4, ),
-        BasePeer::TYPE_COLNAME => array (ResourceAccountPeer::RESOURCE_ID => 0, ResourceAccountPeer::ACCOUNT_ID => 1, ResourceAccountPeer::DESCRIPTION => 2, ResourceAccountPeer::CREATE_TIME => 3, ResourceAccountPeer::UPDATE_TIME => 4, ),
-        BasePeer::TYPE_RAW_COLNAME => array ('RESOURCE_ID' => 0, 'ACCOUNT_ID' => 1, 'DESCRIPTION' => 2, 'CREATE_TIME' => 3, 'UPDATE_TIME' => 4, ),
-        BasePeer::TYPE_FIELDNAME => array ('resource_id' => 0, 'account_id' => 1, 'description' => 2, 'create_time' => 3, 'update_time' => 4, ),
-        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, )
+        BasePeer::TYPE_PHPNAME => array ('Id' => 0, 'ResourceId' => 1, 'AccountId' => 2, 'Identity' => 3, 'CreateTime' => 4, 'UpdateTime' => 5, ),
+        BasePeer::TYPE_STUDLYPHPNAME => array ('id' => 0, 'resourceId' => 1, 'accountId' => 2, 'identity' => 3, 'createTime' => 4, 'updateTime' => 5, ),
+        BasePeer::TYPE_COLNAME => array (ResourceAccountPeer::ID => 0, ResourceAccountPeer::RESOURCE_ID => 1, ResourceAccountPeer::ACCOUNT_ID => 2, ResourceAccountPeer::IDENTITY => 3, ResourceAccountPeer::CREATE_TIME => 4, ResourceAccountPeer::UPDATE_TIME => 5, ),
+        BasePeer::TYPE_RAW_COLNAME => array ('ID' => 0, 'RESOURCE_ID' => 1, 'ACCOUNT_ID' => 2, 'IDENTITY' => 3, 'CREATE_TIME' => 4, 'UPDATE_TIME' => 5, ),
+        BasePeer::TYPE_FIELDNAME => array ('id' => 0, 'resource_id' => 1, 'account_id' => 2, 'identity' => 3, 'create_time' => 4, 'update_time' => 5, ),
+        BasePeer::TYPE_NUM => array (0, 1, 2, 3, 4, 5, )
     );
 
     /**
@@ -174,15 +177,17 @@ abstract class BaseResourceAccountPeer
     public static function addSelectColumns(Criteria $criteria, $alias = null)
     {
         if (null === $alias) {
+            $criteria->addSelectColumn(ResourceAccountPeer::ID);
             $criteria->addSelectColumn(ResourceAccountPeer::RESOURCE_ID);
             $criteria->addSelectColumn(ResourceAccountPeer::ACCOUNT_ID);
-            $criteria->addSelectColumn(ResourceAccountPeer::DESCRIPTION);
+            $criteria->addSelectColumn(ResourceAccountPeer::IDENTITY);
             $criteria->addSelectColumn(ResourceAccountPeer::CREATE_TIME);
             $criteria->addSelectColumn(ResourceAccountPeer::UPDATE_TIME);
         } else {
+            $criteria->addSelectColumn($alias . '.id');
             $criteria->addSelectColumn($alias . '.resource_id');
             $criteria->addSelectColumn($alias . '.account_id');
-            $criteria->addSelectColumn($alias . '.description');
+            $criteria->addSelectColumn($alias . '.identity');
             $criteria->addSelectColumn($alias . '.create_time');
             $criteria->addSelectColumn($alias . '.update_time');
         }
@@ -311,7 +316,7 @@ abstract class BaseResourceAccountPeer
     {
         if (Propel::isInstancePoolingEnabled()) {
             if ($key === null) {
-                $key = serialize(array((string) $obj->getResourceId(), (string) $obj->getAccountId()));
+                $key = (string) $obj->getId();
             } // if key === null
             ResourceAccountPeer::$instances[$key] = $obj;
         }
@@ -334,10 +339,10 @@ abstract class BaseResourceAccountPeer
     {
         if (Propel::isInstancePoolingEnabled() && $value !== null) {
             if (is_object($value) && $value instanceof ResourceAccount) {
-                $key = serialize(array((string) $value->getResourceId(), (string) $value->getAccountId()));
-            } elseif (is_array($value) && count($value) === 2) {
+                $key = (string) $value->getId();
+            } elseif (is_scalar($value)) {
                 // assume we've been passed a primary key
-                $key = serialize(array((string) $value[0], (string) $value[1]));
+                $key = (string) $value;
             } else {
                 $e = new PropelException("Invalid value passed to removeInstanceFromPool().  Expected primary key or ResourceAccount object; got " . (is_object($value) ? get_class($value) . ' object.' : var_export($value,true)));
                 throw $e;
@@ -404,11 +409,11 @@ abstract class BaseResourceAccountPeer
     public static function getPrimaryKeyHashFromRow($row, $startcol = 0)
     {
         // If the PK cannot be derived from the row, return null.
-        if ($row[$startcol] === null && $row[$startcol + 1] === null) {
+        if ($row[$startcol] === null) {
             return null;
         }
 
-        return serialize(array((string) $row[$startcol], (string) $row[$startcol + 1]));
+        return (string) $row[$startcol];
     }
 
     /**
@@ -423,7 +428,7 @@ abstract class BaseResourceAccountPeer
     public static function getPrimaryKeyFromRow($row, $startcol = 0)
     {
 
-        return array((int) $row[$startcol], (int) $row[$startcol + 1]);
+        return (int) $row[$startcol];
     }
 
     /**
@@ -1171,6 +1176,10 @@ abstract class BaseResourceAccountPeer
             $criteria = $values->buildCriteria(); // build Criteria from ResourceAccount object
         }
 
+        if ($criteria->containsKey(ResourceAccountPeer::ID) && $criteria->keyContainsValue(ResourceAccountPeer::ID) ) {
+            throw new PropelException('Cannot insert a value for auto-increment primary key ('.ResourceAccountPeer::ID.')');
+        }
+
 
         // Set the correct dbName
         $criteria->setDbName(ResourceAccountPeer::DATABASE_NAME);
@@ -1209,18 +1218,10 @@ abstract class BaseResourceAccountPeer
         if ($values instanceof Criteria) {
             $criteria = clone $values; // rename for clarity
 
-            $comparison = $criteria->getComparison(ResourceAccountPeer::RESOURCE_ID);
-            $value = $criteria->remove(ResourceAccountPeer::RESOURCE_ID);
+            $comparison = $criteria->getComparison(ResourceAccountPeer::ID);
+            $value = $criteria->remove(ResourceAccountPeer::ID);
             if ($value) {
-                $selectCriteria->add(ResourceAccountPeer::RESOURCE_ID, $value, $comparison);
-            } else {
-                $selectCriteria->setPrimaryTableName(ResourceAccountPeer::TABLE_NAME);
-            }
-
-            $comparison = $criteria->getComparison(ResourceAccountPeer::ACCOUNT_ID);
-            $value = $criteria->remove(ResourceAccountPeer::ACCOUNT_ID);
-            if ($value) {
-                $selectCriteria->add(ResourceAccountPeer::ACCOUNT_ID, $value, $comparison);
+                $selectCriteria->add(ResourceAccountPeer::ID, $value, $comparison);
             } else {
                 $selectCriteria->setPrimaryTableName(ResourceAccountPeer::TABLE_NAME);
             }
@@ -1299,18 +1300,10 @@ abstract class BaseResourceAccountPeer
             $criteria = $values->buildPkeyCriteria();
         } else { // it's a primary key, or an array of pks
             $criteria = new Criteria(ResourceAccountPeer::DATABASE_NAME);
-            // primary key is composite; we therefore, expect
-            // the primary key passed to be an array of pkey values
-            if (count($values) == count($values, COUNT_RECURSIVE)) {
-                // array is not multi-dimensional
-                $values = array($values);
-            }
-            foreach ($values as $value) {
-                $criterion = $criteria->getNewCriterion(ResourceAccountPeer::RESOURCE_ID, $value[0]);
-                $criterion->addAnd($criteria->getNewCriterion(ResourceAccountPeer::ACCOUNT_ID, $value[1]));
-                $criteria->addOr($criterion);
-                // we can invalidate the cache for this single PK
-                ResourceAccountPeer::removeInstanceFromPool($value);
+            $criteria->add(ResourceAccountPeer::ID, (array) $values, Criteria::IN);
+            // invalidate the cache for this object(s)
+            foreach ((array) $values as $singleval) {
+                ResourceAccountPeer::removeInstanceFromPool($singleval);
             }
         }
 
@@ -1373,28 +1366,58 @@ abstract class BaseResourceAccountPeer
     }
 
     /**
-     * Retrieve object using using composite pkey values.
-     * @param   int $resource_id
-     * @param   int $account_id
-     * @param      PropelPDO $con
+     * Retrieve a single object by pkey.
+     *
+     * @param int $pk the primary key.
+     * @param      PropelPDO $con the connection to use
      * @return ResourceAccount
      */
-    public static function retrieveByPK($resource_id, $account_id, PropelPDO $con = null) {
-        $_instancePoolKey = serialize(array((string) $resource_id, (string) $account_id));
-         if (null !== ($obj = ResourceAccountPeer::getInstanceFromPool($_instancePoolKey))) {
-             return $obj;
+    public static function retrieveByPK($pk, PropelPDO $con = null)
+    {
+
+        if (null !== ($obj = ResourceAccountPeer::getInstanceFromPool((string) $pk))) {
+            return $obj;
         }
 
         if ($con === null) {
             $con = Propel::getConnection(ResourceAccountPeer::DATABASE_NAME, Propel::CONNECTION_READ);
         }
+
         $criteria = new Criteria(ResourceAccountPeer::DATABASE_NAME);
-        $criteria->add(ResourceAccountPeer::RESOURCE_ID, $resource_id);
-        $criteria->add(ResourceAccountPeer::ACCOUNT_ID, $account_id);
+        $criteria->add(ResourceAccountPeer::ID, $pk);
+
         $v = ResourceAccountPeer::doSelect($criteria, $con);
 
-        return !empty($v) ? $v[0] : null;
+        return !empty($v) > 0 ? $v[0] : null;
     }
+
+    /**
+     * Retrieve multiple objects by pkey.
+     *
+     * @param      array $pks List of primary keys
+     * @param      PropelPDO $con the connection to use
+     * @return ResourceAccount[]
+     * @throws PropelException Any exceptions caught during processing will be
+     *		 rethrown wrapped into a PropelException.
+     */
+    public static function retrieveByPKs($pks, PropelPDO $con = null)
+    {
+        if ($con === null) {
+            $con = Propel::getConnection(ResourceAccountPeer::DATABASE_NAME, Propel::CONNECTION_READ);
+        }
+
+        $objs = null;
+        if (empty($pks)) {
+            $objs = array();
+        } else {
+            $criteria = new Criteria(ResourceAccountPeer::DATABASE_NAME);
+            $criteria->add(ResourceAccountPeer::ID, $pks, Criteria::IN);
+            $objs = ResourceAccountPeer::doSelect($criteria, $con);
+        }
+
+        return $objs;
+    }
+
 } // BaseResourceAccountPeer
 
 // This is the static code needed to register the TableMap for this table with the main Propel class.

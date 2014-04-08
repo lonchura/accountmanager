@@ -14,6 +14,7 @@ use PHPX\Ext\Direct\Result\Failure;
 use PHPX\Ext\Direct\Result\Success;
 use PHPX\Proxy\DynamicProxy;
 use Propel\Resource;
+use Propel\ResourceAccount;
 
 /**
  * Class ResourceAction
@@ -123,9 +124,11 @@ class ResourceAction extends BaseAction {
         $result = $this->loadResourceDao()->findAccountsByResourceId($resourceId, $page);
         foreach($result['list'] as $resourceAccount) {
             array_push($rows, array(
+                'Id' => $resourceAccount->getId(),
                 'ResourceId' => $resourceAccount->getResourceId(),
                 'AccountId' => $resourceAccount->getAccountId(),
                 'Identifier' => $resourceAccount->getAccount()->getIdentifier(),
+                'Identity' => $resourceAccount->getIdentity(),
                 'Password' => $resourceAccount->getAccount()->getPassword(),
                 'CreateTime' => $resourceAccount->getCreateTime(),
             ));
@@ -140,14 +143,19 @@ class ResourceAction extends BaseAction {
     public function accountAssociateMethod(array $data) {
         $resourceId = $data['ResourceId'];
         $accountId = $data['AccountId'];
+        $identity = $data['Identity'];
         $resource = $this->loadResourceDao()->findOneById($resourceId);
         $account = $this->loadAccountDao()->getAccountById($accountId);
 
         if(!$account) {
             return new Failure('请选择关联账号');
         }
-        if(!$this->loadResourceDao()->isAssociatedAccount($resourceId, $accountId)) {
-            $resource->addAccount($account);
+        if(!$this->loadResourceDao()->isAssociatedAccount($resourceId, $identity)) {
+            $resourceAccount = new ResourceAccount();
+            $resourceAccount->setAccountId($accountId);
+            $resourceAccount->setResourceId($resourceId);
+            $resourceAccount->setIdentity($identity);
+            $resource->addResourceAccount($resourceAccount);
             $this->loadResourceDao()->save($resource);
             return new Success(array('data' => array(
                 'ResourceId' => $resource->getId(),
@@ -157,16 +165,13 @@ class ResourceAction extends BaseAction {
                 'CreateTime' => date('Y-m-d H:i:s')
             )), '关联成功');
         } else {
-            return new Failure('该'.$account->getIdentifier().'账号已在关联列表中');
+            return new Failure('账号名:'.$identity.', 已在关联列表中');
         }
     }
 
     public function accountDeleteMethod(array $data) {
-        $dels = $data[0];
-        $resourceId = $dels['ResourceId'];
-        $accountIds = $dels['AccountIds'];
-
-        $this->loadResourceDao()->deleteRangeByAssociateAccountIds($resourceId, $accountIds);
-        return new Success($accountIds, '删除成功');
+        $ids = $data[0];
+        $this->loadResourceDao()->deleteRangeByAssociateAccountIds($ids);
+        return new Success($ids, '删除成功');
     }
 } 

@@ -59,15 +59,14 @@ interface ResourceDao {
 
     /**
      * @param $resourceId
-     * @param $accountId
+     * @param $identity
      * @return bool
      */
-    public function isAssociatedAccount($resourceId, $accountId);
+    public function isAssociatedAccount($resourceId, $identity);
 
     /**
-     * @param $resourceId
-     * @param $accountIds
+     * @param array $ids
      * @return int
      */
-    public function deleteRangeByAssociateAccountIds($resourceId, $accountIds);
+    public function deleteRangeByAssociateAccountIds(array $ids);
 }

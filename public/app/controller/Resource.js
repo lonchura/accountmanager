@@ -273,7 +273,7 @@ Ext.define('AccountManager.controller.Resource', {
         if(sels.length>0) {
             var content = ['确定移除以下关联账号？'];
             for(var i=0; ln=sels.length,i<ln; i++) {
-                content.push(sels[i].data.Identifier);
+                content.push(sels[i].data.Identity);
             }
             Ext.Msg.confirm('移除记录', content.join('<br />'), function(btn) {
                 if(btn == 'yes') {
@@ -282,9 +282,9 @@ Ext.define('AccountManager.controller.Resource', {
                         ids = [],
                         sels = me.getSelectionModel().getSelection();
                     for(var i=0; ln=sels.length,i<ln; i++) {
-                        ids.push(sels[i].data.AccountId);
+                        ids.push(sels[i].data.Id);
                     }
-                    AccountManager.Direct.Resource.accountDelete({ResourceId: resourceId, AccountIds: ids}, function(result, e) {
+                    AccountManager.Direct.Resource.accountDelete(ids, function(result, e) {
                         if(result.success) {
                             Ext.Msg.alert('移除成功', '已成功移除', function() {
                                 me.store.load();
