@@ -72,11 +72,9 @@ Ext.define('AccountManager.view.resource.View', {
 
         me.resourceGrid=Ext.widget('grid', {
             title: '资源',
-            region: 'north',
+            region: 'center',
             minHeight: 200,
-            height: 300,
-            collapsible: true,
-            split: true,
+            height: 450,
             tbar: {
                 xtype: 'pagingtoolbar',
                 store: 'Resource',
@@ -110,31 +108,28 @@ Ext.define('AccountManager.view.resource.View', {
         });
 
         me.resourceInfo=Ext.widget('panel', {
-            title: '描述',
-            region: 'center',
             bodyPadding: 5,
+            border: false,
             autoScroll: true,
-            minHeight: 100,
-            height: 100,
+            height: 50,
             bodyStyle: {
                 background: '#DFE8F6'
-            },
-            split: true
+            }
         })
 
         me.resourceAccountGrid=Ext.widget('grid', {
             minHeight: 200,
+            flex: 2,
+            border: false,
             store: 'ResourceAccount',
             selModel: {
                 mode: 'MULTI',
                 selType: 'cellmodel'
             },
             plugins: [new Ext.grid.plugin.CellEditing({
-                clicksToEdit: 1
+                clicksToEdit: 2
             })],
-            region: 'south',
-            split: true,
-            tbar: {
+            bbar: {
                 xtype: 'pagingtoolbar',
                 store: 'ResourceAccount',
                 displayInfo: true,
@@ -146,10 +141,10 @@ Ext.define('AccountManager.view.resource.View', {
             },
             columns: [
                 {text:'账号名', dataIndex:'Identity', sortable:false, flex:1, editor: {allowBlank: false}},
-                {text:'密码', dataIndex:'Password', sortable:false, flex:1, editor: {allowBlank: false}},
+                {text:'密码', dataIndex:'Password', width:100, sortable:false, editor: {allowBlank: false}},
                 {text:'关联账号ID', dataIndex:'AccountId', sortable:false},
                 {text:'关联账号标识', dataIndex:'Identifier', sortable:false, flex:1},
-                {text:'关联时间', dataIndex:'CreateTime',  width:140, xtype:'datecolumn', format:'Y-m-d H:i:s'},
+                {text:'关联时间', dataIndex:'CreateTime', width:140, xtype:'datecolumn', format:'Y-m-d H:i:s'}
             ],
             listeners: {
                 scope: me,
@@ -157,11 +152,26 @@ Ext.define('AccountManager.view.resource.View', {
             }
         });
 
-        this.items=[
+        me.resourceDetail={
+            title: '资源详细',
+            xtype: 'panel',
+            layout: {
+                type: 'vbox',
+                align: 'stretch'
+            },
+            region: 'south',
+            collapsible: true,
+            split: true,
+            items: [
+                me.resourceInfo,
+                me.resourceAccountGrid
+            ]
+        };
+
+        me.items=[
             me.categoryTree,
             me.resourceGrid,
-            me.resourceInfo,
-            me.resourceAccountGrid
+            me.resourceDetail
         ];
 
         this.callParent(arguments);
@@ -204,11 +214,11 @@ Ext.define('AccountManager.view.resource.View', {
         if(isSel) {
             me.resourceAccountGrid.ResourceId = rs.data.Id;
             store.proxy.extraParams.ResourceId = rs.data.Id;
-            store.load();
         } else {
-            me.resourceAccountGrid.ResourceId = null;
-            store.removeAll();
+            me.resourceAccountGrid.ResourceId = -1;
+            store.proxy.extraParams.ResourceId = -1;
         }
+        store.load();
     },
 
     onResourceAccountSelect: function(model, sels) {
