@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Personal Account Manager System by PsyduckMans</title>
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="javascripts/main.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+  </head>
+  <body>
+
+      <header>
+        <h1>Personal Account Manager System</h1>
+        <p>AccountManager, made by zf2 with 3-tier architecture</p>
+      </header>
+
+      <div id="banner">
+        <span id="logo"></span>
+
+        <a href="https://github.com/PsyduckMans/accountmanager" class="button fork"><strong>View On GitHub</strong></a>
+        <div class="downloads">
+          <span>Downloads:</span>
+          <ul>
+            <li><a href="https://github.com/PsyduckMans/accountmanager/zipball/master" class="button">ZIP</a></li>
+            <li><a href="https://github.com/PsyduckMans/accountmanager/tarball/master" class="button">TAR</a></li>
+          </ul>
+        </div>
+      </div><!-- end banner -->
+
+    <div class="wrapper">
+      <nav>
+        <ul></ul>
+      </nav>
+      <section>
+        <h1>
+<a name="personal-account-manager-system" class="anchor" href="#personal-account-manager-system"><span class="octicon octicon-link"></span></a>Personal Account Manager System</h1>
+
+<p>AccountManager, made by zf2 with 3-tier architecture</p>
+
+<h2>
+<a name="note" class="anchor" href="#note"><span class="octicon octicon-link"></span></a>Note</h2>
+
+<ul>
+<li>View layer use ExtJS (<strong>Following GPL LICENSE</strong>)</li>
+<li>But Others use <strong>MIT LICENSE</strong> (Do you want to do.)</li>
+</ul><h2>
+<a name="install" class="anchor" href="#install"><span class="octicon octicon-link"></span></a>Install</h2>
+
+<p><strong>Webroot:</strong> /ams/public</p>
+
+<p><strong>Mysql config:</strong> /ams/module/Propel/config/zf2-domain-model-conf.php</p>
+
+<p><strong>Writeable directory:</strong> /ams/public/captcha</p>
+
+<p><strong>ExtJS library path:</strong> /ams/public/ext (build with ExtJs 4.1.x, <a href="http://www.sencha.com/products/extjs/download/">download</a>)</p>
+
+<p><strong>Library dependencies:</strong> <em>composer install</em> (For composer installation, see <a href="https://getcomposer.org/">here</a>)</p>
+
+<p><strong>Database initialization：</strong></p>
+
+<ul>
+<li>create database account_manager</li>
+<li>import tables by /ams/module/Propel/build/sql/schema.sql</li>
+<li>import demo data by /ams/module/Propel/build/sql/ams-init.sql</li>
+</ul><h2>
+<a name="deploy" class="anchor" href="#deploy"><span class="octicon octicon-link"></span></a>Deploy</h2>
+
+<h3>
+<a name="nginx" class="anchor" href="#nginx"><span class="octicon octicon-link"></span></a>Nginx</h3>
+
+<pre><code>log_format  ams.host.org  '$remote_addr - $remote_user [$time_local] "$request" '                                                                                            
+'$status $body_bytes_sent "$http_referer" '
+'"$http_user_agent" $http_x_forwarded_for';
+server
+{
+    listen       80; 
+    server_name ams.host.org;
+    index index.html index.htm index.php default.html default.htm default.php;
+    root  /path/ams/ams.host.org/public;
+
+    location ~ .*\.(php|php5)?$
+    {   
+        try_files       $uri =404;
+        fastcgi_pass    127.0.0.1:9000;
+        fastcgi_index   index.php;
+        include fcgi.conf;
+    }   
+
+    location ~ .*\.(gif|jpg|jpeg|png|bmp|swf)$
+    {   
+        expires      30d;
+    }   
+
+    location ~ .*\.(js|css)?$
+    {   
+        expires      12h;
+    }   
+
+    access_log  /data/logs/ams.host.org.log  ams.host.org;
+}
+</code></pre>
+
+<h2>
+<a name="test" class="anchor" href="#test"><span class="octicon octicon-link"></span></a>Test</h2>
+
+<pre><code>http://ams.host.org
+(default user: demo/demo)
+</code></pre>
+
+<p>Enjoying it~</p>
+      </section>
+      <footer>
+        <p>Project maintained by <a href="https://github.com/PsyduckMans">PsyduckMans</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://twitter.com/michigangraham">mattgraham</a></small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+    
+  </body>
+</html>
