@@ -10,7 +10,6 @@
 
 namespace Application\Dao\Impl;
 
-use Domain\Application\Dao\Exception;
 use Propel\Account;
 use Propel\AccountPeer;
 use Propel\AccountQuery;
