@@ -5,7 +5,7 @@ AccountManager, made by zf2 with 3-tier architecture
 ## Note ##
 
  - View layer use ExtJS (**Following GPL LICENSE**)
- - But Others use **MIT LICENSE** (Do you want to do.)
+ - But Others use **MIT LICENSE** (Do what you want.)
 
 ## Install ##
 
